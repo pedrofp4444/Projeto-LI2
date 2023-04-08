@@ -1,0 +1,10 @@
+*.DS_Store
+[Dd]esktop.ini
+Thumbs.db
+
+# NOTE - only ignores the output from the **default** Makefile settings
+
+/docs
+/obj
+/build
+
