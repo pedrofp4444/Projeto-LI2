@@ -1,0 +1,42 @@
+		GUIÃO PERSONALIZADO
+
+Guidelines: tabe de 2 espaços, snake_case, 100 col;
+
+Passos intermédios para orientação do Guião:
+
+  --> Definição dos padrões do jogo:
+	
+	-> Features minímas:
+
+	  > Desenhar Mapa Estático (Exemplo):
+	    - Paredes;
+	    - Chão;
+	    - Água;
+	    - Lava;
+	    - Iluminação;
+	 
+	  > Desenhar a Entidade:
+	    - Desenhado por sobreposição;
+	    - Visão;
+	    
+
+	  > Movimentar o Jogador (com colisão);
+	    - Movimentar em todas as direções a responder ao input do teclado;
+	    - Criar as colisões para não avançar contra paredes ou ir para locais ilegais (Ex: Água);
+	    
+  --> Add-ons:
+
+	-> Cavernas:
+	   - Quando aceder à entrada de uma caverna abre um mapa com maior dificuldade;
+
+	-> Comportamento dos Mobs:
+	   - Penúltimo slide;
+
+	-> Iluminação:
+	   - Definição posterior;
+
+	-> Som;
+
+	-> Combate;
+
+	-> Menu;
