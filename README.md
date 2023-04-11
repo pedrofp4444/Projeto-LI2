@@ -11,11 +11,13 @@ Project requirements (set by the professors) are in `Requirements.pdf` (🇵🇹
 ### Dependencies
 
  - GNU Make (build-time)
+ - GCC (build-time)
  - Bash (build-time)
  - Doxygen (optional, build-time)
  - ncurses
 
-Note that the only supported platform is **Linux** (others _may_ work).
+Note that the only supported platform is **Linux** (others _may_ work) and the only supported
+compiler is GCC (clang _may_ work).
 
 ### Building
 
