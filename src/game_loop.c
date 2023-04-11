@@ -22,8 +22,6 @@
 #include <game_loop.h>
 
 #include <stdlib.h>
-/** @brief For `clock_gettime`, `CLOCK_MONOTONIC` and `nanosleep` */
-#define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>

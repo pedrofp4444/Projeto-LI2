@@ -19,7 +19,8 @@
 # START CONFIGURATION
 
 CC              := gcc
-CFLAGS          := -std=c99 -Wall -Wextra -Werror -pedantic
+CFLAGS          := -Wall -Wextra -Werror -pedantic
+STANDARDS       := -std=c99 -D_POSIX_C_SOURCE=200809L
 LIBS            := -lm -lcurses
 DEBUG_CFLAGS    := -g
 RELEASE_CFLAGS  := -O2
@@ -67,11 +68,11 @@ default: $(BUILDDIR)/$(EXE_NAME)
 
 $(OBJDIR)/%.o: src/%.c $(HEADERS) $(OBJDIRS)
 	@mkdir -p $(shell dirname $@)
-	${CC} -c -o $@ $< ${CFLAGS} ${DEFINES} -Iinclude
+	${CC} -c -o $@ $< ${CFLAGS} ${STANDARDS} -Iinclude
 
 $(BUILDDIR)/$(EXE_NAME): $(OBJECTS)
 	@mkdir -p $(BUILDDIR)
-	$(CC) ${LIBS} -o $@ $^
+	$(CC) -o $@ $^ ${LIBS}
 
 $(DOCSDIR): $(SOURCES) $(HEADERS) README.md
 	echo "$$Doxyfile" | doxygen -
