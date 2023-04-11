@@ -26,7 +26,21 @@
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
 #include <ncurses.h>
+
+/**
+ * @brief A game loop helper function to ignore a given signal.
+ * @returns 0 on success, other value on error
+ */
+int game_loop_ignore_signal(int signum) {
+	struct sigaction act = {
+		.sa_handler = SIG_IGN,
+		.sa_flags   = SA_NODEFER,
+	};
+
+	return sigaction(signum, &act, NULL);
+}
 
 int game_loop_init_ncurses(void) {
 	if (initscr()           == NULL) return 1;
@@ -40,6 +54,10 @@ int game_loop_init_ncurses(void) {
 
 	/* Limit of 10ms for ncurses to give up on finding characters for escape sequences */
 	ESCDELAY = 10;
+
+	game_loop_ignore_signal(SIGINT);
+	game_loop_ignore_signal(SIGTERM);
+	game_loop_ignore_signal(SIGTSTP);
 
 	return 0;
 }
