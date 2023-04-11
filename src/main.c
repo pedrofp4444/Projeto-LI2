@@ -98,7 +98,7 @@ int main(void) {
 
 	game_state state = { .fps = 0.0 };
 
-	err = game_loop_run(&state, callbacks);
+	err = game_loop_run(&state, callbacks, 60);
 	if (err) {
 		/* Don't handle errors. Just try to return to a canonical terminal mode */
 		game_loop_terminate_ncurses();

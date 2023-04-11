@@ -22,8 +22,10 @@
 #include <game_loop.h>
 
 #include <stdlib.h>
-#define _POSIX_C_SOURCE 199309L /**< @brief For ::clock_gettime and ::CLOCK_MONOTONIC */
+/** @brief For `clock_gettime`, `CLOCK_MONOTONIC` and `nanosleep` */
+#define _POSIX_C_SOURCE 199309L
 #include <time.h>
+#include <unistd.h>
 #include <ncurses.h>
 
 int game_loop_init_ncurses(void) {
@@ -99,6 +101,33 @@ game_loop_callback_return_value game_loop_handle_input
 }
 
 /**
+ * @brief Internal game loop function for sleeping, in order to keep the target fps
+ * @returns 0 on success, 1 on error.
+ */
+int game_loop_keep_fps(struct timespec frame_start, double frame_time) {
+	/* Calculate time since the beginning of this frame */
+	struct timespec frame_end;
+	if (clock_gettime(CLOCK_MONOTONIC, &frame_end)) return 1;
+	double delta = timespec_dif(frame_start, frame_end);
+
+	/* Sleep for enough time to target the framerate */
+	double sleep_time = 0;
+	if (delta < frame_time)
+		sleep_time = (frame_time - delta) * 1e9; /* 1e9: s -> ns */
+
+	/*
+	* NOTES: - tv_nsec is lower than 1e9 because frame_time can't be larger than a second
+	*
+	*        - No error handling for nanosleep (errors out on external signals), as it's not a
+	*          crucial function to keep the game running.
+	*/
+	struct timespec sleep = { .tv_sec = 0, .tv_nsec = (long) sleep_time };
+	nanosleep(&sleep, NULL);
+
+	return 0;
+}
+
+/**
  * @brief Helper macro for ::game_loop_run that, based on the return value of a callback,
  *        determines whether to continue looping and the game loop's return value (if needed).
  */
@@ -107,14 +136,19 @@ game_loop_callback_return_value game_loop_handle_input
 		return val == GAME_LOOP_CALLBACK_RETURN_ERROR; \
 }
 
-int game_loop_run(void *state, game_loop_callbacks callbacks) {
+int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps) {
 	int width = -1, height = -1;
 
 	struct timespec last_frame_instant;
 	if (clock_gettime(CLOCK_MONOTONIC, &last_frame_instant)) return 1;
 
+	double frame_time = 0;
+	if (fps)
+		frame_time = 1.0 / fps;
+	if (fps == 1) frame_time = 0.9999; /* Edge case when converting to timespec */
+
 	while (1) {
-		/* Calculate frame time */
+		/* Calculate frame time (since the beginning of the last frame) */
 		struct timespec frame_instant;
 		if (clock_gettime(CLOCK_MONOTONIC, &frame_instant)) return 1;
 		double delta = timespec_dif(last_frame_instant, frame_instant);
@@ -132,6 +166,8 @@ int game_loop_run(void *state, game_loop_callbacks callbacks) {
 
 		if (callbacks.onrender) ret = callbacks.onrender(state, width, height);
 		game_loop_return(ret);
+
+		if (game_loop_keep_fps(frame_instant, frame_time)) return 1;
 	}
 
 	return 0;

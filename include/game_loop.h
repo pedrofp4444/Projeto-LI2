@@ -95,6 +95,7 @@ int game_loop_init_ncurses(void);
  *
  * @param state     The game state passed to callbacks
  * @param callbacks The set of callback functions
+ * @param fps       The target frame / updates per second. Use 0 for unlimited.
  *
  * The game loop performs these actions in the following order:
  *
@@ -106,7 +107,7 @@ int game_loop_init_ncurses(void);
  * If any callback returns ::GAME_LOOP_CALLBACK_RETURN_BREAK or ::GAME_LOOP_CALLBACK_RETURN_BREAK,
  * the loop is exited immediately.
  */
-int game_loop_run(void *state, game_loop_callbacks callbacks);
+int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int gps);
 
 /**
  * @brief Terminate ncurses usage
