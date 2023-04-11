@@ -32,14 +32,30 @@ typedef enum {
 	GAME_LOOP_CALLBACK_RETURN_ERROR,   /**< Exit the game loop due to an error */
 } game_loop_callback_return_value;
 
+
+/**
+ * @brief Callback function for user input handling.
+ *
+ * @param state The game state
+ * @param key   Refers to a key resulting from `getch()`
+ */
+typedef game_loop_callback_return_value(*game_loop_input_callback)(void *state, int key);
+
 /**
  * @brief Callback function for when the game needs to be updated.
  *
- * NOTE: `elapsed` time is in seconds
+ * @param state   The game state
+ * @param elapsed Elapsed time **in seconds** since the last frame
  */
 typedef game_loop_callback_return_value(*game_loop_update_callback)(void *state, double elapsed);
 
-/** @brief Callback function for when the game needs to be rendered */
+/**
+ * @brief Callback function for when the game needs to be rendered
+ *
+ * @param state  The game state
+ * @param width  The width of the terminal window
+ * @param height The height of the terminal window
+ */
 typedef game_loop_callback_return_value(*game_loop_render_callback)
 	(void *state, int width, int height);
 
@@ -47,6 +63,10 @@ typedef game_loop_callback_return_value(*game_loop_render_callback)
  * @brief Callback function for when the terminal window is resized
  *
  * Note that this will also be called on window initialization (when size is first set).
+ *
+ * @param state  The game state
+ * @param width  The width of the terminal window
+ * @param height The height of the terminal window
  */
 typedef game_loop_callback_return_value(*game_loop_resize_callback)
 	(void *state, int width, int height);
@@ -57,6 +77,7 @@ typedef game_loop_callback_return_value(*game_loop_resize_callback)
  * A function can be set to `NULL` and it won't be called.
  */
 typedef struct {
+	game_loop_input_callback  oninput;
 	game_loop_update_callback onupdate;
 	game_loop_render_callback onrender;
 	game_loop_resize_callback onresize;
@@ -74,6 +95,16 @@ int game_loop_init_ncurses(void);
  *
  * @param state     The game state passed to callbacks
  * @param callbacks The set of callback functions
+ *
+ * The game loop performs these actions in the following order:
+ *
+ * 1. Update terminal window, calling `callbacks.onresize` if it changed;
+ * 2. Read user input, calling `callbacks.oninput` if needed;
+ * 3. Call `callbacks.onupdate`
+ * 4. Call `callbacks.onrender`
+ *
+ * If any callback returns ::GAME_LOOP_CALLBACK_RETURN_BREAK or ::GAME_LOOP_CALLBACK_RETURN_BREAK,
+ * the loop is exited immediately.
  */
 int game_loop_run(void *state, game_loop_callbacks callbacks);
 

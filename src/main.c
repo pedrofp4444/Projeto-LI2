@@ -24,8 +24,34 @@
 
 typedef struct {
 	double fps;
+
+	int offsetx, offsety;
 } game_state;
 
+game_loop_callback_return_value oninput(void *s, int key) {
+	game_state *state = (game_state *) s;
+
+	switch (key) {
+		case '\x1b':
+			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
+
+		case KEY_UP:
+			state->offsety--;
+			break;
+		case KEY_DOWN:
+			state->offsety++;
+			break;
+
+		case KEY_LEFT:
+			state->offsetx--;
+			break;
+		case KEY_RIGHT:
+			state->offsetx++;
+			break;
+	}
+
+	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
+}
 
 game_loop_callback_return_value onupdate(void *s, double elapsed) {
 	game_state *state = (game_state *) s;
@@ -42,11 +68,11 @@ game_loop_callback_return_value onrender(void *s, int width, int height) {
 	move(0, 0);
 	printw("FPS: %d", (int) state->fps);
 
-	/* Print the window size in the center of the window */
+	/* Print the window size in the center of the window (plus input offset) */
 	char str[64];
 	int len = sprintf(str, "%d x %d", width, height);
 
-	move(height / 2, (width - len) / 2);
+	move(height / 2 + state->offsety, (width - len) / 2 + state->offsetx);
 	printw("%s", str);
 
 	refresh();
@@ -64,6 +90,7 @@ int main(void) {
 	}
 
 	game_loop_callbacks callbacks = {
+		.oninput  = oninput,
 		.onupdate = onupdate,
 		.onrender = onrender,
 		.onresize = NULL

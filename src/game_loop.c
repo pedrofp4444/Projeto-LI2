@@ -31,9 +31,13 @@ int game_loop_init_ncurses(void) {
 	if (start_color()        == ERR) return 1; /* Enable color support */
 	if (cbreak()             == ERR) return 1; /* Disable line buffering and control characters */
 	if (noecho()             == ERR) return 1; /* Don't show input on the terminal */
+	if (nodelay(stdscr, 1)   == ERR) return 1; /* Make getch return ERR if no input is available */
 	if (nonl()               == ERR) return 1; /* Transform new lines intro carriage returns */
-	if (keypad(stdscr, true) == ERR) return 1; /* Let ncurses parse escape sequences */
+	if (keypad(stdscr, 1)    == ERR) return 1; /* Let ncurses parse escape sequences */
 	if (curs_set(0)          == ERR) return 1; /* Hide the cursor */
+
+	/* Limit of 10ms for ncurses to give up on finding characters for escape sequences */
+	ESCDELAY = 10;
 
 	return 0;
 }
@@ -51,8 +55,8 @@ double timespec_dif(struct timespec start, struct timespec end) {
 /**
  * @brief Internal game loop function for keeping the terminal window size up to date.
  *
- * @returns The return value of the resize callback. If it didn't need to be called,
- *          ::GAME_LOOP_CALLBACK_RETURN_SUCCESS.
+ * @returns The return value of the resize callback in case of a loop exit request. Otherwise,
+ *          ::GAME_LOOP_CALLBACK_RETURN_SUCCESS is returned.
  */
 game_loop_callback_return_value game_loop_window_size(void *state, int *width, int *height,
                                                       game_loop_resize_callback onresize) {
@@ -67,6 +71,28 @@ game_loop_callback_return_value game_loop_window_size(void *state, int *width, i
 		}
 
 		*width = nwidth; *height = nheight;
+	}
+
+	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
+}
+
+/**
+ * @brief Internal game loop function for reading input and calling the callback if needed
+ *
+ * @returns The return value of the input callback in case of a loop exit request. Otherwise,
+ *          ::GAME_LOOP_CALLBACK_RETURN_SUCCESS is returned.
+ */
+game_loop_callback_return_value game_loop_handle_input
+	(void *state, game_loop_input_callback oninput) {
+
+	if (oninput) { /* Skip reading input if no input callback is defined */
+		int c = getch();
+		while (c != ERR) {
+			int ret = oninput(state, c);
+			if (ret != GAME_LOOP_CALLBACK_RETURN_SUCCESS) return ret;
+
+			c = getch();
+		}
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -96,6 +122,9 @@ int game_loop_run(void *state, game_loop_callbacks callbacks) {
 
 		/* Keep terminal window size up to date */
 		int ret = game_loop_window_size(state, &width, &height, callbacks.onresize);
+		game_loop_return(ret);
+
+		ret = game_loop_handle_input(state, callbacks.oninput);
 		game_loop_return(ret);
 
 		if (callbacks.onupdate) ret = callbacks.onupdate(state, delta);
