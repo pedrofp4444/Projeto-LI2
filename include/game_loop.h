@@ -107,7 +107,7 @@ int game_loop_init_ncurses(void);
  * If any callback returns ::GAME_LOOP_CALLBACK_RETURN_BREAK or ::GAME_LOOP_CALLBACK_RETURN_BREAK,
  * the loop is exited immediately.
  */
-int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int gps);
+int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps);
 
 /**
  * @brief Terminate ncurses usage
