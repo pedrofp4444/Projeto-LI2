@@ -53,9 +53,14 @@ int game_loop_init_ncurses(void) {
 	/* Limit of 10ms for ncurses to give up on finding characters for escape sequences */
 	ESCDELAY = 10;
 
+	/* Ignore signals that stop the program (coming from key combinations like Ctrl+C) */
 	game_loop_ignore_signal(SIGINT);
 	game_loop_ignore_signal(SIGTERM);
 	game_loop_ignore_signal(SIGTSTP);
+
+	/* Initialize basic color pairs (black background for all basic foreground colors) */
+	for (int col = COLOR_BLACK; col <= COLOR_WHITE; ++col)
+		init_pair(col, col, COLOR_BLACK);
 
 	return 0;
 }

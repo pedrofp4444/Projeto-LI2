@@ -86,6 +86,12 @@ typedef struct {
 /**
  * @brief Intialize ncurses
  * @returns 0 on success, 1 on failure
+ *
+ * More technically, this function performs the following actions:
+ *
+ * 1. Initialize ncurses and set the terminal mode;
+ * 2. Configure the program to ignore `SIGINT`, `SIGSTOP` and `SIGTERM`;
+ * 3. Create 8 color pairs (indices 1 to 8) for every ncurses `COLOR_*`.
  */
 int game_loop_init_ncurses(void);
 
@@ -110,7 +116,7 @@ int game_loop_init_ncurses(void);
 int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps);
 
 /**
- * @brief Terminate ncurses usage
+ * @brief Terminate ncurses usage (reset terminal to canonical mode)
  * @returns 0 on success, 1 on failure
  */
 int game_loop_terminate_ncurses(void);
