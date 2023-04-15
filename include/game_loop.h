@@ -32,13 +32,14 @@ typedef enum {
 	GAME_LOOP_CALLBACK_RETURN_ERROR,   /**< Exit the game loop due to an error */
 } game_loop_callback_return_value;
 
+
 /**
  * @brief Callback function for user input handling.
  *
  * @param state The game state
  * @param key   Refers to a key resulting from `getch()`
  */
-typedef game_loop_callback_return_value (*game_loop_input_callback)(void *state, int key);
+typedef game_loop_callback_return_value(*game_loop_input_callback)(void *state, int key);
 
 /**
  * @brief Callback function for when the game needs to be updated.
@@ -46,7 +47,7 @@ typedef game_loop_callback_return_value (*game_loop_input_callback)(void *state,
  * @param state   The game state
  * @param elapsed Elapsed time **in seconds** since the last frame
  */
-typedef game_loop_callback_return_value (*game_loop_update_callback)(void *state, double elapsed);
+typedef game_loop_callback_return_value(*game_loop_update_callback)(void *state, double elapsed);
 
 /**
  * @brief Callback function for when the game needs to be rendered
@@ -55,7 +56,8 @@ typedef game_loop_callback_return_value (*game_loop_update_callback)(void *state
  * @param width  The width of the terminal window
  * @param height The height of the terminal window
  */
-typedef game_loop_callback_return_value (*game_loop_render_callback)(void *state, int width, int height);
+typedef game_loop_callback_return_value(*game_loop_render_callback)
+	(void *state, int width, int height);
 
 /**
  * @brief Callback function for when the terminal window is resized
@@ -66,7 +68,8 @@ typedef game_loop_callback_return_value (*game_loop_render_callback)(void *state
  * @param width  The width of the terminal window
  * @param height The height of the terminal window
  */
-typedef game_loop_callback_return_value (*game_loop_resize_callback)(void *state, int width, int height);
+typedef game_loop_callback_return_value(*game_loop_resize_callback)
+	(void *state, int width, int height);
 
 /**
  * @brief Set of functions that are called on game loop envents
@@ -74,7 +77,7 @@ typedef game_loop_callback_return_value (*game_loop_resize_callback)(void *state
  * A function can be set to `NULL` and it won't be called.
  */
 typedef struct {
-	game_loop_input_callback oninput;
+	game_loop_input_callback  oninput;
 	game_loop_update_callback onupdate;
 	game_loop_render_callback onrender;
 	game_loop_resize_callback onresize;
@@ -119,3 +122,4 @@ int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps);
 int game_loop_terminate_ncurses(void);
 
 #endif
+
