@@ -160,4 +160,3 @@ int main(void) {
 	err = game_loop_terminate_ncurses();
 	return err;
 }
-
