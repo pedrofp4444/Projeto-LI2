@@ -72,9 +72,19 @@ typedef game_loop_callback_return_value(*game_loop_resize_callback)
 	(void *state, int width, int height);
 
 /**
+ * @struct game_loop_callbacks
  * @brief Set of functions that are called on game loop envents
  *
  * A function can be set to `NULL` and it won't be called.
+ *
+ * @var game_loop_callbacks::oninput
+ *   See ::game_loop_input_callback.
+ * @var game_loop_callbacks::onupdate
+ *   See ::game_loop_update_callback.
+ * @var game_loop_callbacks::onrender
+ *   See ::game_loop_render_callback.
+ * @var game_loop_callbacks::onresize
+ *   See ::game_loop_resize_callback.
  */
 typedef struct {
 	game_loop_input_callback  oninput;
