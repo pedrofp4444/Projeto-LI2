@@ -65,6 +65,7 @@ typedef struct {
 tile_type_render_info tile_get_render_info(tile_type t);
 
 /**
+ * @struct map
  * @brief A pointer for the first element of the tile data array.
  * @var map::data
  * 
