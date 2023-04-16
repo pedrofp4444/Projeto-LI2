@@ -42,7 +42,10 @@ typedef struct {
 } tile;
 
 /**
+ * @struct tile_type_render_info
  * @brief Stores information related to rendering a particular tile type.
+ * @var tile_type_render_info::chr
+ *   Character used to represent the tile when rendered
 */
 typedef struct {
     char chr;
