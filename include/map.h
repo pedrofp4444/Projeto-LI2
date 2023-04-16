@@ -69,7 +69,7 @@ tile_type_render_info tile_get_render_info(tile_type t);
  */
 typedef struct {
     unsigned width; /**< Width of the map in the tiles */
-    unsigned height; /**< Height of the map in the tiles */
+    unsigned height;
     tile *data; /**< A pointer for the first element of the tile data array */
 } map;
 
