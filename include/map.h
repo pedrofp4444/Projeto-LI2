@@ -45,7 +45,7 @@ typedef struct {
  * @brief Stores information related to rendering a particular tile type.
 */
 typedef struct {
-    char chr; /**< Character used to represent the tile when rendered */
+    char chr;
 } tile_type_render_info;
 
 /**
