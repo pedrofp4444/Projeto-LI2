@@ -22,3 +22,52 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <entities.h>
+
+typedef struct {
+    char chr;
+} entity_type_render_info;
+
+entity_type_render_info entity_get_render_info(entity_type t) {
+    entity_type_render_info ret;
+
+    switch (t) {
+      case ENTITY_PLAYER:
+          ret.chr = 'O';
+          break;
+      case ENTITY_RAT:
+          ret.chr = 'R';
+          break;
+      default:
+          ret.chr = 'X';
+          break;
+    }
+
+    return ret;
+}
+
+void entity_render(entity t) {
+    entity_type_render_info info = entity_get_render_info(t.type);
+    addch(info.chr);
+}
+
+void entity_set_render(entity_set entity_set,
+                   int map_top , int map_left,
+                   int term_top, int term_left,
+                   int height  , int width) {
+
+    while(entity_set){
+
+        if(entity_set->ent.x >= map_left &&
+           entity_set->ent.x < map_left + width &&
+           entity_set->ent.y >= map_top &&
+           entity_set->ent.y < map_top + height
+        ) {
+            move(term_top + (entity_set->ent.y - map_top), term_left + (entity_set->ent.x - map_left));
+
+            entity_render(entity_set->ent);
+        }
+
+        entity_set = entity_set->next;
+    }
+}
+

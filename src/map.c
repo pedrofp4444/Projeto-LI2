@@ -65,16 +65,17 @@ void tile_render(tile t) {
 }
 
 void map_render(map map,
-                unsigned map_top, unsigned map_left,
-                unsigned term_top, unsigned term_left,
-                unsigned height, unsigned width) {
+                int map_top , int map_left,
+                int term_top, int term_left,
+                int height  , int width) {
 
-    for (unsigned y = 0; y < height; ++y) {
+    for (int y = 0; y < height; ++y) {
         move(term_top + y, term_left);
-        for (unsigned x = 0; x < width; ++x) {
+        for (int x = 0; x < width; ++x) {
 
             tile to_render = {
-                .type = TILE_EMPTY};
+                .type = TILE_EMPTY
+            };
 
             unsigned mx = map_left + x, my = map_top + y;
             if (mx < map.width && my < map.height) {
