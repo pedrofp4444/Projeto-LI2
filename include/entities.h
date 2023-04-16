@@ -22,32 +22,41 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+/**
+ * @brief Enumerates the types of the entities that can exist in the game.
+*/
 typedef enum {
-    ENTITY_PLAYER,
-    ENTITY_RAT,
-    ENTITY_TROLL,
-    ENTITY_GOBLIN,
-    ENTITY_CRISTINO,
+    ENTITY_PLAYER, /**< The player */
+    ENTITY_RAT, /**< A mob of low intelligence */
+    ENTITY_TROLL, /**< A mob of medium intelligence and a coward */
+    ENTITY_GOBLIN, /**< A mob of high intelligence */
+    ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
+/**
+ * @brief Enumerates the types of weapons that can exist in the game.
+*/
 typedef enum {
-    WEAPON_HAND,
-    WEAPON_DAGGER,
-    WEAPON_ARROW,
-    WEAPON_BOMB,
-    WEAPON_LANTERN,
-    WEAPON_IPAD,
+    WEAPON_HAND, /**< Entity hands */
+    WEAPON_DAGGER, /**< Weak weapon */
+    WEAPON_ARROW, /**< Medium weapon */
+    WEAPON_BOMB, /**< Strong weapon */
+    WEAPON_LANTERN, /**< Provides light */
+    WEAPON_IPAD, /**< Extremely strong weapon */
 } weapon;
 
+/**
+ * @brief Represents a game entity.
+*/
 typedef struct {
-    unsigned x, y;
-    entity_type type;
+    unsigned x, y; /**< Coordinates (x,y) of the entity on the map */
+    entity_type type; /**< Entity type (player or mob) */
     
-    int health;
-    weapon weapon;
+    int health; /**< Entity health points */
+    weapon weapon; /**< Weapon equipped by the entity */
 
-    void *data;
-    void (*update)(void);
+    void *data; /**< Pointer to additional data */
+    void (*update)(void); /**< Pointer to an entity update function */
 } entity;
 
 #endif
