@@ -26,17 +26,16 @@
 tile_type_render_info tile_get_render_info(tile_type t) {
     tile_type_render_info ret;
 
-    switch (t)
-    {
-    case TILE_EMPTY:
-        ret.chr = ' ';
-        break;
-    case TILE_WALL:
-        ret.chr = '#';
-        break;
-    default:
-        ret.chr = ' ';
-        break;
+    switch (t) {
+        case TILE_EMPTY:
+            ret.chr = ' ';
+            break;
+        case TILE_WALL:
+            ret.chr = '#';
+            break;
+        default:
+            ret.chr = ' ';
+            break;
     }
 
     return ret;

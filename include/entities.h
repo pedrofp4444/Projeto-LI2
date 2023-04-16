@@ -78,8 +78,8 @@ typedef struct entity_set {
 } *entity_set;
 
 void entity_set_render(entity_set entity_set,
-                       int map_top , int map_left,
-                       int term_top, int term_left,
-                       int height  , int width);
+                        int map_top , int map_left,
+                        int term_top, int term_left,
+                        int height  , int width);
 
 #endif
