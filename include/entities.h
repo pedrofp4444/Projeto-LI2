@@ -37,7 +37,7 @@ typedef enum {
  * @brief Enumerates the types of weapons that can exist in the game.
 */
 typedef enum {
-    WEAPON_HAND, /**< Entity hands */
+    WEAPON_HAND,
     WEAPON_DAGGER, /**< Weak weapon */
     WEAPON_ARROW, /**< Medium weapon */
     WEAPON_BOMB, /**< Strong weapon */
