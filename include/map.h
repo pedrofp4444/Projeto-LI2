@@ -68,7 +68,7 @@ tile_type_render_info tile_get_render_info(tile_type t);
  *   The array size is `with*height` and each element is of the type `tile`.
  */
 typedef struct {
-    unsigned width; /**< Width of the map in the tiles */
+    unsigned width;
     unsigned height;
     tile *data; /**< A pointer for the first element of the tile data array */
 } map;
