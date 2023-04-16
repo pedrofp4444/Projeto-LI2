@@ -41,7 +41,7 @@ typedef enum {
     WEAPON_DAGGER,
     WEAPON_ARROW,
     WEAPON_BOMB,
-    WEAPON_LANTERN, /**< Provides light */
+    WEAPON_LANTERN,
     WEAPON_IPAD, /**< Extremely strong weapon */
 } weapon;
 
