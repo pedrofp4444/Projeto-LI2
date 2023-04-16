@@ -75,7 +75,7 @@ tile_type_render_info tile_get_render_info(tile_type t);
  *   Height of the map in the tiles
  * @var map::data
  *   The `data` variable is a pointer to the first element of the tile data array,
- * which is dynamically alocated and stores the tile data for the map.
+ *   which is dynamically alocated and stores the tile data for the map.
  *   To access coordinate (x, y), use the expression `data[y * width + x]`.
  *   The array size is `with*height` and each element is of the type `tile`.
  */
