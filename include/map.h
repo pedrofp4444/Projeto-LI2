@@ -35,7 +35,7 @@ typedef enum {
  * @brief Represents a single tile in the game.
 */
 typedef struct {
-    tile_type type; /**< The type of the tile */
+    tile_type type;
 } tile;
 
 /**
