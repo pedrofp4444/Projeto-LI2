@@ -46,7 +46,18 @@ typedef enum {
 } weapon;
 
 /**
+ * @struct weapon
  * @brief Represents a game entity.
+ * @var weapon::WEAPON_HAND
+ *   Entity's hands
+ * @var weapon::WEAPON_ARROW
+ *   Medium strength weapon
+ * @var weapon::WEAPON_BOMB
+ *   Strong weapon
+ * @var weapon::WEAPON_LANTERN
+ *   Provides light
+ * @var weapon::WEAPON_IPAD
+ *   Extremely strong weapon
 */
 typedef struct {
     unsigned x, y; /**< Coordinates (x,y) of the entity on the map */
