@@ -22,6 +22,8 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <stddef.h>
+
 /**
  * @brief Enumerates the types of the entities that can exist in the game.
 */
@@ -60,7 +62,7 @@ typedef enum {
  *   Extremely strong weapon
 */
 typedef struct {
-    unsigned x, y; /**< Coordinates (x,y) of the entity on the map */
+    int x, y; /**< Coordinates (x,y) of the entity on the map */
     entity_type type; /**< Entity type (player or mob) */
     
     int health; /**< Entity health points */
@@ -69,5 +71,15 @@ typedef struct {
     void *data; /**< Pointer to additional data */
     void (*update)(void); /**< Pointer to an entity update function */
 } entity;
+
+typedef struct entity_set {
+    entity ent;
+    struct entity_set *next;
+} *entity_set;
+
+void entity_set_render(entity_set entity_set,
+                       int map_top , int map_left,
+                       int term_top, int term_left,
+                       int height  , int width);
 
 #endif

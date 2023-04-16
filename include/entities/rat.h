@@ -33,6 +33,6 @@
  * @param health The entity health points
  * @return The newly created entity
 */
-entity entity_create_rat();
+entity entity_create_rat(unsigned x, unsigned y, int health);
 
 #endif

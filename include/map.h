@@ -116,8 +116,8 @@ map map_allocate(unsigned width, unsigned height);
  * @param width The width of the map and the parts of the terminal to render
 */
 void map_render(map map,
-                unsigned map_top, unsigned map_left,
-                unsigned term_top, unsigned term_left,
-                unsigned height, unsigned width);
+                int map_top , int map_left,
+                int term_top, int term_left,
+                int height  , int width);
 
 #endif
