@@ -28,58 +28,85 @@
  * @brief Enumerates the types of the entities that can exist in the game.
 */
 typedef enum {
-    ENTITY_PLAYER, /**< The player */
-    ENTITY_RAT, /**< A mob of low intelligence */
-    ENTITY_TROLL, /**< A mob of medium intelligence and a coward */
-    ENTITY_GOBLIN, /**< A mob of high intelligence */
-    ENTITY_CRISTINO, /**< A mob of high difficulty */
+	ENTITY_PLAYER, /**< The player */
+	ENTITY_RAT, /**< A mob of low intelligence */
+	ENTITY_TROLL, /**< A mob of medium intelligence and a coward */
+	ENTITY_GOBLIN, /**< A mob of high intelligence */
+	ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
 /**
  * @brief Enumerates the types of weapons that can exist in the game.
 */
 typedef enum {
-    WEAPON_HAND,
-    WEAPON_DAGGER,
-    WEAPON_ARROW,
-    WEAPON_BOMB,
-    WEAPON_LANTERN,
-    WEAPON_IPAD,
+	WEAPON_HAND, /**< Entity's hands */
+	WEAPON_DAGGER, /**< Weak strength weapon */
+	WEAPON_ARROW, /**< Medium strength weapon */
+	WEAPON_BOMB, /**< Strong strength weapon */
+	WEAPON_LANTERN, /**< Provides light */
+	WEAPON_IPAD, /**< Extremely strong weapon */
 } weapon;
 
 /**
- * @struct weapon
- * @brief Represents a game entity.
- * @var weapon::WEAPON_HAND
- *   Entity's hands
- * @var weapon::WEAPON_ARROW
- *   Medium strength weapon
- * @var weapon::WEAPON_BOMB
- *   Strong weapon
- * @var weapon::WEAPON_LANTERN
- *   Provides light
- * @var weapon::WEAPON_IPAD
- *   Extremely strong weapon
+ * @struct entity
+ * @brief Struct that represents a game entity.
+ * @var entity::x
+ *   X coordinate of the entity on the map
+ * @var entity::y
+ *   Y coordinate of the entity on the map
+ * @var entity::health
+ *   Entity health points
+ * @var entity::weapon
+ *   Weapon equipped by the entity
+ * @var entity::data
+ *   Pointer to additional data
+ * @var entity::update
+ *   Pointer to an entity update function
 */
 typedef struct {
-    int x, y; /**< Coordinates (x,y) of the entity on the map */
-    entity_type type; /**< Entity type (player or mob) */
-    
-    int health; /**< Entity health points */
-    weapon weapon; /**< Weapon equipped by the entity */
+	int x, y;
+	entity_type type;
 
-    void *data; /**< Pointer to additional data */
-    void (*update)(void); /**< Pointer to an entity update function */
+	int health;
+	weapon weapon;
+
+	void *data;
+	void (*update)(void);
 } entity;
 
+/**
+ * @struct entity_set
+ * @brief Struct that represents a set of entities in the game.
+ * @var entity_set::ent
+ *   The entity contained in this set.
+ * @var entity_set::next
+ *  Pointer to the next element in the set.
+*/
 typedef struct entity_set {
-    entity ent;
-    struct entity_set *next;
+	entity ent;
+	struct entity_set *next;
 } *entity_set;
 
+/**
+ * @brief Renders a set of entities on the terminal, within some specified bounds.
+ * 
+ * This function renders a set of entities in a given recatngular area of a larger map on the
+ * terminal. The function loops through the list of entities, checking whether each entity is
+ * within the bounds os the specified rectangular region. If an entity is within the region, the
+ * function moves the cursor to the appropiate location on the screen and calls the 
+ * [entity_render](@ref entity_render()) to render the entity itself.
+ * 
+ * @param entity_set A linked list of entities to render
+ * @param map_top The top coordinate of the map to be rendered
+ * @param map_left The left coordinate of the map to be rendered
+ * @param term_top The top coordinate of the terminal where the map will be rendered
+ * @param term_left The left coordinate of the terminal where the map will be rendered
+ * @param height The height of the map and the parts of the terminal to render
+ * @param width The width of the map and the parts of the terminal to render
+*/
 void entity_set_render(entity_set entity_set,
-                       int map_top , int map_left,
-                       int term_top, int term_left,
-                       int height  , int width);
+											 int map_top , int map_left,
+											 int term_top, int term_left,
+											 int height  , int width);
 
 #endif

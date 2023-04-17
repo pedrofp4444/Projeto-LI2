@@ -22,18 +22,18 @@
 #include <stdlib.h>
 #include <entities/rat.h>
 
-entity entity_create_rat(unsigned x, unsigned y, int health){
-    entity rat = {
-        .x = x,
-        .y = y,
-        .type = ENTITY_RAT,
+entity entity_create_rat(unsigned x, unsigned y, int health) {
+	entity rat = {
+		.x = x,
+		.y = y,
+		.type = ENTITY_RAT,
 
-        .health = health,
-        .weapon = WEAPON_HAND,
+		.health = health,
+		.weapon = WEAPON_HAND,
 
-        .data = NULL,
-        .update = NULL
-    };
-    
-    return rat;
+		.data = NULL,
+		.update = NULL
+	};
+
+	return rat;
 }

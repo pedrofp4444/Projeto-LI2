@@ -25,8 +25,8 @@
 #include <entities.h>
 
 /**
- * @brief Creates a new entity type of type ENTITY_RAT 
- * with especified coordinates and health points. The only available weapon is the rat's hands.
+ * @brief Creates a new entity type of type ENTITY_RAT with especified coordinates and
+ * health points. The only available weapon is the rat's hands.
  * 
  * @param x The x coordinate of the entity on the map
  * @param y The y coordinate of the entity on the map

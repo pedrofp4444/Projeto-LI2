@@ -27,8 +27,8 @@
 */
 
 typedef enum {
-    TILE_EMPTY, /**< An empty space */
-    TILE_WALL,  /**< A wall tile */
+	TILE_EMPTY, /**< An empty space */
+	TILE_WALL,  /**< A wall tile */
 } tile_type;
 
 /**
@@ -38,7 +38,7 @@ typedef enum {
  *   The type of the tile
 */
 typedef struct {
-    tile_type type;
+	tile_type type;
 } tile;
 
 /**
@@ -48,7 +48,7 @@ typedef struct {
  *   Character used to represent the tile when rendered
 */
 typedef struct {
-    char chr;
+	char chr;
 } tile_type_render_info;
 
 /**
@@ -67,8 +67,6 @@ tile_type_render_info tile_get_render_info(tile_type t);
 /**
  * @struct map
  * @brief A pointer for the first element of the tile data array.
- * @var map::data
- * 
  * @var map::width
  *   Width of the map in the tiles
  * @var map::height
@@ -80,9 +78,9 @@ tile_type_render_info tile_get_render_info(tile_type t);
  *   The array size is `with*height` and each element is of the type `tile`.
  */
 typedef struct {
-    unsigned width;
-    unsigned height;
-    tile *data;
+	unsigned width;
+	unsigned height;
+	tile *data;
 } map;
 
 /**
@@ -116,8 +114,8 @@ map map_allocate(unsigned width, unsigned height);
  * @param width The width of the map and the parts of the terminal to render
 */
 void map_render(map map,
-                int map_top , int map_left,
-                int term_top, int term_left,
-                int height  , int width);
+								int map_top , int map_left,
+								int term_top, int term_left,
+								int height  , int width);
 
 #endif
