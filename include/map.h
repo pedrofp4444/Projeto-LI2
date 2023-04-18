@@ -27,8 +27,8 @@
 */
 
 typedef enum {
-    TILE_EMPTY, /**< An empty space */
-    TILE_WALL,  /**< A wall tile */
+	TILE_EMPTY, /**< An empty space */
+	TILE_WALL,  /**< A wall tile */
 } tile_type;
 
 /**
@@ -38,7 +38,7 @@ typedef enum {
  *   The type of the tile
 */
 typedef struct {
-    tile_type type;
+	tile_type type;
 } tile;
 
 /**
@@ -48,18 +48,18 @@ typedef struct {
  *   Character used to represent the tile when rendered
 */
 typedef struct {
-    char chr;
+	char chr;
 } tile_type_render_info;
 
 /**
  * @brief Returns the rendering information for a tile type.
- * 
- * The function uses a switch statement to determine the appropriate rendering information for the 
- * specified tile type. If the `tile_type` parameter is not recognized, the function returns 
+ *
+ * The function uses a switch statement to determine the appropriate rendering information for the
+ * specified tile type. If the `tile_type` parameter is not recognized, the function returns
  * a default `tile_type_render_info` struct with an empty space character.
- * 
+ *
  * @param t The `tile_type` to get the rendering information
- * @return A `tile_type_render_info` struct which contains the rendering information for a 
+ * @return A `tile_type_render_info` struct which contains the rendering information for a
  * tile type.
 */
 tile_type_render_info tile_get_render_info(tile_type t);
@@ -67,8 +67,6 @@ tile_type_render_info tile_get_render_info(tile_type t);
 /**
  * @struct map
  * @brief A pointer for the first element of the tile data array.
- * @var map::data
- * 
  * @var map::width
  *   Width of the map in the tiles
  * @var map::height
@@ -80,33 +78,33 @@ tile_type_render_info tile_get_render_info(tile_type t);
  *   The array size is `with*height` and each element is of the type `tile`.
  */
 typedef struct {
-    unsigned width;
-    unsigned height;
-    tile *data;
+	unsigned width;
+	unsigned height;
+	tile *data;
 } map;
 
 /**
  * @brief Creates (and allocates memory for) a map
- * 
+ *
  * This function dynamically allocates memory for a map with a with and height, and
  * returns a `map` struct that contains the width, height and a pointer to the tile data.
  * Map data will be memory trash.
- * 
+ *
  * @param width The width of the map in the tiles
  * @param height The height of the map in the tiles
- * @returns On error, a map with a `NULL` `data` pointer. 
- * Otherwise, returns a `map` with allocated memory.
+ * @returns On error, a map with a `NULL` `data` pointer.
+ *          Otherwise, returns a `map` with allocated memory.
  */
 map map_allocate(unsigned width, unsigned height);
 
 /**
  * @brief Renders a portion of a map to the terminal
- * 
+ *
  * This function renders a portion of a map provided in the terminal, starting from the
  * top left corner specified from map and terminal. The portion of the map to be rendered is
- * specified by a given width and height. In case of the top left corner of the map is outside
- * of the map boundaries, then the function will render empty tiles.
- * 
+ * specified by a given width and height. If any out-of-bounds tiles need to be rendered,
+ * then the function will render empty tiles.
+ *
  * @param map The map to render
  * @param map_top The top coordinate of the map to be rendered
  * @param map_left The left coordinate of the map to be rendered
@@ -121,3 +119,4 @@ void map_render(map map,
                 int height  , int width);
 
 #endif
+
