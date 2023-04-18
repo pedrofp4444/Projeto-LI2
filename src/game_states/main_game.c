@@ -20,10 +20,22 @@
  */
 
 #include <game_states/main_game.h>
+#include <game_states/msg_box.h>
 
 #include <stdlib.h>
 #include <ncurses.h>
 
+/** @brief Responds to exiting a message box */
+void state_main_msg_box_exit_callback(void *s, int chosen_button) {
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	if (chosen_button == 1) { /* OK */
+		state->offsetx = (rand() % 20) - 10;
+		state->offsety = (rand() % 20) - 10;
+	}
+}
+
+/** @brief Responds to user input in the main game state */
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
@@ -44,16 +56,28 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 		case KEY_RIGHT:
 			state->offsetx++;
 			break;
+
+		case '?': {
+			const char *buttons[2] = { "Cancel", "OK" };
+			game_state msg = state_msg_box_create(* (game_state *) s, state_main_msg_box_exit_callback,
+				"Random?", buttons, 2, 0);
+			state_switch((game_state *) s, &msg, 0);
+		};
+		break;
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
+/** @brief Renders the main game */
 game_loop_callback_return_value state_main_game_onrender(void *s, int width, int height) {
 	(void) width; (void) height;
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
 	erase();
+
+	move(0, 0);
+	printw("Press '?' for a random position");
 
 	move(height / 2 + state->offsety, width / 2 + state->offsetx);
 	addch('@');
@@ -85,7 +109,7 @@ game_state state_main_game_create(void) {
 	return ret;
 }
 
-void state_main_game_destroy(const game_state* state) {
+void state_main_game_destroy(game_state* state) {
 	free(state->data);
 }
 

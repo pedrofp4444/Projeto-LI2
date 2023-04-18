@@ -41,6 +41,6 @@ typedef struct {
 game_state state_main_game_create(void);
 
 /** @brief Destroys a state for the main game (frees `state->data`) */
-void state_main_game_destroy(const game_state *state);
+void state_main_game_destroy(game_state *state);
 
 #endif
