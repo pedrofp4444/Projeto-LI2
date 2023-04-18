@@ -157,7 +157,7 @@ int game_loop_keep_fps(struct timespec frame_start, double frame_time) {
 		return val == GAME_LOOP_CALLBACK_RETURN_ERROR; \
 }
 
-int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps) {
+int game_loop_run(void *state, game_loop_callbacks *callbacks, unsigned int fps) {
 	int width = -1, height = -1;
 
 	struct timespec last_frame_instant;
@@ -176,16 +176,16 @@ int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps) 
 		last_frame_instant = frame_instant;
 
 		/* Keep terminal window size up to date */
-		int ret = game_loop_window_size(state, &width, &height, callbacks.onresize);
+		int ret = game_loop_window_size(state, &width, &height, callbacks->onresize);
 		game_loop_return(ret);
 
-		ret = game_loop_handle_input(state, callbacks.oninput);
+		ret = game_loop_handle_input(state, callbacks->oninput);
 		game_loop_return(ret);
 
-		if (callbacks.onupdate) ret = callbacks.onupdate(state, delta);
+		if (callbacks->onupdate) ret = callbacks->onupdate(state, delta);
 		game_loop_return(ret);
 
-		if (callbacks.onrender) ret = callbacks.onrender(state, width, height);
+		if (callbacks->onrender) ret = callbacks->onrender(state, width, height);
 		game_loop_return(ret);
 
 		if (game_loop_keep_fps(frame_instant, frame_time)) return 1;
