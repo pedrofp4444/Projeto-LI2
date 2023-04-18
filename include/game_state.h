@@ -40,7 +40,7 @@
  */
 typedef struct game_state {
 	void *data;
-	void (*destroy)(const struct game_state*);
+	void (*destroy)(struct game_state*);
 	game_loop_callbacks   callbacks;
 } game_state;
 
@@ -53,8 +53,15 @@ typedef struct game_state {
 
 /**
  * @brief Destroys the @p current game state and sets it to the @p new game state.
+ *
+ * @param current
+ *   The pointer to the current ::game_state. Its value will be overridden.
+ * @param new
+ *   The location of the new game state
+ * @param destroy
+ *   Whether or not the current ::game_state should be destroyed.
  */
-void state_switch(game_state *current, const game_state *new);
+void state_switch(game_state *current, const game_state *new, int destroy);
 
 /**
  * @brief Game state abstraction of ::game_loop_run

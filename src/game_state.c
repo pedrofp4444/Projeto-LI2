@@ -21,13 +21,13 @@
 
 #include <game_state.h>
 
-void state_switch(game_state *current, const game_state *new) {
-	if (current->destroy)
+void state_switch(game_state *current, const game_state *new, int destroy) {
+	if (destroy && current->destroy)
 		current->destroy(current);
 	*current = *new;
 }
 
 int state_game_loop_run(game_state *state, unsigned int fps) {
-	return game_loop_run(state, state->callbacks, fps);
+	return game_loop_run(state, &state->callbacks, fps);
 }
 
