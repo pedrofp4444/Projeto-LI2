@@ -89,13 +89,11 @@ typedef struct entity_set {
 
 /**
  * @brief Renders a set of entities on the terminal, within some specified bounds.
- * 
+ *
  * This function renders a set of entities in a given recatngular area of a larger map on the
- * terminal. The function loops through the list of entities, checking whether each entity is
- * within the bounds os the specified rectangular region. If an entity is within the region, the
- * function moves the cursor to the appropiate location on the screen and calls the 
- * [entity_render](@ref entity_render()) to render the entity itself.
- * 
+ * terminal. The function only renders entities visible in the specified window using
+ * ::entity_render().
+ *
  * @param entity_set A linked list of entities to render
  * @param map_top The top coordinate of the map to be rendered
  * @param map_left The left coordinate of the map to be rendered
@@ -105,8 +103,9 @@ typedef struct entity_set {
  * @param width The width of the map and the parts of the terminal to render
 */
 void entity_set_render(entity_set entity_set,
-											 int map_top , int map_left,
-											 int term_top, int term_left,
-											 int height  , int width);
+                       int map_top , int map_left,
+                       int term_top, int term_left,
+                       int height  , int width);
 
 #endif
+

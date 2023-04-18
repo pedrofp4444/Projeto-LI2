@@ -25,7 +25,7 @@
 
 /**
  * @struct entity_type_render_info
- * @brief Stores information related to rendering a particular entity type.
+ * @brief Stores rendering information related to rendering a particular entity type.
  * @var entity_type_render_info::chr
  *   Character used to represent the entity when rendered
 */
@@ -35,13 +35,11 @@ typedef struct {
 
 /**
  * @brief Returns the rendering information for a entity type.
- * 
- * The function uses a switch statement to determine the appropriate rendering information for the 
- * specified entity type. If the `entity_type` parameter is not recognized, the function returns 
- * a default `entity_type_render_info` struct with an 'X' character.
- * 
+ *
+ * Determines the appropriate rendering information for the specified entity type.
+ *
  * @param t The `entity_type` to get the rendering information
- * @return A `entity_type_render_info` struct which contains the rendering information for a 
+ * @return A `entity_type_render_info` struct which contains the rendering information for a
  * entity type.
 */
 entity_type_render_info entity_get_render_info(entity_type t) {
@@ -64,10 +62,10 @@ entity_type_render_info entity_get_render_info(entity_type t) {
 
 /**
  * @brief Renders a entity on the terminal.
- * 
+ *
  * This function renders the given entity to the terminal using the entity's information,
- * which is obtained by using [entity_get_render_info](@ref entity_get_render_info()).
- * 
+ * which is obtained by using ::entity_get_render_info().
+ *
  * @param t The entity to render
 */
 void entity_render(entity t) {
@@ -76,9 +74,9 @@ void entity_render(entity t) {
 }
 
 void entity_set_render(entity_set entity_set,
-											 int map_top , int map_left,
-											 int term_top, int term_left,
-											 int height  , int width) {
+                       int map_top , int map_left,
+                       int term_top, int term_left,
+                       int height  , int width) {
 
 	while(entity_set){
 

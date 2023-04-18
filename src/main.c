@@ -30,7 +30,7 @@
 
 typedef struct {
 	double fps;
-	entity_set entities; 
+	entity_set entities;
 	map map;
 	int offsetx, offsety;
 } game_state;
@@ -141,3 +141,4 @@ int main(void) {
 	err = game_loop_terminate_ncurses();
 	return err;
 }
+

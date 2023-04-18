@@ -53,10 +53,10 @@ map map_allocate(unsigned width, unsigned height) {
 
 /**
  * @brief Renders a tile to the terminal.
- * 
+ *
  * This function renders the given tile to the terminal using the tile's information,
- * which is obtained by using [tile_get_render_info](@ref tile_get_render_info()).
- * 
+ * which is obtained by using ::tile_get_render_info().
+ *
  * @param t The tile to render
 */
 void tile_render(tile t) {
@@ -65,9 +65,9 @@ void tile_render(tile t) {
 }
 
 void map_render(map map,
-								int map_top , int map_left,
-								int term_top, int term_left,
-								int height  , int width) {
+                int map_top , int map_left,
+                int term_top, int term_left,
+                int height  , int width) {
 
 	for (int y = 0; y < height; ++y) {
 		move(term_top + y, term_left);
@@ -86,3 +86,4 @@ void map_render(map map,
 		}
 	}
 }
+

@@ -37,3 +37,4 @@ entity entity_create_rat(unsigned x, unsigned y, int health) {
 
 	return rat;
 }
+
