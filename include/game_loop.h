@@ -72,9 +72,19 @@ typedef game_loop_callback_return_value(*game_loop_resize_callback)
 	(void *state, int width, int height);
 
 /**
- * @brief Set of functions that are called on game loop envents
+ * @struct game_loop_callbacks
+ * @brief Set of functions that are called on game loop events
  *
  * A function can be set to `NULL` and it won't be called.
+ *
+ * @var game_loop_callbacks::oninput
+ *   See ::game_loop_input_callback.
+ * @var game_loop_callbacks::onupdate
+ *   See ::game_loop_update_callback.
+ * @var game_loop_callbacks::onrender
+ *   See ::game_loop_render_callback.
+ * @var game_loop_callbacks::onresize
+ *   See ::game_loop_resize_callback.
  */
 typedef struct {
 	game_loop_input_callback  oninput;
@@ -113,7 +123,7 @@ int game_loop_init_ncurses(void);
  * If any callback returns ::GAME_LOOP_CALLBACK_RETURN_BREAK or ::GAME_LOOP_CALLBACK_RETURN_BREAK,
  * the loop is exited immediately.
  */
-int game_loop_run(void *state, game_loop_callbacks callbacks, unsigned int fps);
+int game_loop_run(void *state, game_loop_callbacks *callbacks, unsigned int fps);
 
 /**
  * @brief Terminate ncurses usage (reset terminal to canonical mode)
