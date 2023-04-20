@@ -1,6 +1,6 @@
 /**
  * @file  main_game.c
- * @brief The implementation for main game state (where you catually play the game)
+ * @brief The implementation for main game state (where you actually play the game)
  */
 
 /*
@@ -20,19 +20,37 @@
  */
 
 #include <game_states/main_game.h>
-#include <game_states/msg_box.h>
+#include <game_states/main_game_renderer.h>
 
+#include <time.h>
 #include <stdlib.h>
 #include <ncurses.h>
 
-/** @brief Responds to exiting a message box */
-void state_main_msg_box_exit_callback(void *s, int chosen_button) {
+/** @brief Responds to the passage of time in the game to measure FPS */
+game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
-	if (chosen_button == 1) { /* OK */
-		state->offsetx = (rand() % 20) - 10;
-		state->offsety = (rand() % 20) - 10;
+	state->elapsed_fps += elapsed;
+	if (state->elapsed_fps > 1) {
+		/*
+		 * When a second passes, update the number of frames (and renders) being displayed,
+		 * and reset the count for the next second
+		 */
+
+		state->fps_show = state->fps_count;
+		state->fps_count = 0;
+
+		state->renders_show = state->renders_count;
+		state->renders_count = 0;
+
+		state->elapsed_fps -= 1.0;
+		state->needs_rerender = 1; /* Update the number on the screen */
 	}
+
+	state->fps_count++;
+	state->renders_count += state->needs_rerender;
+
+	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
 /** @brief Responds to user input in the main game state */
@@ -43,6 +61,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 		case '\x1b':
 			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
 
+		/* Temporary: move map around */
 		case KEY_UP:
 			state->offsety--;
 			break;
@@ -56,49 +75,42 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 		case KEY_RIGHT:
 			state->offsetx++;
 			break;
-
-		case '?': {
-			const char *buttons[2] = { "Cancel", "OK" };
-			game_state msg = state_msg_box_create(* (game_state *) s, state_main_msg_box_exit_callback,
-				"Random?", buttons, 2, 0);
-			state_switch((game_state *) s, &msg, 0);
-		};
-		break;
 	}
 
-	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
-}
-
-/** @brief Renders the main game */
-game_loop_callback_return_value state_main_game_onrender(void *s, int width, int height) {
-	(void) width; (void) height;
-	state_main_game_data *state = state_extract_data(state_main_game_data, s);
-
-	erase();
-
-	move(0, 0);
-	printw("Press '?' for a random position");
-
-	move(height / 2 + state->offsety, width / 2 + state->offsetx);
-	addch('@');
-
-	refresh();
-
+	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
 game_state state_main_game_create(void) {
+	erase(); /* Performant rendering requires a clean screen to start */
+
+	map m = map_allocate(1024, 1024);
+	srand(time(NULL));
+	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
+		tile t = { .type = rand() % 2 };
+		m.data[i] = t;
+	}
+
 	state_main_game_data data = {
-		.offsetx = 0, .offsety = 0
+		.offsetx = 0, .offsety = 0,
+
+		.fps_show     = 0, .fps_count     = 0,
+		.renders_show = 0, .renders_count = 0,
+		.elapsed_fps = 0.0,
+
+		.needs_rerender = 1,
+
+		.map = m
 	};
+
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;
 
 	game_loop_callbacks callbacks = {
 		.oninput  = state_main_game_oninput,
-		.onupdate = NULL,
+		.onupdate = state_main_game_onupdate,
 		.onrender = state_main_game_onrender,
-		.onresize = NULL
+		.onresize = state_main_game_onresize
 	};
 
 	game_state ret = {
@@ -110,6 +122,8 @@ game_state state_main_game_create(void) {
 }
 
 void state_main_game_destroy(game_state* state) {
+	state_main_game_data *game_data = state_extract_data(state_main_game_data, state);
+	map_free(game_data->map);
 	free(state->data);
 }
 
