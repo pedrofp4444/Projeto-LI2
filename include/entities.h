@@ -28,10 +28,10 @@
  * @brief Enumerates the types of the entities that can exist in the game.
 */
 typedef enum {
-	ENTITY_PLAYER, /**< The player */
-	ENTITY_RAT, /**< A mob of low intelligence */
-	ENTITY_TROLL, /**< A mob of medium intelligence and a coward */
-	ENTITY_GOBLIN, /**< A mob of high intelligence */
+	ENTITY_PLAYER,   /**< The player */
+	ENTITY_RAT,      /**< A mob of low intelligence */
+	ENTITY_TROLL,    /**< A mob of medium intelligence and a coward */
+	ENTITY_GOBLIN,   /**< A mob of high intelligence */
 	ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
@@ -39,12 +39,12 @@ typedef enum {
  * @brief Enumerates the types of weapons that can exist in the game.
 */
 typedef enum {
-	WEAPON_HAND, /**< Entity's hands */
-	WEAPON_DAGGER, /**< Weak strength weapon */
-	WEAPON_ARROW, /**< Medium strength weapon */
-	WEAPON_BOMB, /**< Strong strength weapon */
+	WEAPON_HAND,    /**< Entity's hands */
+	WEAPON_DAGGER,  /**< Weak strength weapon */
+	WEAPON_ARROW,   /**< Medium strength weapon */
+	WEAPON_BOMB,    /**< Strong strength weapon */
 	WEAPON_LANTERN, /**< Provides light */
-	WEAPON_IPAD, /**< Extremely strong weapon */
+	WEAPON_IPAD,    /**< Extremely strong weapon */
 } weapon;
 
 /**

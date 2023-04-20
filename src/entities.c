@@ -81,9 +81,9 @@ void entity_set_render(entity_set entity_set,
 	while(entity_set){
 
 		if(entity_set->ent.x >= map_left &&
-			 entity_set->ent.x < map_left + width &&
-			 entity_set->ent.y >= map_top &&
-			 entity_set->ent.y < map_top + height) {
+		   entity_set->ent.x < map_left + width &&
+		   entity_set->ent.y >= map_top &&
+		   entity_set->ent.y < map_top + height) {
 
 			move(term_top + (entity_set->ent.y - map_top), term_left + (entity_set->ent.x - map_left));
 
