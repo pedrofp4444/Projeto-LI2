@@ -20,6 +20,7 @@
  */
 
 #include <game_states/main_game_renderer.h>
+#include <string.h>
 #include <ncurses.h>
 
 #define SIDEBAR_WIDTH 20
