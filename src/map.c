@@ -51,6 +51,10 @@ map map_allocate(unsigned width, unsigned height) {
 	return ret;
 }
 
+void map_free(map map) {
+	free(map.data);
+}
+
 /**
  * @brief Renders a tile to the terminal.
  *

@@ -97,6 +97,9 @@ typedef struct {
  */
 map map_allocate(unsigned width, unsigned height);
 
+/* @brief Frees memory allocated in ::map_allocate for @p map */
+void map_free(map map);
+
 /**
  * @brief Renders a portion of a map to the terminal
  *
