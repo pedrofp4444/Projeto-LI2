@@ -64,6 +64,15 @@ entity_type_render_info entity_get_render_info(entity_type t) {
 		case ENTITY_RAT:
 			ret.chr = 'R';
 			break;
+		case ENTITY_TROLL:
+			ret.chr = 'T';
+			break;
+		case ENTITY_GOBLIN:
+			ret.chr = 'G';
+			break;
+		case ENTITY_CRISTINO:
+			ret.chr = 'M';
+			break;
 		default:
 			ret.chr = 'X';
 			break;
