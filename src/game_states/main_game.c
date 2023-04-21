@@ -22,6 +22,8 @@
 #include <game_states/main_game.h>
 #include <game_states/main_game_renderer.h>
 
+#include <entities/rat.h>
+
 #include <time.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -91,6 +93,12 @@ game_state state_main_game_create(void) {
 		m.data[i] = t;
 	}
 
+	/* Populate the map with rats (temporary) */
+	entity_set entities = entity_set_allocate(1024);
+	for (int i = 0; i < 1024; ++i) {
+		entities.entities[i] = entity_create_rat(rand() % 1024, rand() % 1024, rand() % 10 + 1);
+	}
+
 	state_main_game_data data = {
 		.offsetx = 0, .offsety = 0,
 
@@ -100,7 +108,8 @@ game_state state_main_game_create(void) {
 
 		.needs_rerender = 1,
 
-		.map = m
+		.map = m,
+		.entities = entities,
 	};
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
@@ -124,6 +133,7 @@ game_state state_main_game_create(void) {
 void state_main_game_destroy(game_state* state) {
 	state_main_game_data *game_data = state_extract_data(state_main_game_data, state);
 	map_free(game_data->map);
+	entity_set_free(game_data->entities);
 	free(state->data);
 }
 

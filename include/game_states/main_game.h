@@ -24,6 +24,7 @@
 
 #include <game_state.h>
 #include <map.h>
+#include <entities.h>
 
 /**
  * @struct state_main_game_data
@@ -50,6 +51,8 @@
  *
  * @var state_main_game_data::map
  *   The game map
+ * @var state_main_game_data::entities
+ *   Entities in the map
  */
 typedef struct {
 	int offsetx, offsety;
@@ -60,6 +63,7 @@ typedef struct {
 	int needs_rerender;
 
 	map map;
+	entity_set entities;
 } state_main_game_data;
 
 /** @brief Creates a state for the main game */
