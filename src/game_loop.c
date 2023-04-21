@@ -195,6 +195,7 @@ int game_loop_run(void *state, game_loop_callbacks *callbacks, unsigned int fps)
 }
 
 int game_loop_terminate_ncurses(void) {
+	attrset(A_NORMAL);
 	return endwin() == ERR; /* Restore previous terminal mode */
 }
 

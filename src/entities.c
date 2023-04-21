@@ -38,10 +38,13 @@ void entity_set_free(entity_set entities) {
 /**
  * @struct entity_type_render_info
  * @brief Stores rendering information related to rendering a particular entity type.
+ * @var entity_type_render_info::attributes
+ *   Ncurses' attributes to render the entity
  * @var entity_type_render_info::chr
  *   Character used to represent the entity when rendered
 */
 typedef struct {
+	int attributes;
 	char chr;
 } entity_type_render_info;
 
@@ -60,21 +63,28 @@ entity_type_render_info entity_get_render_info(entity_type t) {
 	switch (t) {
 		case ENTITY_PLAYER:
 			ret.chr = 'O';
+			ret.attributes = COLOR_PAIR(COLOR_WHITE) | A_BOLD;
 			break;
 		case ENTITY_RAT:
 			ret.chr = 'R';
+			ret.attributes = COLOR_PAIR(COLOR_WHITE);
 			break;
 		case ENTITY_TROLL:
 			ret.chr = 'T';
+			ret.attributes = COLOR_PAIR(COLOR_BLUE) | A_BOLD;
 			break;
 		case ENTITY_GOBLIN:
 			ret.chr = 'G';
+			ret.attributes = COLOR_PAIR(COLOR_GREEN) | A_BOLD;
 			break;
 		case ENTITY_CRISTINO:
 			ret.chr = 'M';
+			ret.attributes = COLOR_PAIR(COLOR_MAGENTA) | A_BOLD;
 			break;
 		default:
+			/* Not supposed to happen */
 			ret.chr = 'X';
+			ret.attributes = COLOR_PAIR(COLOR_RED) | A_BOLD;
 			break;
 	}
 
@@ -91,7 +101,10 @@ entity_type_render_info entity_get_render_info(entity_type t) {
 */
 void entity_render(entity t) {
 	entity_type_render_info info = entity_get_render_info(t.type);
+
+	attron(info.attributes);
 	addch(info.chr);
+	attrset(A_NORMAL);
 }
 
 void entity_set_render(entity_set entity_set,

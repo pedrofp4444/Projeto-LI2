@@ -89,14 +89,18 @@ game_state state_main_game_create(void) {
 	map m = map_allocate(1024, 1024);
 	srand(time(NULL));
 	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
-		tile t = { .type = rand() % 2 };
+		tile t = { .type = rand() % 100 < 90 ? TILE_EMPTY : TILE_WALL };
 		m.data[i] = t;
 	}
 
-	/* Populate the map with rats (temporary) */
+	/* Populate the map with random invalid entities (temporary) */
 	entity_set entities = entity_set_allocate(1024);
 	for (int i = 0; i < 1024; ++i) {
-		entities.entities[i] = entity_create_rat(rand() % 1024, rand() % 1024, rand() % 10 + 1);
+		entities.entities[i].health = 1;
+		entities.entities[i].type = rand() % 5;
+
+		entities.entities[i].x = rand() % 1024;
+		entities.entities[i].y = rand() % 1024;
 	}
 
 	state_main_game_data data = {
