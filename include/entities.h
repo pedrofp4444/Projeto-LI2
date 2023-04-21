@@ -77,15 +77,26 @@ typedef struct {
 /**
  * @struct entity_set
  * @brief Struct that represents a set of entities in the game.
- * @var entity_set::ent
- *   The entity contained in this set.
- * @var entity_set::next
- *  Pointer to the next element in the set.
+ * @details To avoid list resizing, not all entities are valid. If `entity::health <= 0`, it is
+ *          invalid.
+ *
+ *          The first entity should always be the player.
+ *
+ * @var entity_set::entities
+ *   Pointer to the contiguous list of entities.
+ * @var entity_set::count
+ *   Number of entities in the set
 */
 typedef struct entity_set {
-	entity ent;
-	struct entity_set *next;
-} *entity_set;
+	entity *entities;
+	size_t count;
+} entity_set;
+
+/** @brief Allocates an ::entity_set with @p count entities. Those will be **unitialized**. */
+entity_set entity_set_allocate(size_t count);
+
+/** @brief Frees memory in an ::entity_set. */
+void entity_set_free(entity_set entities);
 
 /**
  * @brief Renders a set of entities on the terminal, within some specified bounds.

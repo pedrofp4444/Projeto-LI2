@@ -23,6 +23,18 @@
 #include <ncurses.h>
 #include <entities.h>
 
+entity_set entity_set_allocate(size_t count) {
+	entity_set ret = {
+		.entities = malloc(count * sizeof(entity)),
+		.count = count
+	};
+	return ret;
+}
+
+void entity_set_free(entity_set entities) {
+	free(entities.entities);
+}
+
 /**
  * @struct entity_type_render_info
  * @brief Stores rendering information related to rendering a particular entity type.
@@ -78,19 +90,19 @@ void entity_set_render(entity_set entity_set,
                        int term_top, int term_left,
                        int height  , int width) {
 
-	while(entity_set){
+	for (size_t i = 0; i < entity_set.count; ++i){
+		entity ent = entity_set.entities[i];
 
-		if(entity_set->ent.x >= map_left &&
-		   entity_set->ent.x < map_left + width &&
-		   entity_set->ent.y >= map_top &&
-		   entity_set->ent.y < map_top + height) {
+		if (ent.health <= 0) continue; /* Skip invalid entities */
 
-			move(term_top + (entity_set->ent.y - map_top), term_left + (entity_set->ent.x - map_left));
+		if(ent.x >= map_left        &&
+		   ent.x < map_left + width &&
+		   ent.y >= map_top         &&
+		   ent.y < map_top + height) {
 
-			entity_render(entity_set->ent);
+			move(term_top + (ent.y - map_top), term_left + (ent.x - map_left));
+			entity_render(ent);
 		}
-
-		entity_set = entity_set->next;
 	}
 }
 
