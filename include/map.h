@@ -29,6 +29,7 @@
 typedef enum {
 	TILE_EMPTY, /**< An empty space */
 	TILE_WALL,  /**< A wall tile */
+	TILE_WATER, /**< Water puddle */
 } tile_type;
 
 /**
@@ -36,33 +37,13 @@ typedef enum {
  * @brief Represents a single tile in the game.
  * @var tile::type
  *   The type of the tile
+ * @var tile::light
+ *   If the tile is lit up
 */
 typedef struct {
 	tile_type type;
+	int light;
 } tile;
-
-/**
- * @struct tile_type_render_info
- * @brief Stores information related to rendering a particular tile type.
- * @var tile_type_render_info::chr
- *   Character used to represent the tile when rendered
-*/
-typedef struct {
-	char chr;
-} tile_type_render_info;
-
-/**
- * @brief Returns the rendering information for a tile type.
- *
- * The function uses a switch statement to determine the appropriate rendering information for the
- * specified tile type. If the `tile_type` parameter is not recognized, the function returns
- * a default `tile_type_render_info` struct with an empty space character.
- *
- * @param t The `tile_type` to get the rendering information
- * @return A `tile_type_render_info` struct which contains the rendering information for a
- * tile type.
-*/
-tile_type_render_info tile_get_render_info(tile_type t);
 
 /**
  * @struct map

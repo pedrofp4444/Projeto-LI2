@@ -23,18 +23,51 @@
 #include <ncurses.h>
 #include <map.h>
 
+
+/**
+ * @struct tile_type_render_info
+ * @brief Stores information related to rendering a particular tile type.
+ * @var tile_type_render_info::color
+ *   The ncurses' color (`COLOR_BLACK <= color <= COLOR_WHITE`) of the tile (before light effects)
+ * @var tile_type_render_info::chr
+ *   Character used to represent the tile when rendered
+*/
+typedef struct {
+	int color;
+	char chr;
+} tile_type_render_info;
+
+/**
+ * @brief Returns the rendering information for a tile type.
+ *
+ * The function uses a switch statement to determine the appropriate rendering information for the
+ * specified tile type. If the `tile_type` parameter is not recognized, the function returns
+ * a default `tile_type_render_info` struct with an empty space character.
+ *
+ * @param t The `tile_type` to get the rendering information
+ * @return A `tile_type_render_info` struct which contains the rendering information for a
+ * tile type.
+*/
 tile_type_render_info tile_get_render_info(tile_type t) {
 	tile_type_render_info ret;
 
 	switch (t) {
 		case TILE_EMPTY:
 			ret.chr = ' ';
+			ret.color = COLOR_BLACK;
 			break;
 		case TILE_WALL:
 			ret.chr = '#';
+			ret.color = COLOR_WHITE;
+			break;
+		case TILE_WATER:
+			ret.chr = '.';
+			ret.color = COLOR_BLUE;
 			break;
 		default:
+			/* Not supposed to happen */
 			ret.chr = ' ';
+			ret.color = COLOR_BLACK;
 			break;
 	}
 
@@ -65,7 +98,9 @@ void map_free(map map) {
 */
 void tile_render(tile t) {
 	tile_type_render_info info = tile_get_render_info(t.type);
+	attron(COLOR_PAIR(info.color));
 	addch(info.chr);
+	attroff(COLOR_PAIR(info.color));
 }
 
 void map_render(map map,
@@ -82,7 +117,7 @@ void map_render(map map,
 			};
 
 			unsigned mx = map_left + x, my = map_top + y;
-			if (mx < map.width && my < map.height) {
+			if (mx < map.width && my < map.height && map.data[my * map.width + mx].light) {
 				to_render = map.data[my * map.width + mx];
 			}
 

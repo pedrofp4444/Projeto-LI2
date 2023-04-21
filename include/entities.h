@@ -22,6 +22,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <map.h>
 #include <stddef.h>
 
 /**
@@ -106,6 +107,7 @@ void entity_set_free(entity_set entities);
  * ::entity_render().
  *
  * @param entity_set A linked list of entities to render
+ * @param map The game map, for light information
  * @param map_top The top coordinate of the map to be rendered
  * @param map_left The left coordinate of the map to be rendered
  * @param term_top The top coordinate of the terminal where the map will be rendered
@@ -113,7 +115,7 @@ void entity_set_free(entity_set entities);
  * @param height The height of the map and the parts of the terminal to render
  * @param width The width of the map and the parts of the terminal to render
 */
-void entity_set_render(entity_set entity_set,
+void entity_set_render(entity_set entity_set, map map,
                        int map_top , int map_left,
                        int term_top, int term_left,
                        int height  , int width);

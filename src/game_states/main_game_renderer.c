@@ -67,7 +67,7 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	           state->offsety, state->offsetx,
 	           0, SIDEBAR_WIDTH,
 	           height, width - SIDEBAR_WIDTH);
-	entity_set_render(state->entities,
+	entity_set_render(state->entities, state->map,
 	                  state->offsety, state->offsetx,
 	                  0, SIDEBAR_WIDTH,
 	                  height, width - SIDEBAR_WIDTH);

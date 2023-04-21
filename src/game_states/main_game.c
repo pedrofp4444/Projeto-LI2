@@ -28,6 +28,33 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
+#define CIRCLE_CENTER_X 10
+#define CIRCLE_CENTER_Y 10
+#define CIRCLE_RADIUS 6
+
+/* @brief **DEGUB** function for drawing a circle of light on the map */
+void state_main_game_circle_light_map(map m, unsigned x, unsigned y, unsigned r) {
+	unsigned rsquared = r * r;
+	for (unsigned yp = y - r; yp <= y + r; ++yp) {
+		unsigned disty = (yp - y) * (yp - y);
+
+		for (unsigned xp = x - r; xp <= x + r; ++xp) {
+			if (xp < m.width && yp < m.height) {
+				unsigned dist = (xp - x) * (xp - x) + disty;
+				if (dist <= rsquared)
+					m.data[yp * m.width + xp].light = dist < rsquared / 2 ? 2 : 1;
+			}
+		}
+	}
+}
+
+/* @brief **DEGUB** function for clearing a circle of light on the map */
+void state_main_game_circle_clean_light_map(map m, unsigned x, unsigned y, unsigned r) {
+	for (unsigned yp = y - r; yp <= y + r; ++yp)
+		for (unsigned xp = x - r; xp <= x + r; ++xp)
+			m.data[yp * m.width + xp].light = 0;
+}
+
 /** @brief Responds to the passage of time in the game to measure FPS */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
@@ -59,6 +86,9 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
+	state_main_game_circle_clean_light_map(state->map,
+		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
+
 	switch (key) {
 		case '\x1b':
 			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
@@ -79,6 +109,9 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 			break;
 	}
 
+	state_main_game_circle_light_map(state->map,
+		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
+
 	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
@@ -89,9 +122,19 @@ game_state state_main_game_create(void) {
 	map m = map_allocate(1024, 1024);
 	srand(time(NULL));
 	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
-		tile t = { .type = rand() % 100 < 90 ? TILE_EMPTY : TILE_WALL };
+		int r = rand() % 100;
+		tile_type type;
+		if      (r < 20) type = TILE_WALL;
+		else if (r < 40) type = TILE_WATER;
+		else             type = TILE_EMPTY;
+
+		tile t = {
+			.type = type,
+			.light = 0
+		};
 		m.data[i] = t;
 	}
+	state_main_game_circle_light_map(m, CIRCLE_CENTER_X, CIRCLE_CENTER_Y, CIRCLE_RADIUS);
 
 	/* Populate the map with random invalid entities (temporary) */
 	entity_set entities = entity_set_allocate(1024);

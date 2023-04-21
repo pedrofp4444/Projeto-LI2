@@ -107,7 +107,7 @@ void entity_render(entity t) {
 	attrset(A_NORMAL);
 }
 
-void entity_set_render(entity_set entity_set,
+void entity_set_render(entity_set entity_set, map map,
                        int map_top , int map_left,
                        int term_top, int term_left,
                        int height  , int width) {
@@ -120,7 +120,8 @@ void entity_set_render(entity_set entity_set,
 		if(ent.x >= map_left        &&
 		   ent.x < map_left + width &&
 		   ent.y >= map_top         &&
-		   ent.y < map_top + height) {
+		   ent.y < map_top + height &&
+		   map.data[ent.y * map.width + ent.x].light) {
 
 			move(term_top + (ent.y - map_top), term_left + (ent.x - map_left));
 			entity_render(ent);
