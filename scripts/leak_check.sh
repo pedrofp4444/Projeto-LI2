@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Checks for memory leaks in the program
-# Must be run form the root of the repository
+# Must be run from the root of the repository
 
 cat <<EOF > /tmp/leak_suppression.supp
 {
