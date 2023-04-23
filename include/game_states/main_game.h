@@ -1,6 +1,6 @@
 /**
  * @file  main_game.h
- * @brief The main game state (where you catually play the game)
+ * @brief The main game state (where you actually play the game)
  */
 
 /*
@@ -23,18 +23,47 @@
 #define MAIN_GAME_H
 
 #include <game_state.h>
+#include <map.h>
+#include <entities.h>
 
 /**
  * @struct state_main_game_data
  * @brief Data for the main game state
  *
  * @var state_main_game_data::offsetx
- *   Horizontal offset of the '@' character from the center
+ *   Horizontal offset of the map
  * @var state_main_game_data::offsety
- *   Vertical offset of the '@' character from the center
+ *   Vertical offset of the map
+ *
+ * @var state_main_game_data::fps_show
+ *   The FPS number to be displayed
+ * @var state_main_game_data::fps_count
+ *   The number of frames since the last ::state_main_game_data::fps_show update.
+ * @var state_main_game_data::renders_show
+ *   The number of frames (in state_main_game_data::fps_show) that required rendering
+ * @var state_main_game_data::renders_count
+ *   The number of frames (in state_main_game_data::fps_count) that required rendering
+ * @var state_main_game_data::elapsed_fps
+ *   The time elapsed (in seconds) since the last ::state_main_game_data::fps_show update.
+ *
+ * @var state_main_game_data::needs_rerender
+ *   If an update happened (e.g.: user input, window resize) requiring the game to be rendered
+ *
+ * @var state_main_game_data::map
+ *   The game map
+ * @var state_main_game_data::entities
+ *   Entities in the map
  */
 typedef struct {
 	int offsetx, offsety;
+
+	int fps_show, fps_count, renders_show, renders_count;
+	double elapsed_fps;
+
+	int needs_rerender;
+
+	map map;
+	entity_set entities;
 } state_main_game_data;
 
 /** @brief Creates a state for the main game */

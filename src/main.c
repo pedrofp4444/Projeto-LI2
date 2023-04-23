@@ -38,6 +38,7 @@ int main(void) {
 	err = state_game_loop_run(&state, 60);
 	if (err) {
 		/* Don't handle errors. Just try to return to a canonical terminal mode */
+		state_main_game_destroy(&state);
 		game_loop_terminate_ncurses();
 		puts("An error occurred in the game");
 		return 1;

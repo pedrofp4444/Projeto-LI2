@@ -1,6 +1,6 @@
 /**
  * @file  main_game.c
- * @brief The implementation for main game state (where you catually play the game)
+ * @brief The implementation for main game state (where you actually play the game)
  */
 
 /*
@@ -20,29 +20,80 @@
  */
 
 #include <game_states/main_game.h>
-#include <game_states/msg_box.h>
+#include <game_states/main_game_renderer.h>
 
+#include <entities/rat.h>
+
+#include <time.h>
 #include <stdlib.h>
 #include <ncurses.h>
 
-/** @brief Responds to exiting a message box */
-void state_main_msg_box_exit_callback(void *s, int chosen_button) {
+#define CIRCLE_CENTER_X 10
+#define CIRCLE_CENTER_Y 10
+#define CIRCLE_RADIUS 6
+
+/* @brief **DEGUB** function for drawing a circle of light on the map */
+void state_main_game_circle_light_map(map m, unsigned x, unsigned y, unsigned r) {
+	unsigned rsquared = r * r;
+	for (unsigned yp = y - r; yp <= y + r; ++yp) {
+		unsigned disty = (yp - y) * (yp - y);
+
+		for (unsigned xp = x - r; xp <= x + r; ++xp) {
+			if (xp < m.width && yp < m.height) {
+				unsigned dist = (xp - x) * (xp - x) + disty;
+				if (dist <= rsquared)
+					m.data[yp * m.width + xp].light = dist < rsquared / 2 ? 2 : 1;
+			}
+		}
+	}
+}
+
+/* @brief **DEGUB** function for clearing a circle of light on the map */
+void state_main_game_circle_clean_light_map(map m, unsigned x, unsigned y, unsigned r) {
+	for (unsigned yp = y - r; yp <= y + r; ++yp)
+		for (unsigned xp = x - r; xp <= x + r; ++xp)
+			m.data[yp * m.width + xp].light = 0;
+}
+
+/** @brief Responds to the passage of time in the game to measure FPS */
+game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
-	if (chosen_button == 1) { /* OK */
-		state->offsetx = (rand() % 20) - 10;
-		state->offsety = (rand() % 20) - 10;
+	state->elapsed_fps += elapsed;
+	if (state->elapsed_fps > 1) {
+		/*
+		 * When a second passes, update the number of frames (and renders) being displayed,
+		 * and reset the count for the next second
+		 */
+
+		state->fps_show = state->fps_count;
+		state->fps_count = 0;
+
+		state->renders_show = state->renders_count;
+		state->renders_count = 0;
+
+		state->elapsed_fps -= 1.0;
+		state->needs_rerender = 1; /* Update the number on the screen */
 	}
+
+	state->fps_count++;
+	state->renders_count += state->needs_rerender;
+
+	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
 /** @brief Responds to user input in the main game state */
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
+	state_main_game_circle_clean_light_map(state->map,
+		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
+
 	switch (key) {
 		case '\x1b':
 			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
 
+		/* Temporary: move map around */
 		case KEY_UP:
 			state->offsety--;
 			break;
@@ -56,49 +107,66 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 		case KEY_RIGHT:
 			state->offsetx++;
 			break;
-
-		case '?': {
-			const char *buttons[2] = { "Cancel", "OK" };
-			game_state msg = state_msg_box_create(* (game_state *) s, state_main_msg_box_exit_callback,
-				"Random?", buttons, 2, 0);
-			state_switch((game_state *) s, &msg, 0);
-		};
-		break;
 	}
 
-	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
-}
+	state_main_game_circle_light_map(state->map,
+		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
 
-/** @brief Renders the main game */
-game_loop_callback_return_value state_main_game_onrender(void *s, int width, int height) {
-	(void) width; (void) height;
-	state_main_game_data *state = state_extract_data(state_main_game_data, s);
-
-	erase();
-
-	move(0, 0);
-	printw("Press '?' for a random position");
-
-	move(height / 2 + state->offsety, width / 2 + state->offsetx);
-	addch('@');
-
-	refresh();
-
+	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
 game_state state_main_game_create(void) {
+	erase(); /* Performant rendering requires a clean screen to start */
+
+	map m = map_allocate(1024, 1024);
+	srand(time(NULL));
+	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
+		int r = rand() % 100;
+		tile_type type;
+		if      (r < 20) type = TILE_WALL;
+		else if (r < 40) type = TILE_WATER;
+		else             type = TILE_EMPTY;
+
+		tile t = {
+			.type = type,
+			.light = 0
+		};
+		m.data[i] = t;
+	}
+	state_main_game_circle_light_map(m, CIRCLE_CENTER_X, CIRCLE_CENTER_Y, CIRCLE_RADIUS);
+
+	/* Populate the map with random invalid entities (temporary) */
+	entity_set entities = entity_set_allocate(1024);
+	for (int i = 0; i < 1024; ++i) {
+		entities.entities[i].health = 1;
+		entities.entities[i].type = rand() % 5;
+
+		entities.entities[i].x = rand() % 1024;
+		entities.entities[i].y = rand() % 1024;
+	}
+
 	state_main_game_data data = {
-		.offsetx = 0, .offsety = 0
+		.offsetx = 0, .offsety = 0,
+
+		.fps_show     = 0, .fps_count     = 0,
+		.renders_show = 0, .renders_count = 0,
+		.elapsed_fps = 0.0,
+
+		.needs_rerender = 1,
+
+		.map = m,
+		.entities = entities,
 	};
+
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;
 
 	game_loop_callbacks callbacks = {
 		.oninput  = state_main_game_oninput,
-		.onupdate = NULL,
+		.onupdate = state_main_game_onupdate,
 		.onrender = state_main_game_onrender,
-		.onresize = NULL
+		.onresize = state_main_game_onresize
 	};
 
 	game_state ret = {
@@ -110,6 +178,9 @@ game_state state_main_game_create(void) {
 }
 
 void state_main_game_destroy(game_state* state) {
+	state_main_game_data *game_data = state_extract_data(state_main_game_data, state);
+	map_free(game_data->map);
+	entity_set_free(game_data->entities);
 	free(state->data);
 }
 

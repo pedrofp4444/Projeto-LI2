@@ -22,16 +22,17 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <map.h>
 #include <stddef.h>
 
 /**
  * @brief Enumerates the types of the entities that can exist in the game.
 */
 typedef enum {
-	ENTITY_PLAYER, /**< The player */
-	ENTITY_RAT, /**< A mob of low intelligence */
-	ENTITY_TROLL, /**< A mob of medium intelligence and a coward */
-	ENTITY_GOBLIN, /**< A mob of high intelligence */
+	ENTITY_PLAYER,   /**< The player */
+	ENTITY_RAT,      /**< A mob of low intelligence */
+	ENTITY_TROLL,    /**< A mob of medium intelligence and a coward */
+	ENTITY_GOBLIN,   /**< A mob of high intelligence */
 	ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
@@ -39,12 +40,12 @@ typedef enum {
  * @brief Enumerates the types of weapons that can exist in the game.
 */
 typedef enum {
-	WEAPON_HAND, /**< Entity's hands */
-	WEAPON_DAGGER, /**< Weak strength weapon */
-	WEAPON_ARROW, /**< Medium strength weapon */
-	WEAPON_BOMB, /**< Strong strength weapon */
+	WEAPON_HAND,    /**< Entity's hands */
+	WEAPON_DAGGER,  /**< Weak strength weapon */
+	WEAPON_ARROW,   /**< Medium strength weapon */
+	WEAPON_BOMB,    /**< Strong strength weapon */
 	WEAPON_LANTERN, /**< Provides light */
-	WEAPON_IPAD, /**< Extremely strong weapon */
+	WEAPON_IPAD,    /**< Extremely strong weapon */
 } weapon;
 
 /**
@@ -77,15 +78,26 @@ typedef struct {
 /**
  * @struct entity_set
  * @brief Struct that represents a set of entities in the game.
- * @var entity_set::ent
- *   The entity contained in this set.
- * @var entity_set::next
- *  Pointer to the next element in the set.
+ * @details To avoid list resizing, not all entities are valid. If `entity::health <= 0`, it is
+ *          invalid.
+ *
+ *          The first entity should always be the player.
+ *
+ * @var entity_set::entities
+ *   Pointer to the contiguous list of entities.
+ * @var entity_set::count
+ *   Number of entities in the set
 */
 typedef struct entity_set {
-	entity ent;
-	struct entity_set *next;
-} *entity_set;
+	entity *entities;
+	size_t count;
+} entity_set;
+
+/** @brief Allocates an ::entity_set with @p count entities. Those will be **unitialized**. */
+entity_set entity_set_allocate(size_t count);
+
+/** @brief Frees memory in an ::entity_set. */
+void entity_set_free(entity_set entities);
 
 /**
  * @brief Renders a set of entities on the terminal, within some specified bounds.
@@ -95,6 +107,7 @@ typedef struct entity_set {
  * ::entity_render().
  *
  * @param entity_set A linked list of entities to render
+ * @param map The game map, for light information
  * @param map_top The top coordinate of the map to be rendered
  * @param map_left The left coordinate of the map to be rendered
  * @param term_top The top coordinate of the terminal where the map will be rendered
@@ -102,7 +115,7 @@ typedef struct entity_set {
  * @param height The height of the map and the parts of the terminal to render
  * @param width The width of the map and the parts of the terminal to render
 */
-void entity_set_render(entity_set entity_set,
+void entity_set_render(entity_set entity_set, map map,
                        int map_top , int map_left,
                        int term_top, int term_left,
                        int height  , int width);
