@@ -33,26 +33,26 @@
 #define CIRCLE_RADIUS 6
 
 /* @brief **DEGUB** function for drawing a circle of light on the map */
-void state_main_game_circle_light_map(map m, unsigned x, unsigned y, unsigned r) {
-	unsigned rsquared = r * r;
-	for (unsigned yp = y - r; yp <= y + r; ++yp) {
-		unsigned disty = (yp - y) * (yp - y);
+void state_main_game_circle_light_map(map m, int x, int y, int r) {
+	int rsquared = r * r;
+	for (int yp = y - r; yp <= y + r; ++yp) {
+		int disty = (yp - y) * (yp - y);
 
-		for (unsigned xp = x - r; xp <= x + r; ++xp) {
-			if (xp < m.width && yp < m.height) {
-				unsigned dist = (xp - x) * (xp - x) + disty;
-				if (dist <= rsquared)
-					m.data[yp * m.width + xp].light = dist < rsquared / 2 ? 2 : 1;
+		for (int xp = x - r; xp <= x + r; ++xp) {
+			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height) {
+				if ((xp - x) * (xp - x) + disty <= rsquared)
+					m.data[yp * m.width + xp].light = 1;
 			}
 		}
 	}
 }
 
 /* @brief **DEGUB** function for clearing a circle of light on the map */
-void state_main_game_circle_clean_light_map(map m, unsigned x, unsigned y, unsigned r) {
-	for (unsigned yp = y - r; yp <= y + r; ++yp)
-		for (unsigned xp = x - r; xp <= x + r; ++xp)
-			m.data[yp * m.width + xp].light = 0;
+void state_main_game_circle_clean_light_map(map m, int x, int y, int r) {
+	for (int yp = y - r; yp <= y + r; ++yp)
+		for (int xp = x - r; xp <= x + r; ++xp)
+			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height)
+				m.data[yp * m.width + xp].light = 0;
 }
 
 /** @brief Responds to the passage of time in the game to measure FPS */
