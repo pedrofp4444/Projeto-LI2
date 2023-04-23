@@ -72,9 +72,9 @@ typedef enum {
  * @var entity::data
  *   Pointer to additional data (specific to each entity type)
  *
- * @var entity::destructor
- *   Callback function to the destroy the entity (like in OOP). Must free entity::data, if
- *   appliable. If `NULL`, it won't be called.
+ * @var entity::destroy
+ *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
+ *   applicable. If `NULL`, it won't be called.
 */
 typedef struct entity {
 	int x, y;
@@ -85,7 +85,7 @@ typedef struct entity {
 
 	void *data;
 
-	void (*destroy)(void);
+	void (*destroy)(struct entity *ent);
 } entity;
 
 /**
