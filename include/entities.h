@@ -139,5 +139,18 @@ void entity_set_render(entity_set entity_set, map map,
                        int term_top, int term_left,
                        int height  , int width);
 
+/**
+ * @brief Animates all entities in an entity set (changes their position)
+ *
+ * @param entity_set The set to be animated
+ * @param step_index The index of the current animation step. If some entities' animations have
+ *                   less than this number of steps, they just won't be animated.
+ *
+ * @return 1 if incrementing @p step_index would cause no entity to be moved (all entities would
+ *         have shorter animation lengths than @p step_index, there is no need to continue looping
+ *         through indices), 0 otherwise.
+ */
+int entity_set_animate(entity_set entity_set, size_t step_index);
+
 #endif
 

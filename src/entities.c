@@ -135,3 +135,26 @@ void entity_set_render(entity_set entity_set, map map,
 	}
 }
 
+/** @brief Animates an entity */
+void entity_animate(entity *e, size_t step_index) {
+	if (step_index < e->animation.length) {
+		e->x = e->animation.steps[step_index].x;
+		e->y = e->animation.steps[step_index].y;
+	}
+}
+
+int entity_set_animate(entity_set entity_set, size_t step_index) {
+	int stop = 1; /* Return value, whether all animations are finished */
+
+	for (size_t i = 0; i < entity_set.count; ++i) {
+		entity *ent = &entity_set.entities[i];
+		entity_animate(ent, step_index);
+
+		if (step_index + 1 < ent->animation.length) { /* Unfinished animation */
+			stop = 0;
+		}
+	}
+
+	return stop;
+}
+

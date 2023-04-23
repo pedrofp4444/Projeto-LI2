@@ -26,6 +26,12 @@
 #include <map.h>
 #include <entities.h>
 
+/** @brief Type of action during the game */
+typedef enum {
+	MAIN_GAME_IDLING,    /**< Waiting for user input for the next turn */
+	MAIN_GAME_ANIMATING, /**< Animating between-turn events */
+} state_main_game_action;
+
 /**
  * @struct state_main_game_data
  * @brief Data for the main game state
@@ -49,6 +55,13 @@
  * @var state_main_game_data::needs_rerender
  *   If an update happened (e.g.: user input, window resize) requiring the game to be rendered
  *
+ * @var state_main_game_data::action
+ *   What is currently happening in the game (see ::state_main_game_action)
+ * @var state_main_game_data::animation_step
+ *   The index of the current animation step. See ::entity_set_animate.
+ * @var state_main_game_data::time_since_last_animation
+ *   The time (in seconds) since the last animation step
+ *
  * @var state_main_game_data::map
  *   The game map
  * @var state_main_game_data::entities
@@ -61,6 +74,10 @@ typedef struct {
 	double elapsed_fps;
 
 	int needs_rerender;
+
+	state_main_game_action action;
+	size_t animation_step;
+	double time_since_last_animation;
 
 	map map;
 	entity_set entities;
