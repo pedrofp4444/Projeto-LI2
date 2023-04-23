@@ -23,6 +23,7 @@
 #define ENTITIES_H
 
 #include <map.h>
+#include <game_state.h>
 #include <stddef.h>
 
 /**
@@ -51,28 +52,40 @@ typedef enum {
 /**
  * @struct entity
  * @brief Struct that represents a game entity.
+ *
  * @var entity::x
  *   X coordinate of the entity on the map
  * @var entity::y
  *   Y coordinate of the entity on the map
+ *
+ * @var entity::type
+ *   The type of the entity
+ *
  * @var entity::health
- *   Entity health points
+ *   Entity's current health points
+ * @var entity::max_health
+ *   Entity's maximum health
+ *
  * @var entity::weapon
  *   Weapon equipped by the entity
+ *
  * @var entity::data
- *   Pointer to additional data
- * @var entity::update
- *   Pointer to an entity update function
+ *   Pointer to additional data (specific to each entity type)
+ *
+ * @var entity::destructor
+ *   Callback function to the destroy the entity (like in OOP). Must free entity::data, if
+ *   appliable. If `NULL`, it won't be called.
 */
-typedef struct {
+typedef struct entity {
 	int x, y;
 	entity_type type;
 
-	int health;
+	int health, max_health;
 	weapon weapon;
 
 	void *data;
-	void (*update)(void);
+
+	void (*destroy)(void);
 } entity;
 
 /**

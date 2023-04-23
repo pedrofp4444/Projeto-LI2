@@ -32,6 +32,10 @@ entity_set entity_set_allocate(size_t count) {
 }
 
 void entity_set_free(entity_set entities) {
+	for (size_t i = 0; i < entities.count; ++i)
+		if (entities.entities[i].destroy)
+			entities.entities[i].destroy();
+
 	free(entities.entities);
 }
 

@@ -28,11 +28,11 @@ entity entity_create_rat(unsigned x, unsigned y, int health) {
 		.y = y,
 		.type = ENTITY_RAT,
 
-		.health = health,
+		.health = health, .max_health = health,
 		.weapon = WEAPON_HAND,
 
 		.data = NULL,
-		.update = NULL
+		.destroy = NULL
 	};
 
 	return rat;

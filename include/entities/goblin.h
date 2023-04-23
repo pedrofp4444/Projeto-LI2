@@ -25,9 +25,9 @@
 #include <entities.h>
 
 /**
- * @brief Creates a new entity type of type ENTITY_GOBLIN with especified coordinates and
- * health points. The function also assigns a random weapon to the entity, but limited to a 
- * specific set of four weapons.
+ * @brief   Creates a new entity type of type ENTITY_GOBLIN.
+ * @details The function assigns a random weapon to the entity, limited to ::WEAPON_HAND,
+ *          ::WEAPON_DAGGER, ::WEAPON_ARROW, ::WEAPON_BOMB.
  *
  * @param x The x coordinate of the entity on the map
  * @param y The y coordinate of the entity on the map
