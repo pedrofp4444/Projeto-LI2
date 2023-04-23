@@ -34,6 +34,8 @@ entity entity_create_goblin(unsigned x, unsigned y, int health) {
 		.health = health, .max_health = health,
 		.weapon = weapon_index,
 
+		.animation = animation_sequence_create(),
+
 		.data = NULL,
 		.destroy = NULL
 	};

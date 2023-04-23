@@ -33,6 +33,7 @@ entity_set entity_set_allocate(size_t count) {
 
 void entity_set_free(entity_set entities) {
 	for (size_t i = 0; i < entities.count; ++i) {
+		animation_sequence_free(entities.entities[i].animation);
 		if (entities.entities[i].destroy)
 			entities.entities[i].destroy(&entities.entities[i]);
 	}

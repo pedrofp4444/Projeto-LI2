@@ -139,8 +139,12 @@ game_state state_main_game_create(void) {
 	/* Populate the map with random invalid entities (temporary) */
 	entity_set entities = entity_set_allocate(1024);
 	for (int i = 0; i < 1024; ++i) {
+		entities.entities[i].animation = animation_sequence_create();
+
 		entities.entities[i].health = 1;
 		entities.entities[i].type = rand() % 5;
+
+		entities.entities[i].destroy = NULL;
 
 		entities.entities[i].x = rand() % 1024;
 		entities.entities[i].y = rand() % 1024;

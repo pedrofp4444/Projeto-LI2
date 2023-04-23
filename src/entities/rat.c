@@ -31,6 +31,8 @@ entity entity_create_rat(unsigned x, unsigned y, int health) {
 		.health = health, .max_health = health,
 		.weapon = WEAPON_HAND,
 
+		.animation = animation_sequence_create(),
+
 		.data = NULL,
 		.destroy = NULL
 	};

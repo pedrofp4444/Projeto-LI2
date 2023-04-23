@@ -22,6 +22,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <animation.h>
 #include <map.h>
 #include <game_state.h>
 #include <stddef.h>
@@ -72,6 +73,9 @@ typedef enum {
  * @var entity::data
  *   Pointer to additional data (specific to each entity type)
  *
+ * @var entity::animation
+ *   Animation sequence for an entity.
+ *
  * @var entity::destroy
  *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
  *   applicable. If `NULL`, it won't be called.
@@ -84,6 +88,8 @@ typedef struct entity {
 	weapon weapon;
 
 	void *data;
+
+	animation_sequence animation;
 
 	void (*destroy)(struct entity *ent);
 } entity;
