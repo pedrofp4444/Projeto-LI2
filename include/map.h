@@ -30,6 +30,7 @@ typedef enum {
 	TILE_EMPTY, /**< An empty space */
 	TILE_WALL,  /**< A wall tile */
 	TILE_WATER, /**< Water puddle */
+	TILE_DOT, /**< Path draw */
 } tile_type;
 
 /**

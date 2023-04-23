@@ -26,6 +26,8 @@
 #include <map.h>
 #include <entities.h>
 
+#define MOVES_MAX 100
+
 /**
  * @struct state_main_game_data
  * @brief Data for the main game state
@@ -53,6 +55,17 @@
  *   The game map
  * @var state_main_game_data::entities
  *   Entities in the map
+ * 
+ * @var state_main_game_data::moves
+ * 	Stores the player's path
+ * @var state_main_game_data::move_count
+ * 	Counts how many moves have been made
+ * @var state_main_game_data::x
+ *  Last x position of the path
+ * @var state_main_game_data::y
+ *  Last y position of the path
+ * @var state_main_game_data::history
+ *  Pointer to history of the tile types of the path
  */
 typedef struct {
 	int offsetx, offsety;
@@ -64,6 +77,11 @@ typedef struct {
 
 	map map;
 	entity_set entities;
+
+	int moves[MOVES_MAX];
+	int move_count;
+	int x,y;
+	tile_type history[MOVES_MAX];
 } state_main_game_data;
 
 /** @brief Creates a state for the main game */

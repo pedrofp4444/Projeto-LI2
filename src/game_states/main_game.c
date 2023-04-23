@@ -31,6 +31,7 @@
 #define CIRCLE_CENTER_X 10
 #define CIRCLE_CENTER_Y 10
 #define CIRCLE_RADIUS 6
+#define MOVES_MAX 100
 
 /* @brief **DEGUB** function for drawing a circle of light on the map */
 void state_main_game_circle_light_map(map m, unsigned x, unsigned y, unsigned r) {
@@ -82,6 +83,135 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
+/**
+ * @brief Returns the opposite key given a key.
+ * @param key Key.
+ * @return The opposite key.
+*/
+int opposite_key (int key) {
+	if (key == KEY_UP   ) return KEY_DOWN;
+	if (key == KEY_DOWN ) return KEY_UP;
+	if (key == KEY_RIGHT) return KEY_LEFT;
+	if (key == KEY_LEFT ) return KEY_RIGHT;
+	return 0;
+}
+
+/**
+ * @brief Verifies if a move is valid.
+ * @param state A pointer to the main game state data.
+ * @param x The x coordinate of the move.
+ * @param y The y coordinate of the move.
+ * @return 1 if the move is valid, 0 otherwise.
+*/
+int verify_move (state_main_game_data *state, int x, int y) {
+	return (x >= 0 && y >= 0 &&
+	        (unsigned)x < state->map.height && (unsigned)y < state->map.width &&
+	        state->map.data[y * state->map.width + x].type != TILE_WALL);
+}
+
+/**
+ * @brief Gets the change in x and y coordinates given a key.
+ * @param key The key.
+ * @param dx A pointer to the variable to store the change in x coordinate.
+ * @param dy A pointer to the variable to store the change in y coordinate.
+*/
+void get_dx_dy(int key, int *dx, int *dy) {
+
+	if (key == KEY_UP   ) *dy = -1;
+	if (key == KEY_DOWN ) *dy = 1;
+	if (key == KEY_LEFT ) *dx = -1;
+	if (key == KEY_RIGHT) *dx = 1;
+
+}
+
+/**
+ * @brief Draws the path of the player based on the input move.
+ * 
+ * @param state A pointer to the main game state data.
+ * @param move The input move.
+*/
+void draw_path(state_main_game_data *state, int move) {
+
+	/* Checks if the move is valid */
+	switch (move) {
+		case KEY_UP:
+			if (!verify_move(state, state->x, state->y-1)) return;
+			(state->y)--;
+			break;
+
+		case KEY_DOWN:
+			if (!verify_move(state, state->x, state->y+1)) return;
+			(state->y)++;
+			break;
+
+		case KEY_LEFT:
+			if (!verify_move(state, state->x-1, state->y)) return;
+			(state->x)--;
+			break;
+
+		case KEY_RIGHT:
+			if (!verify_move(state, state->x+1, state->y)) return;
+			(state->x)++;
+			break;
+
+		default:
+			return;
+	}
+
+	int last_move = state->move_count - 1;
+	if (last_move >= 0 && state->moves[last_move] == opposite_key(move)) {
+		/* Removes the point and restores the previous TILE */
+		int dx_l = 0, dy_l = 0;
+		int dx_m = 0, dy_m = 0;
+
+		get_dx_dy(last_move, &dx_l, &dy_l);
+		get_dx_dy(move, &dx_m, &dy_m);
+
+		state->x -= (dx_l + dx_m);
+		state->y -= (dy_l + dy_m);
+
+		tile_type previous_tile = state->history[last_move];
+		state->map.data[state->y * state->map.width + state->x].type = previous_tile;
+
+		state->history[last_move] = previous_tile;
+		state->moves[last_move] = 0;
+		state->move_count--;
+	}
+
+	else {
+		/* Saves the current TILE */
+		tile_type current_tile = state->map.data[state->y * state->map.width + state->x].type;
+
+		state->map.data[state->y * state->map.width + state->x].type = TILE_DOT;
+		state->moves[state->move_count] = move;
+		state->move_count++;
+
+		/* Saves current TILE in history */
+		state->history[state->move_count - 1] = current_tile;
+	}
+}
+
+/**
+ * @brief Updates the player's position on the map according to the stored moves.
+ * 
+ * @param state A pointer to the main game state data.
+*/
+void player_move (state_main_game_data *state) {
+	int new_x = state->entities.entities[0].x, new_y = state->entities.entities[0].y;
+	for (int i = 0; i < state->move_count; i++) {
+		if (state->moves[i] == KEY_UP) new_y--;
+		if (state->moves[i] == KEY_DOWN) new_y++;
+		if (state->moves[i] == KEY_RIGHT) new_x++;
+		if (state->moves[i] == KEY_LEFT) new_x--;
+
+		state->entities.entities[0].x = new_x;
+		state->entities.entities[0].y = new_y;
+
+		state->map.data[new_y * state->map.width + new_x].type = state->history[i];
+	}
+	state->move_count = 0;
+}
+
 /** @brief Responds to user input in the main game state */
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
@@ -93,20 +223,19 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 		case '\x1b':
 			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
 
-		/* Temporary: move map around */
 		case KEY_UP:
-			state->offsety--;
-			break;
 		case KEY_DOWN:
-			state->offsety++;
+		case KEY_LEFT:
+		case KEY_RIGHT:
+			draw_path(state, key);
 			break;
 
-		case KEY_LEFT:
-			state->offsetx--;
-			break;
-		case KEY_RIGHT:
-			state->offsetx++;
-			break;
+		case '\r':
+			if (state->move_count > 0) {
+				player_move(state);
+				state->x = state->entities.entities[0].x;
+				state->y = state->entities.entities[0].y;
+			}
 	}
 
 	state_main_game_circle_light_map(state->map,
@@ -138,13 +267,18 @@ game_state state_main_game_create(void) {
 
 	/* Populate the map with random invalid entities (temporary) */
 	entity_set entities = entity_set_allocate(1024);
-	for (int i = 0; i < 1024; ++i) {
+	for (int i = 1; i < 1024; ++i) {
 		entities.entities[i].health = 1;
-		entities.entities[i].type = rand() % 5;
+		entities.entities[i].type = rand() % 4 + 1;
 
 		entities.entities[i].x = rand() % 1024;
 		entities.entities[i].y = rand() % 1024;
 	}
+
+	entities.entities[0].health = 1;
+	entities.entities[0].type = ENTITY_PLAYER;
+	entities.entities[0].x = 9;
+	entities.entities[0].y = 10;
 
 	state_main_game_data data = {
 		.offsetx = 0, .offsety = 0,
@@ -157,6 +291,12 @@ game_state state_main_game_create(void) {
 
 		.map = m,
 		.entities = entities,
+
+		.x = entities.entities[0].x,
+		.y = entities.entities[0].y,
+		.moves = {0},
+		.move_count = 0,
+		.history = {TILE_EMPTY},
 	};
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
