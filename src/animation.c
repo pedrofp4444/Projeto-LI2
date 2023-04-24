@@ -36,7 +36,7 @@ void animation_sequence_free(animation_sequence s) {
 	free(s.steps);
 }
 
-void animation_add_step(animation_sequence *sequence, animation_step add) {
+void animation_sequence_add_step(animation_sequence *sequence, animation_step add) {
 	if (sequence->length >= sequence->capacity) {
 		sequence->capacity *= 2;
 		sequence->steps = realloc(sequence->steps, sequence->capacity * sizeof(animation_step));
