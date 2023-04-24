@@ -22,7 +22,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <animation.h>
 #include <map.h>
+#include <game_state.h>
 #include <stddef.h>
 
 /**
@@ -51,28 +53,45 @@ typedef enum {
 /**
  * @struct entity
  * @brief Struct that represents a game entity.
+ *
  * @var entity::x
  *   X coordinate of the entity on the map
  * @var entity::y
  *   Y coordinate of the entity on the map
+ *
+ * @var entity::type
+ *   The type of the entity
+ *
  * @var entity::health
- *   Entity health points
+ *   Entity's current health points
+ * @var entity::max_health
+ *   Entity's maximum health
+ *
  * @var entity::weapon
  *   Weapon equipped by the entity
+ *
  * @var entity::data
- *   Pointer to additional data
- * @var entity::update
- *   Pointer to an entity update function
+ *   Pointer to additional data (specific to each entity type)
+ *
+ * @var entity::animation
+ *   Animation sequence for an entity.
+ *
+ * @var entity::destroy
+ *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
+ *   applicable. If `NULL`, it won't be called.
 */
-typedef struct {
+typedef struct entity {
 	int x, y;
 	entity_type type;
 
-	int health;
+	int health, max_health;
 	weapon weapon;
 
 	void *data;
-	void (*update)(void);
+
+	animation_sequence animation;
+
+	void (*destroy)(struct entity *ent);
 } entity;
 
 /**
@@ -119,6 +138,19 @@ void entity_set_render(entity_set entity_set, map map,
                        int map_top , int map_left,
                        int term_top, int term_left,
                        int height  , int width);
+
+/**
+ * @brief Animates all entities in an entity set (changes their position)
+ *
+ * @param entity_set The set to be animated
+ * @param step_index The index of the current animation step. If some entities' animations have
+ *                   less than this number of steps, they just won't be animated.
+ *
+ * @return 1 if incrementing @p step_index would cause no entity to be moved (all entities would
+ *         have shorter animation lengths than @p step_index, there is no need to continue looping
+ *         through indices), 0 otherwise.
+ */
+int entity_set_animate(entity_set entity_set, size_t step_index);
 
 #endif
 
