@@ -34,7 +34,8 @@
 int state_main_game_verify_player_position(state_main_game_data *state, int x, int y) {
 	return (x >= 0 && y >= 0 &&
 	        (unsigned)x < state->map.height && (unsigned)y < state->map.width &&
-	        state->map.data[y * state->map.width + x].type != TILE_WALL);
+	        state->map.data[y * state->map.width + x].type != TILE_WALL &&
+	        state->map.data[y * state->map.width + x].light != 0);
 }
 
 /**
