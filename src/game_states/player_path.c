@@ -97,6 +97,8 @@ void state_main_game_move_player(state_main_game_data *state, int key) {
 		} else {
 			animation_sequence_add_step(&PLAYER(state).animation, step);
 		}
+	} else {
+		beep();
 	}
 }
 
