@@ -24,8 +24,6 @@
 #include <entities/goblin.h>
 
 entity entity_create_goblin(unsigned x, unsigned y, int health) {
-	/*Initialize the random number generator seed based on the current time*/
-	srand(time(NULL));
 	int weapon_index = rand() % 4;
 
 	entity goblin = {
@@ -33,11 +31,13 @@ entity entity_create_goblin(unsigned x, unsigned y, int health) {
 		.y = y,
 		.type = ENTITY_GOBLIN,
 
-		.health = health,
+		.health = health, .max_health = health,
 		.weapon = weapon_index,
 
+		.animation = animation_sequence_create(),
+
 		.data = NULL,
-		.update = NULL
+		.destroy = NULL
 	};
 
 	return goblin;
