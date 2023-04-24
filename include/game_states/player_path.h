@@ -1,6 +1,6 @@
 /**
  * @file player_path.h
- * @brief Draw player path
+ * @brief Draw and update the player movement path
  */
 
 /*
@@ -25,20 +25,30 @@
 #include <game_states/main_game.h>
 
 /**
- * @brief Draws the path of the player based on the input move.
- * 
- * @param state A pointer to the main game state data.
- * @param move The input move.
-*/
-void draw_path(state_main_game_data *state, int move);
+ * @brief Responds to an arrow key to move the player (change its animation for the next turn).
+ * @param state Game state
+ * @param key   Ncurses' pressed key
+ */
+void state_main_game_move_player(state_main_game_data *state, int key);
 
 /**
- * @brief Updates the player's position on the map according to the stored moves.
- * 
- * @param state A pointer to the main game state data.
-*/
-void player_move (state_main_game_data *state);
+ * @brief   Draws the path (::animation_sequence) of the player on the screen
+ * @details Not the full sequence is drawn, only the steps after
+ *          ::state_main_game_data::animation_step. That allows for partial path rendering when
+ *          the player (and other entities) are being animated.
+ *
+ * @param state The game state
+ * @param map_top The top coordinate of the map to be rendered
+ * @param map_left The left coordinate of the map to be rendered
+ * @param term_top The top coordinate of the terminal where the map will be rendered
+ * @param term_left The left coordinate of the terminal where the map will be rendered
+ * @param height The height of the map and the parts of the terminal to render
+ * @param width The width of the map and the parts of the terminal to render
+ */
+void state_main_game_draw_player_path(state_main_game_data *state,
+                                      int map_top , int map_left,
+                                      int term_top, int term_left,
+                                      int height  , int width);
 
 #endif
-
 

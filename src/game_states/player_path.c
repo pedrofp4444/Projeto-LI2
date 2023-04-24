@@ -1,6 +1,6 @@
 /**
  * @file player_path.c
- * @brief Draw player path
+ * @brief Draw and update the player movement path
  */
 
 /*
@@ -23,35 +23,23 @@
 #include <game_states/main_game.h>
 
 #include <ncurses.h>
-/**
- * @brief Returns the opposite key given a key.
- * @param key Key.
- * @return The opposite key.
-*/
-int opposite_key (int key) {
-	if (key == KEY_UP   ) return KEY_DOWN;
-	if (key == KEY_DOWN ) return KEY_UP;
-	if (key == KEY_RIGHT) return KEY_LEFT;
-	if (key == KEY_LEFT ) return KEY_RIGHT;
-	return 0;
-}
 
 /**
- * @brief Verifies if a move is valid.
+ * @brief Verifies if a player position is valid (inside the map, not a wall, ...)
  * @param state A pointer to the main game state data.
- * @param x The x coordinate of the move.
- * @param y The y coordinate of the move.
- * @return 1 if the move is valid, 0 otherwise.
+ * @param x The x coordinate of the player.
+ * @param y The y coordinate of the player.
+ * @return 1 if the position is valid, 0 otherwise.
 */
-int verify_move (state_main_game_data *state, int x, int y) {
+int state_main_game_verify_player_position(state_main_game_data *state, int x, int y) {
 	return (x >= 0 && y >= 0 &&
 	        (unsigned)x < state->map.height && (unsigned)y < state->map.width &&
 	        state->map.data[y * state->map.width + x].type != TILE_WALL);
 }
 
 /**
- * @brief Gets the change in x and y coordinates given a key.
- * @param key The key.
+ * @brief Gets the change of the x and y coordinates for a given pressed key.
+ * @param key The ncurses' key.
  * @param dx A pointer to the variable to store the change in x coordinate.
  * @param dy A pointer to the variable to store the change in y coordinate.
 */
@@ -64,80 +52,71 @@ void get_dx_dy(int key, int *dx, int *dy) {
 
 }
 
-void draw_path(state_main_game_data *state, int move) {
+void state_main_game_move_player(state_main_game_data *state, int key) {
 
-	/* Checks if the move is valid */
-	switch (move) {
-		case KEY_UP:
-			if (!verify_move(state, state->x, state->y-1)) return;
-			(state->y)--;
-			break;
+	int x, y;
+	animation_step last_pos;
 
-		case KEY_DOWN:
-			if (!verify_move(state, state->x, state->y+1)) return;
-			(state->y)++;
-			break;
+	/*
+	 * Define the current position and the last position. This depends on length of the
+	 * animation.
+	 */
+	if (PLAYER(state).animation.length == 0) {
+		last_pos.x = -1; last_pos.y = -1; /* Invalid position for later */
+		x = PLAYER(state).x; y = PLAYER(state).y;
+	}
+	else if (PLAYER(state).animation.length == 1) {
+		last_pos.x = PLAYER(state).x; last_pos.y = PLAYER(state).y;
 
-		case KEY_LEFT:
-			if (!verify_move(state, state->x-1, state->y)) return;
-			(state->x)--;
-			break;
+		animation_step current_pos =
+			PLAYER(state).animation.steps[PLAYER(state).animation.length - 1];
+		x = current_pos.x; y = current_pos.y;
 
-		case KEY_RIGHT:
-			if (!verify_move(state, state->x+1, state->y)) return;
-			(state->x)++;
-			break;
+	} else {
+		last_pos = PLAYER(state).animation.steps[PLAYER(state).animation.length - 2];
 
-		default:
-			return;
+		animation_step current_pos =
+			PLAYER(state).animation.steps[PLAYER(state).animation.length - 1];
+		x = current_pos.x; y = current_pos.y;
 	}
 
-	int last_move = state->move_count - 1;
-	if (last_move >= 0 && state->moves[last_move] == opposite_key(move)) {
-		/* Removes the point and restores the previous TILE */
-		int dx_l = 0, dy_l = 0;
-		int dx_m = 0, dy_m = 0;
+	/* Player movement based on pressed key */
+	int dx = 0, dy = 0;
+	get_dx_dy(key, &dx, &dy);
+	if (dx == 0 && dy == 0) return;
+	x += dx; y += dy;
 
-		get_dx_dy(last_move, &dx_l, &dy_l);
-		get_dx_dy(move, &dx_m, &dy_m);
+	if (state_main_game_verify_player_position(state, x, y)) { /* Check if the movement is valid */
+		animation_step step = { .x = x, .y = y };
 
-		state->x -= (dx_l + dx_m);
-		state->y -= (dy_l + dy_m);
-
-		tile_type previous_tile = state->history[last_move];
-		state->map.data[state->y * state->map.width + state->x].type = previous_tile;
-
-		state->history[last_move] = previous_tile;
-		state->moves[last_move] = 0;
-		state->move_count--;
-	}
-
-	else {
-		/* Saves the current TILE */
-		tile_type current_tile = state->map.data[state->y * state->map.width + state->x].type;
-
-		state->map.data[state->y * state->map.width + state->x].type = TILE_DOT;
-		state->moves[state->move_count] = move;
-		state->move_count++;
-
-		/* Saves current TILE in history */
-		state->history[state->move_count - 1] = current_tile;
+		if (last_pos.x == step.x && last_pos.y == step.y) {
+			/* Player wants to go back. Revert last movement */
+			/* This won't trigger if the last postion is invalid */
+			PLAYER(state).animation.length--;
+		} else {
+			animation_sequence_add_step(&PLAYER(state).animation, step);
+		}
 	}
 }
 
-void player_move (state_main_game_data *state) {
-	int new_x = state->entities.entities[0].x, new_y = state->entities.entities[0].y;
-	for (int i = 0; i < state->move_count; i++) {
-		if (state->moves[i] == KEY_UP) new_y--;
-		if (state->moves[i] == KEY_DOWN) new_y++;
-		if (state->moves[i] == KEY_RIGHT) new_x++;
-		if (state->moves[i] == KEY_LEFT) new_x--;
+void state_main_game_draw_player_path(state_main_game_data *state,
+                                      int map_top , int map_left,
+                                      int term_top, int term_left,
+                                      int height  , int width) {
 
-		state->entities.entities[0].x = new_x;
-		state->entities.entities[0].y = new_y;
+	attron(COLOR_PAIR(COLOR_WHITE) | A_REVERSE);
+	animation_sequence seq = PLAYER(state).animation;
 
-		state->map.data[new_y * state->map.width + new_x].type = state->history[i];
+	for (size_t i = (size_t) state->animation_step; i < seq.length; ++i) {
+		animation_step step = seq.steps[i];
+
+		if(step.x >= map_left        &&
+		   step.x < map_left + width &&
+		   step.y >= map_top         &&
+		   step.y < map_top + height) { /* Don't draw out-of-screen paths */
+
+			mvaddch(term_top + (step.y - map_top), term_left + (step.x - map_left), ' ');
+		}
 	}
-	state->move_count = 0;
+	attrset(A_NORMAL);
 }
-

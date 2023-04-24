@@ -30,7 +30,6 @@
 #include <ncurses.h>
 
 #define CIRCLE_RADIUS 15
-
 #define MAIN_GAME_ANIMATION_TIME 0.3
 
 /* @brief **DEGUB** function for drawing a circle of light on the map */
@@ -86,15 +85,27 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 		if (state->time_since_last_animation >= MAIN_GAME_ANIMATION_TIME) {
 			state->time_since_last_animation = 0;
 
+			state_main_game_circle_clean_light_map(
+				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
+
 			/* Actual entity moving */
 			if (entity_set_animate(state->entities, state->animation_step)) {
 				/* Done animating */
 				state->action = MAIN_GAME_IDLING;
 				state->animation_step = 0;
+
+				/* Clear all entities' animations */
+				for (size_t i = 0; i < state->entities.count; ++i)
+					state->entities.entities[i].animation.length = 0;
+
 			} else {
 				/* Some entities have animation steps left */
 				state->animation_step++;
 			}
+
+
+			state_main_game_circle_light_map(
+				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
 
 		} else {
 			state->time_since_last_animation += elapsed;
@@ -105,7 +116,6 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
-
 
 /** @brief **DEBUG** function for testing animations. Moves all entities (but the player) to the left */
 void state_main_game_move_entities(state_main_game_data *state) {
@@ -135,21 +145,13 @@ void state_main_game_move_entities(state_main_game_data *state) {
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
-	state_main_game_circle_clean_light_map(state->map,
-		state->entities.entities[0].x,
-		state->entities.entities[0].y, CIRCLE_RADIUS);
-
 	switch (key) {
 		case '\x1b':
 			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
 
 		case '\r': /* On ENTER, animate all entities moving three blocks left - temporary */
-			state_main_game_move_entities(state);
-
-			if (state->move_count > 0) {
-				player_move(state);
-				state->x = state->entities.entities[0].x;
-				state->y = state->entities.entities[0].y;
+			if (state->action == MAIN_GAME_IDLING) {
+				state_main_game_move_entities(state);
 			}
 			break;
 
@@ -157,13 +159,14 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 		case KEY_DOWN:
 		case KEY_LEFT:
 		case KEY_RIGHT:
-			draw_path(state, key);
+			if (state->action == MAIN_GAME_IDLING) {
+				state_main_game_move_player(state, key);
+			}
+			break;
+
+		default:
 			break;
 	}
-
-	state_main_game_circle_light_map(state->map,
-		state->entities.entities[0].x,
-		state->entities.entities[0].y, CIRCLE_RADIUS);
 
 	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -202,6 +205,7 @@ game_state state_main_game_create(void) {
 		entities.entities[i].y = rand() % 1024;
 	}
 
+	/* Player entity (temporary) */
 	entities.entities[0].health = 1;
 	entities.entities[0].animation = animation_sequence_create();
 	entities.entities[0].type = ENTITY_PLAYER;
@@ -224,12 +228,6 @@ game_state state_main_game_create(void) {
 
 		.map = m,
 		.entities = entities,
-
-		.x = entities.entities[0].x,
-		.y = entities.entities[0].y,
-		.moves = {0},
-		.move_count = 0,
-		.history = {TILE_EMPTY},
 	};
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));

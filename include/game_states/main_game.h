@@ -26,8 +26,6 @@
 #include <map.h>
 #include <entities.h>
 
-#define MOVES_MAX 100
-
 /** @brief Type of action during the game */
 typedef enum {
 	MAIN_GAME_IDLING,    /**< Waiting for user input for the next turn */
@@ -63,17 +61,6 @@ typedef enum {
  *   The game map
  * @var state_main_game_data::entities
  *   Entities in the map
- *
- * @var state_main_game_data::moves
- * 	Stores the player's path
- * @var state_main_game_data::move_count
- * 	Counts how many moves have been made
- * @var state_main_game_data::x
- *  Last x position of the path
- * @var state_main_game_data::y
- *  Last y position of the path
- * @var state_main_game_data::history
- *  Pointer to history of the tile types of the path
  */
 typedef struct {
 	int fps_show, fps_count, renders_show, renders_count;
@@ -87,12 +74,10 @@ typedef struct {
 
 	map map;
 	entity_set entities;
-
-	int moves[MOVES_MAX];
-	int move_count;
-	int x,y;
-	tile_type history[MOVES_MAX];
 } state_main_game_data;
+
+/** @brief Returns the player (first entity) of a ::state_main_game_data pointer */
+#define PLAYER(state) state->entities.entities[0]
 
 /** @brief Creates a state for the main game */
 game_state state_main_game_create(void);

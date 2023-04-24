@@ -64,10 +64,6 @@ tile_type_render_info tile_get_render_info(tile_type t) {
 			ret.chr = '.';
 			ret.color = COLOR_BLUE;
 			break;
-		case TILE_DOT:
-			ret.chr = '.';
-			ret.color = COLOR_MAGENTA;
-			break;
 		default:
 			/* Not supposed to happen */
 			ret.chr = ' ';
