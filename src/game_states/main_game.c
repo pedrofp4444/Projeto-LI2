@@ -29,10 +29,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-#define CIRCLE_CENTER_X 10
-#define CIRCLE_CENTER_Y 10
-#define CIRCLE_RADIUS 6
-#define MOVES_MAX 100
+#define CIRCLE_RADIUS 15
 
 #define MAIN_GAME_ANIMATION_TIME 0.3
 
@@ -139,7 +136,8 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
 	state_main_game_circle_clean_light_map(state->map,
-		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
+		state->entities.entities[0].x,
+		state->entities.entities[0].y, CIRCLE_RADIUS);
 
 	switch (key) {
 		case '\x1b':
@@ -164,7 +162,8 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	}
 
 	state_main_game_circle_light_map(state->map,
-		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
+		state->entities.entities[0].x,
+		state->entities.entities[0].y, CIRCLE_RADIUS);
 
 	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -188,7 +187,6 @@ game_state state_main_game_create(void) {
 		};
 		m.data[i] = t;
 	}
-	state_main_game_circle_light_map(m, CIRCLE_CENTER_X, CIRCLE_CENTER_Y, CIRCLE_RADIUS);
 
 	/* Populate the map with random invalid entities (temporary) */
 	entity_set entities = entity_set_allocate(1024);
@@ -207,12 +205,10 @@ game_state state_main_game_create(void) {
 	entities.entities[0].health = 1;
 	entities.entities[0].animation = animation_sequence_create();
 	entities.entities[0].type = ENTITY_PLAYER;
-	entities.entities[0].x = 9;
-	entities.entities[0].y = 10;
+	entities.entities[0].x = 512;
+	entities.entities[0].y = 512;
 
 	state_main_game_data data = {
-		.offsetx = 0, .offsety = 0,
-
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
 		.elapsed_fps = 0.0,

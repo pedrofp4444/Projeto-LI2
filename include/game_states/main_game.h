@@ -38,11 +38,6 @@ typedef enum {
  * @struct state_main_game_data
  * @brief Data for the main game state
  *
- * @var state_main_game_data::offsetx
- *   Horizontal offset of the map
- * @var state_main_game_data::offsety
- *   Vertical offset of the map
- *
  * @var state_main_game_data::fps_show
  *   The FPS number to be displayed
  * @var state_main_game_data::fps_count
@@ -81,8 +76,6 @@ typedef enum {
  *  Pointer to history of the tile types of the path
  */
 typedef struct {
-	int offsetx, offsety;
-
 	int fps_show, fps_count, renders_show, renders_count;
 	double elapsed_fps;
 

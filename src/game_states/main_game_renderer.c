@@ -62,13 +62,16 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	}
 
 	/* Render game normally (valid screen) */
+	int map_top  = state->entities.entities[0].y - (height / 2);
+	int map_left = state->entities.entities[0].x - ((width - SIDEBAR_WIDTH) / 2);
+
 	main_game_render_sidebar(state, SIDEBAR_WIDTH, height);
 	map_render(state->map,
-	           state->offsety, state->offsetx,
+	           map_top, map_left,
 	           0, SIDEBAR_WIDTH,
 	           height, width - SIDEBAR_WIDTH);
 	entity_set_render(state->entities, state->map,
-	                  state->offsety, state->offsetx,
+	                  map_top, map_left,
 	                  0, SIDEBAR_WIDTH,
 	                  height, width - SIDEBAR_WIDTH);
 
