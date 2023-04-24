@@ -208,6 +208,9 @@ game_state state_main_game_create(void) {
 	entities.entities[0].x = 512;
 	entities.entities[0].y = 512;
 
+	state_main_game_circle_light_map(
+		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
+
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
