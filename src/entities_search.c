@@ -194,6 +194,8 @@ animation_sequence search_path(map *map, animation_step start, animation_step en
 	list_destroy(closed, n_closed);
 	node_destroy(start_node);
 	node_destroy(end_node);
+	free(start_node);
+	free(end_node);
 
 	return animation_sequence_create(); /* Empty sequence */
 }
