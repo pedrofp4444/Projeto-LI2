@@ -41,7 +41,7 @@ int is_valid_position(map *map, unsigned x, unsigned y) {
 	        map->data[y * map->width + x].type == TILE_EMPTY);
 }
 
-float get_cost(map *map, position start, position end) {
+float get_cost(map *map, animation_step start, animation_step end) {
 
 	float cost = distance_position(start.x, start.y, end.x, end.y);
 	if (!is_valid_position(map, end.x, end.y)) {
@@ -60,7 +60,7 @@ node *get_lowest_f_node(node **open, int n_open) {
 	return lowest_f_node;
 }
 
-node *get_node_in_list(node **list, int n_list, position pos) {
+node *get_node_in_list(node **list, int n_list, animation_step pos) {
 	for (int i = 0; i < n_list; i++) {
 		if (list[i]->pos.x == pos.x && list[i]->pos.y == pos.y) {
 			return list[i];
@@ -69,7 +69,7 @@ node *get_node_in_list(node **list, int n_list, position pos) {
 	return NULL;
 }
 
-node *create_node(position pos, float f, float g, float h, node *parent) {
+node *create_node(animation_step pos, float f, float g, float h, node *parent) {
 	node *new_node = malloc(sizeof(node));
 	new_node->pos = pos;
 	new_node->f = f;
@@ -80,7 +80,11 @@ node *create_node(position pos, float f, float g, float h, node *parent) {
 }
 
 void node_destroy(node *node) {
+	/* Disable this warning here. We know what we're doing (TODO - valgrind testing) */
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wuse-after-free"
 	free(node);
+	#pragma GCC diagnostic pop
 }
 
 void list_destroy(node **list, int num_list) {
@@ -89,14 +93,15 @@ void list_destroy(node **list, int num_list) {
 	}
 }
 
-position *calculate_path(node *end_node, int *path_length) {
+animation_sequence calculate_path(node *end_node) {
 	int length = 0;
 	node *current_node = end_node;
 	while (current_node != NULL) {
 		length++;
 		current_node = current_node->parent;
 	}
-	position *path = malloc(sizeof(position) * length);
+
+	animation_step *path = malloc(sizeof(animation_step) * length);
 	current_node = end_node;
 	int i = length - 1;
 	while (current_node != NULL) {
@@ -104,11 +109,16 @@ position *calculate_path(node *end_node, int *path_length) {
 		i--;
 		current_node = current_node->parent;
 	}
-	*path_length = length;
-	return path;
+
+	animation_sequence ret = {
+		.steps = path,
+		.length = length,
+		.capacity = length
+	};
+	return ret;
 }
 
-position *search_path(map *map, position start, position end, int *path_length) {
+animation_sequence search_path(map *map, animation_step start, animation_step end) {
 
 	node *start_node = create_node(start, 0, 0, 0, NULL);
 	node *end_node = create_node(end, 0, 0, 0, NULL);
@@ -120,12 +130,14 @@ position *search_path(map *map, position start, position end, int *path_length) 
 	while (n_open > 0) {
 		node *current_node = get_lowest_f_node(open, n_open);
 		if (current_node->pos.x == end_node->pos.x && current_node->pos.y == end_node->pos.y) {
-			position *path = calculate_path(current_node, path_length);
+			animation_sequence ret = calculate_path(current_node);
+
 			list_destroy(open, n_open);
 			list_destroy(closed, n_closed);
 			node_destroy(start_node);
 			node_destroy(end_node);
-			return path;
+
+			return ret;
 		}
 
 		for (unsigned x = -1; x <= 1; x++) {
@@ -135,7 +147,7 @@ position *search_path(map *map, position start, position end, int *path_length) 
 				unsigned new_y = current_node->pos.y + y;
 				if (!is_valid_position(map, new_x, new_y)) continue;
 
-				position new_pos = {new_x, new_y};
+				animation_step new_pos = {new_x, new_y};
 				node *new = get_node_in_list(closed, n_closed, new_pos);
 				if (new != NULL) continue;
 
@@ -173,10 +185,13 @@ position *search_path(map *map, position start, position end, int *path_length) 
 		}
 	}
 
+	/* No path found */
+
 	list_destroy(open, n_open);
 	list_destroy(closed, n_closed);
 	node_destroy(start_node);
 	node_destroy(end_node);
-	return NULL;
+
+	return animation_sequence_create(); /* Empty sequence */
 }
 

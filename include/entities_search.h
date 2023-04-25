@@ -23,20 +23,9 @@
 #define ENTITIES_SEARCH_H
 
 #include <game_state.h>
+#include <animation.h>
 #include <map.h>
 #include <entities.h>
-
-/**
- * @struct position
- * @brief Struct that represents a position.
- * @var position::x
- *   X coordinate of the position.
- * @var position::y
- *   Y coordinate of the position.
-*/
-typedef struct {
-  unsigned x, y;
-} position;
 
 /**
  * @struct node
@@ -53,7 +42,7 @@ typedef struct {
  * 	A pointer to the parent node of this node.
 */
 typedef struct node {
-  position pos;
+  animation_step pos;
   float f, g, h;
   struct node *parent;
 } node;
@@ -107,7 +96,7 @@ int is_valid_position(map *map, unsigned x, unsigned y);
  * @returns The cost of moving from the start position to the end position, including the heuristic
  * if applicable or INFINITY if the end position is invalid.
  */
-float get_cost(map *map, position start, position end);
+float get_cost(map *map, animation_step start, animation_step end);
 
 /**
  * @brief Returns the node with the lowest f value from the list of open nodes.
@@ -128,7 +117,7 @@ node *get_lowest_f_node(node **open, int n_opne);
  * @return A pointer to the node with the position or NULL if there isn't any node in the list with
  * that position.
 */
-node *get_node_in_list(node **list, int n_list, position pos);
+node *get_node_in_list(node **list, int n_list, animation_step pos);
 
 /**
  * @brief Creates a new node with a given position, f value, g value, h value and parent node.
@@ -140,7 +129,7 @@ node *get_node_in_list(node **list, int n_list, position pos);
  * @param parent A pointer to the parent node of the new node.
  * @return A pointer to the newly node.
 */
-node *create_node(position pos, float f, float g, float h, node *parent);
+node *create_node(animation_step pos, float f, float g, float h, node *parent);
 
 /**
  * @brief Frees the memory allocated for a node.
@@ -158,14 +147,13 @@ void node_destroy(node *node);
 void list_destroy(node **list, int n_list);
 
 /**
- * @brief Calculates the path from a final node by following their parent nodes back to the initial node.
+ * @brief Calculates the path from a final node by following their parent nodes back to the initial
+ *        node.
  *
  * @param end_node The final node in the path.
- * @param path_length Pointer to an integer to store the length of the path.
- * @return A dynamically allocated array of positions representing the path from the initial node
- * to the final node.
+ * @return An animation sequence containing all positions
 */
-position *calculate_path(node *end_node, int *path_length);
+animation_sequence calculate_path(node *end_node);
 
 /**
  * @brief Implements the A* algorithm to find the shortest path between two positions on the map.
@@ -179,11 +167,9 @@ position *calculate_path(node *end_node, int *path_length);
  * @param map A pointer to the map containing the dimensions and additional data.
  * @param start The starting position of the path.
  * @param end The ending position of the path.
- * @param path_length Pointer to an integer to store the length of the calculated path.
- * @return A pointer to an array of positions representing the calculated path or NULL if it wasn't
- * found any path.
+ * @return An animation sequence. Its length will be zero if no path could be found.
 */
-position *search_path(map *map, position start, position end, int *path_length);
+animation_sequence search_path(map *map, animation_step start, animation_step end);
 
 #endif
 
