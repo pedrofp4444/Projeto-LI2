@@ -23,10 +23,11 @@
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_path.h>
 
-#include <entities/rat.h>
+#include <entities_search.h>
 
 #include <time.h>
 #include <stdlib.h>
+#include <math.h>
 #include <ncurses.h>
 
 #define CIRCLE_RADIUS 15
@@ -117,27 +118,34 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief **DEBUG** function for testing animations. Moves all entities (but the player) to the left */
+/** @brief **DEBUG** function for testing A*. Move closest entity to the player to its position */
 void state_main_game_move_entities(state_main_game_data *state) {
 	if (state->action == MAIN_GAME_IDLING) {
 		state->action = MAIN_GAME_ANIMATING;
 
+		/* Find the closest entity to the player */
+		int closest_index = -1;
+		float min_dist = INFINITY;
 		for (size_t i = 1; i < state->entities.count; ++i) {
+			entity current = state->entities.entities[i];
+			if (current.health <= 0) continue;
 
-			/* Move a random number of tiles to the left */
-			int movs = abs(rand() % 5);
+			/* x^2 + y^2. Avoid expensive square root */
+			float dist = (PLAYER(state).x - current.x) * (PLAYER(state).x - current.x) +
+			             (PLAYER(state).y - current.y) * (PLAYER(state).y - current.y);
 
-			state->entities.entities[i].animation.length = movs;
-			animation_step pos = {
-				.x = state->entities.entities[i].x,
-				.y = state->entities.entities[i].y,
-			};
-
-			for (int j = 0; j < movs; ++j) {
-				pos.x--;
-				state->entities.entities[i].animation.steps[j] = pos;
+			if (dist < min_dist) {
+				closest_index = i;
+				min_dist = dist;
 			}
 		}
+		entity *closest = &state->entities.entities[closest_index];
+
+		/* Use A* to find the player (old position) */
+		animation_step start = { .x = closest->x     , .y = closest->y      };
+		animation_step end   = { .x = PLAYER(state).x, .y = PLAYER(state).y };
+
+		closest->animation = search_path(&state->map, start, end);
 	}
 }
 
