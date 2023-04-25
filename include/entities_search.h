@@ -42,29 +42,26 @@
  * 	A pointer to the parent node of this node.
 */
 typedef struct node {
-  animation_step pos;
-  float f, g, h;
-  struct node *parent;
+	animation_step pos;
+	float f, g, h;
+	struct node *parent;
 } node;
 
 /**
- * @brief Calculates the Euclidean distance between two positions on the map
- *
- * This function takes as input the coordinates of two positions (x1,y1) and (x2,y2)
- * and returns the Euclidean distance between them.
+ * @brief Calculates the Manhattan distance between two positions on the map
  *
  * @param x1 The X coordinate of the first position.
  * @param y1 The Y coordinate of the first position.
  * @param x2 The X coordinate of the second position.
  * @param y2 The Y coordinate of the second position.
- * @returns The Euclidean distance between the two positions.
+ * @returns The manhattan distance between the two positions.
  */
-float distance_position(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
+float manhattan_distance(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 
 /**
  * @brief Calculates a heuristic estimate of the cost to reach the destination from a given position.
  *
- * This function uses the Euclidean distance to provide a heuristic estimate of the cost
+ * This function uses the Manhattan distance to provide a heuristic estimate of the cost
  * to reach the destination from a given position.
  *
  * @param x1 The X coordinate of the first position.

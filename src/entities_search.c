@@ -28,12 +28,12 @@
 #include <math.h>
 #include <ncurses.h>
 
-float distance_position(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
-	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+float manhattan_distance(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
+	return abs((int)(x1 - x2)) + abs((int)(y1 - y2));
 }
 
 float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
-	return distance_position(x1, y1, x2, y2);
+	return manhattan_distance(x1, y1, x2, y2);
 }
 
 int is_valid_position(map *map, unsigned x, unsigned y) {
@@ -43,7 +43,7 @@ int is_valid_position(map *map, unsigned x, unsigned y) {
 
 float get_cost(map *map, animation_step start, animation_step end) {
 
-	float cost = distance_position(start.x, start.y, end.x, end.y);
+	float cost = manhattan_distance(start.x, start.y, end.x, end.y);
 	if (!is_valid_position(map, end.x, end.y)) {
 		cost += INFINITY;
 	}
@@ -81,16 +81,17 @@ node *create_node(animation_step pos, float f, float g, float h, node *parent) {
 
 void node_destroy(node *node) {
 	/* Disable this warning here. We know what we're doing (TODO - valgrind testing) */
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wuse-after-free"
-	free(node);
-	#pragma GCC diagnostic pop
+	//#pragma GCC diagnostic push
+	//#pragma GCC diagnostic ignored "-Wuse-after-free"
+	free(node->parent);
+	//#pragma GCC diagnostic pop
 }
 
 void list_destroy(node **list, int num_list) {
 	for (int i = 0; i < num_list; i++) {
 		node_destroy(list[i]);
 	}
+	free(list);
 }
 
 animation_sequence calculate_path(node *end_node) {
@@ -143,6 +144,7 @@ animation_sequence search_path(map *map, animation_step start, animation_step en
 		for (unsigned x = -1; x <= 1; x++) {
 			for (unsigned y = -1; y <= 1; y++) {
 				if (x == 0 && y == 0) continue;
+				if (x != 0 && y != 0) continue; /* Exclude diagonal moving of entities*/
 				unsigned new_x = current_node->pos.x + x;
 				unsigned new_y = current_node->pos.y + y;
 				if (!is_valid_position(map, new_x, new_y)) continue;
@@ -160,7 +162,8 @@ animation_sequence search_path(map *map, animation_step start, animation_step en
 					node *new_node = create_node(new_pos, f, g, h, current_node);
 					if (open_node != NULL) {
 						node_destroy(open_node);
-					} else {
+					}
+					else {
 						n_open++;
 						open = realloc(open, sizeof(node *) * n_open);
 					}
