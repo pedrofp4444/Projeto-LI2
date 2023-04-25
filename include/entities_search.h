@@ -1,6 +1,6 @@
 /**
  * @file  entities_search.h
- * @brief The implementation of the search for the player
+ * @brief The implementation of the search for the player (A* algorithm)
  */
 
 /*
@@ -51,7 +51,6 @@ typedef struct {
  * 	The heuristic cost from this node to the final node.
  * @var node::parent
  * 	A pointer to the parent node of this node.
- * 
 */
 typedef struct node {
   position pos;
@@ -89,7 +88,7 @@ float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 
 /**
  * @brief Checks if a given position is valid on the map.
- * 
+ *
  * @param map A pointer to the map containing the dimensions and obstacles.
  * @param x The X coordinate of the position.
  * @param y The Y coordinate of the position.
@@ -99,9 +98,9 @@ int is_valid_position(map *map, unsigned x, unsigned y);
 
 /**
  * @brief Calculates the cost of moving from a start position to an end position.
- * 
+ *
  * If the end position is invalid, the function returns INFINITY (which should not happen).
- * 
+ *
  * @param map A pointer to the map containing the dimensions and additional data..
  * @param start The starting position.
  * @param end The ending position.
@@ -122,18 +121,18 @@ node *get_lowest_f_node(node **open, int n_opne);
 
 /**
  * @brief Returns a node with a given position from a list of nodes.
- * 
+ *
  * @param list An array of pointers to nodes.
  * @param n_list The number of nodes in the array.
  * @param pos The position of the node to be returned.
- * @return A pointer to the node with the position or NULL if there isn't any node in the list with 
+ * @return A pointer to the node with the position or NULL if there isn't any node in the list with
  * that position.
 */
 node *get_node_in_list(node **list, int n_list, position pos);
 
 /**
  * @brief Creates a new node with a given position, f value, g value, h value and parent node.
- * 
+ *
  * @param pos The position of the node.
  * @param f The f value of the node.
  * @param g The g value of the node.
@@ -145,14 +144,14 @@ node *create_node(position pos, float f, float g, float h, node *parent);
 
 /**
  * @brief Frees the memory allocated for a node.
- * 
+ *
  * @param node A pointer to the node to be freed.
 */
 void node_destroy(node *node);
 
 /**
  * @brief Frees the memory allocated for a list of nodes.
- * 
+ *
  * @param list An array of pointers to nodes.
  * @param n_list The number of nodes in the array.
 */
@@ -160,23 +159,23 @@ void list_destroy(node **list, int n_list);
 
 /**
  * @brief Calculates the path from a final node by following their parent nodes back to the initial node.
- * 
+ *
  * @param end_node The final node in the path.
  * @param path_length Pointer to an integer to store the length of the path.
- * @return A dynamically allocated array of positions representing the path from the initial node 
+ * @return A dynamically allocated array of positions representing the path from the initial node
  * to the final node.
 */
 position *calculate_path(node *end_node, int *path_length);
 
 /**
  * @brief Implements the A* algorithm to find the shortest path between two positions on the map.
- * 
+ *
  * It starts with the initial position node and adds its neighbors to the list of open nodes,
- * calculating their f, g and h values. Then selects the node with the lowest f value in the 
- * list of open nodes and checks if it is the end node. If it is not, it adds it to the list of 
- * closed nodes and continues the process until the end node is found or the list of open nodes is 
+ * calculating their f, g and h values. Then selects the node with the lowest f value in the
+ * list of open nodes and checks if it is the end node. If it is not, it adds it to the list of
+ * closed nodes and continues the process until the end node is found or the list of open nodes is
  * empty, which means there is no possible path between the two positions.
- * 
+ *
  * @param map A pointer to the map containing the dimensions and additional data.
  * @param start The starting position of the path.
  * @param end The ending position of the path.

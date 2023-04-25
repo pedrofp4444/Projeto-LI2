@@ -1,6 +1,6 @@
 /**
  * @file  entities_search.c
- * @brief The implementation of the search for the player 
+ * @brief The implementation of the search for the player (A* algorithm)
  */
 
 /*
@@ -44,10 +44,10 @@ int is_valid_position(map *map, unsigned x, unsigned y) {
 float get_cost(map *map, position start, position end) {
 
 	float cost = distance_position(start.x, start.y, end.x, end.y);
-		if (!is_valid_position(map, end.x, end.y)) {
-			cost += INFINITY;
-		}
-		return cost;
+	if (!is_valid_position(map, end.x, end.y)) {
+		cost += INFINITY;
+	}
+	return cost;
 }
 
 node *get_lowest_f_node(node **open, int n_open) {
