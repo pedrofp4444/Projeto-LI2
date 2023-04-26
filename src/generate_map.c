@@ -68,8 +68,8 @@
 */
 int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 	int count = 0;
-	for (unsigned c = col - radius; c <= col + radius; c++) { // percorre colunas
-		for (unsigned r = row - radius; r <= row + radius; r++) { // percorre linhas
+	for (unsigned c = col - radius; c <= col + radius; c++) { // loop through columns
+		for (unsigned r = row - radius; r <= row + radius; r++) { // loop through lines
 			if (r < map.height && c < map.width &&
 			map.data[r * map.width + c].type == tile)
 			count++;
@@ -141,9 +141,7 @@ void generate_random(map map, int radius1, int radius2, tile_type tile) {
  * @param result A pointer to the resulting map.
  * @note The resulting map must have the same dimensions as map1 and map2.
 */
-void intersect_maps(map map1,
-					map map2,
-					map result) {
+void intersect_maps(map map1, map map2, map result) {
 
 	// Intersect both maps
 	FOR_GRID_BORDER(r, c, 1, map1) {
@@ -242,27 +240,27 @@ void generate_map_random(state_main_game_data *data) {
 
 	data->entities = entity_set_allocate(2500);
 
-	// Gerar mapa de água aleatoriamente
+	// Randomly generate water map
 	generate_random(data->map, 6, 1, TILE_WATER);
 
-	// Alocar mapa de paredes
+	// Allocate wall map
 	map new_map = map_allocate(MAP_WIDTH, MAP_HEIGHT);
 
-	// Gerar mapa de parede aleatoriamente
+	// Randomly generate wall map
 	generate_random(new_map, 5, 2, TILE_WALL);
 
-	// Intersecionar os dois mapas
+	// Intersect the two maps
 	intersect_maps(data->map, new_map, data->map);
 
 	free(new_map.data);
 
-	// Desenhar borda
+	// draw border
 	draw_border(data->map);
 
-	// Popular o mapa
+	// Populate the map
 	entity_spawn(data);
 
-	// Colocar jogador no mapa
+	// Place player on map
 	player_spawn(data);
 }
 
