@@ -36,11 +36,6 @@ typedef enum {
  * @struct state_main_game_data
  * @brief Data for the main game state
  *
- * @var state_main_game_data::offsetx
- *   Horizontal offset of the map
- * @var state_main_game_data::offsety
- *   Vertical offset of the map
- *
  * @var state_main_game_data::fps_show
  *   The FPS number to be displayed
  * @var state_main_game_data::fps_count
@@ -68,8 +63,6 @@ typedef enum {
  *   Entities in the map
  */
 typedef struct {
-	int offsetx, offsety;
-
 	int fps_show, fps_count, renders_show, renders_count;
 	double elapsed_fps;
 
@@ -82,6 +75,9 @@ typedef struct {
 	map map;
 	entity_set entities;
 } state_main_game_data;
+
+/** @brief Returns the player (first entity) of a ::state_main_game_data pointer */
+#define PLAYER(state) state->entities.entities[0]
 
 /** @brief Creates a state for the main game */
 game_state state_main_game_create(void);

@@ -21,17 +21,16 @@
 
 #include <game_states/main_game.h>
 #include <game_states/main_game_renderer.h>
+#include <game_states/player_path.h>
 
-#include <entities/rat.h>
+#include <entities_search.h>
 
 #include <time.h>
 #include <stdlib.h>
+#include <math.h>
 #include <ncurses.h>
 
-#define CIRCLE_CENTER_X 10
-#define CIRCLE_CENTER_Y 10
-#define CIRCLE_RADIUS 6
-
+#define CIRCLE_RADIUS 15
 #define MAIN_GAME_ANIMATION_TIME 0.3
 
 /* @brief **DEGUB** function for drawing a circle of light on the map */
@@ -87,15 +86,27 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 		if (state->time_since_last_animation >= MAIN_GAME_ANIMATION_TIME) {
 			state->time_since_last_animation = 0;
 
+			state_main_game_circle_clean_light_map(
+				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
+
 			/* Actual entity moving */
 			if (entity_set_animate(state->entities, state->animation_step)) {
 				/* Done animating */
 				state->action = MAIN_GAME_IDLING;
 				state->animation_step = 0;
+
+				/* Clear all entities' animations */
+				for (size_t i = 0; i < state->entities.count; ++i)
+					state->entities.entities[i].animation.length = 0;
+
 			} else {
 				/* Some entities have animation steps left */
 				state->animation_step++;
 			}
+
+
+			state_main_game_circle_light_map(
+				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
 
 		} else {
 			state->time_since_last_animation += elapsed;
@@ -107,28 +118,35 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-
-/** @brief **DEBUG** function for testing animations. Moves all entities to the left */
+/** @brief **DEBUG** function for testing A*. Move closest entity to the player to its position */
 void state_main_game_move_entities(state_main_game_data *state) {
 	if (state->action == MAIN_GAME_IDLING) {
 		state->action = MAIN_GAME_ANIMATING;
 
-		for (size_t i = 0; i < state->entities.count; ++i) {
+		/* Find the closest entity to the player */
+		int closest_index = -1;
+		float min_dist = INFINITY;
+		for (size_t i = 1; i < state->entities.count; ++i) {
+			entity current = state->entities.entities[i];
+			if (current.health <= 0) continue;
 
-			/* Move a random number of tiles to the left */
-			int movs = abs(rand() % 5);
+			/* x^2 + y^2. Avoid expensive square root */
+			float dist = (PLAYER(state).x - current.x) * (PLAYER(state).x - current.x) +
+			             (PLAYER(state).y - current.y) * (PLAYER(state).y - current.y);
 
-			state->entities.entities[i].animation.length = movs;
-			animation_step pos = {
-				.x = state->entities.entities[i].x,
-				.y = state->entities.entities[i].y,
-			};
-
-			for (int j = 0; j < movs; ++j) {
-				pos.x--;
-				state->entities.entities[i].animation.steps[j] = pos;
+			if (dist < min_dist) {
+				closest_index = i;
+				min_dist = dist;
 			}
 		}
+		entity *closest = &state->entities.entities[closest_index];
+
+		/* Use A* to find the player (old position) */
+		animation_step start = { .x = closest->x     , .y = closest->y      };
+		animation_step end   = { .x = PLAYER(state).x, .y = PLAYER(state).y };
+
+		animation_sequence_free(closest->animation);
+		closest->animation = search_path(&state->map, start, end);
 	}
 }
 
@@ -136,35 +154,28 @@ void state_main_game_move_entities(state_main_game_data *state) {
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
-	state_main_game_circle_clean_light_map(state->map,
-		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
-
 	switch (key) {
 		case '\x1b':
 			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
 
 		case '\r': /* On ENTER, animate all entities moving three blocks left - temporary */
-			state_main_game_move_entities(state);
+			if (state->action == MAIN_GAME_IDLING) {
+				state_main_game_move_entities(state);
+			}
 			break;
 
-		/* Temporary: move map around */
 		case KEY_UP:
-			state->offsety--;
-			break;
 		case KEY_DOWN:
-			state->offsety++;
+		case KEY_LEFT:
+		case KEY_RIGHT:
+			if (state->action == MAIN_GAME_IDLING) {
+				state_main_game_move_player(state, key);
+			}
 			break;
 
-		case KEY_LEFT:
-			state->offsetx--;
-			break;
-		case KEY_RIGHT:
-			state->offsetx++;
+		default:
 			break;
 	}
-
-	state_main_game_circle_light_map(state->map,
-		CIRCLE_CENTER_X + state->offsetx, CIRCLE_CENTER_Y + state->offsety, CIRCLE_RADIUS);
 
 	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -188,15 +199,14 @@ game_state state_main_game_create(void) {
 		};
 		m.data[i] = t;
 	}
-	state_main_game_circle_light_map(m, CIRCLE_CENTER_X, CIRCLE_CENTER_Y, CIRCLE_RADIUS);
 
 	/* Populate the map with random invalid entities (temporary) */
 	entity_set entities = entity_set_allocate(1024);
-	for (int i = 0; i < 1024; ++i) {
+	for (int i = 1; i < 1024; ++i) {
 		entities.entities[i].animation = animation_sequence_create();
 
 		entities.entities[i].health = 1;
-		entities.entities[i].type = rand() % 5;
+		entities.entities[i].type = rand() % 4 + 1;
 
 		entities.entities[i].destroy = NULL;
 
@@ -204,9 +214,17 @@ game_state state_main_game_create(void) {
 		entities.entities[i].y = rand() % 1024;
 	}
 
-	state_main_game_data data = {
-		.offsetx = 0, .offsety = 0,
+	/* Player entity (temporary) */
+	entities.entities[0].health = 1;
+	entities.entities[0].animation = animation_sequence_create();
+	entities.entities[0].type = ENTITY_PLAYER;
+	entities.entities[0].x = 512;
+	entities.entities[0].y = 512;
 
+	state_main_game_circle_light_map(
+		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
+
+	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
 		.elapsed_fps = 0.0,

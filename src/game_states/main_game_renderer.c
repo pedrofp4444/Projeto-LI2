@@ -20,6 +20,7 @@
  */
 
 #include <game_states/main_game_renderer.h>
+#include <game_states/player_path.h>
 #include <string.h>
 #include <ncurses.h>
 
@@ -62,16 +63,26 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	}
 
 	/* Render game normally (valid screen) */
+	int map_top  = PLAYER(state).y - (height / 2);
+	int map_left = PLAYER(state).x - ((width - SIDEBAR_WIDTH) / 2);
+
 	main_game_render_sidebar(state, SIDEBAR_WIDTH, height);
+
 	map_render(state->map,
-	           state->offsety, state->offsetx,
+	           map_top, map_left,
 	           0, SIDEBAR_WIDTH,
 	           height, width - SIDEBAR_WIDTH);
-	entity_set_render(state->entities, state->map,
-	                  state->offsety, state->offsetx,
+
+	state_main_game_draw_player_path(state,
+	                  map_top, map_left,
 	                  0, SIDEBAR_WIDTH,
 	                  height, width - SIDEBAR_WIDTH);
 
+
+	entity_set_render(state->entities, state->map,
+	                  map_top, map_left,
+	                  0, SIDEBAR_WIDTH,
+	                  height, width - SIDEBAR_WIDTH);
 
 	refresh();
 
