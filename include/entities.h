@@ -33,8 +33,7 @@
 typedef enum {
 	ENTITY_PLAYER,   /**< The player */
 	ENTITY_RAT,      /**< A mob of low intelligence */
-	ENTITY_TROLL,    /**< A mob of medium intelligence and a coward */ // Troca para o goblin
-	ENTITY_GOBLIN,   /**< A mob of high intelligence */
+	ENTITY_GOBLIN,   /**< A mob of medium intelligence and a coward */
 	ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
