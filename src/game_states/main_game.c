@@ -23,6 +23,7 @@
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_path.h>
 
+#include <generate_map.h>
 #include <entities_search.h>
 
 #include <time.h>
@@ -164,7 +165,7 @@ void state_main_game_move_entities(state_main_game_data *state) {
 
 			/* x^2 + y^2. Avoid expensive square root */
 			float dist = (PLAYER(state).x - current.x) * (PLAYER(state).x - current.x) +
-						 (PLAYER(state).y - current.y) * (PLAYER(state).y - current.y);
+			             (PLAYER(state).y - current.y) * (PLAYER(state).y - current.y);
 
 			if (dist < min_dist) {
 				closest_index = i;
@@ -217,34 +218,8 @@ game_state state_main_game_create(void) {
 	erase(); /* Performant rendering requires a clean screen to start */
 
 	map m = map_allocate(1024, 1024);
-	srand(time(NULL));
-	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
-		int r = rand() % 100;
-		tile_type type;
-		if	  (r < 20) type = TILE_WALL;
-		else if (r < 40) type = TILE_WATER;
-		else			 type = TILE_EMPTY;
 
-		tile t = {
-			.type = type,
-			.light = 0
-		};
-		m.data[i] = t;
-	}
-
-	/* Populate the map with random invalid entities (temporary) */
-	entity_set entities = entity_set_allocate(1024);
-	for (int i = 1; i < 1024; ++i) {
-		entities.entities[i].animation = animation_sequence_create();
-
-		entities.entities[i].health = 1;
-		entities.entities[i].type = rand() % 4 + 1;
-
-		entities.entities[i].destroy = NULL;
-
-		entities.entities[i].x = rand() % 1024;
-		entities.entities[i].y = rand() % 1024;
-	}
+	entity_set entities = entity_set_allocate(2573);
 
 	/* Player entity (temporary) */
 	entities.entities[0].health = 1;
@@ -253,11 +228,8 @@ game_state state_main_game_create(void) {
 	entities.entities[0].x = 512;
 	entities.entities[0].y = 512;
 
-	state_main_game_circle_light_map(
-		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
-
 	state_main_game_data data = {
-		.fps_show	 = 0, .fps_count	 = 0,
+		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
 		.elapsed_fps = 0.0,
 
@@ -270,6 +242,11 @@ game_state state_main_game_create(void) {
 		.map = m,
 		.entities = entities,
 	};
+
+	generate_map_random(&data);
+
+	state_main_game_circle_light_map(
+		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;
