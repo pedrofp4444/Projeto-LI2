@@ -28,9 +28,9 @@
 /**
  * @def FOR_GRID_BORDER(row, col, border, data)
  * @brief Macro that defines a nested for loop to iterate over a 2D grid, ignoring the border.
- * This macro defines a nested for loop that iterates over the rows and columns of a 2D grid, starting from
- * the specified border and ending at the opposite border. It is useful when iterating over a grid with a
- * border that should be ignored.
+ * This macro defines a nested for loop that iterates over the rows and columns of a 2D grid,
+ * starting from the specified border and ending at the opposite border. It is useful when
+ * iterating over a grid with a border that should be ignored.
  * @param row The name of the row variable used in the loop.
  * @param col The name of the column variable used in the loop.
  * @param border The number of border rows and columns to ignore.
@@ -48,11 +48,16 @@
  * @param radius The radius of the search.
  * @param tile The type of tile to be counted.
  * @return The number of tiles of the specified type found within the radius.
- * This function counts the number of tiles of a certain type within a given radius around a given position.
- * It takes a pointer to the main game data, the row and column of the center position, the radius of the search,
- * and the type of tile to be counted. It returns the number of tiles of the specified type found within the radius.
- * The function loops through all positions within the radius and checks whether the tile at that position is of the specified type.
- * If it is, it increments the count. The function returns the final count after all positions have been checked.
+ * This function counts the number of tiles of a certain type within a given radius around a given
+ * position.
+ * It takes a pointer to the main game data, the row and column of the center position, the radius
+ * of the search,
+ * and the type of tile to be counted. It returns the number of tiles of the specified type found
+ * within the radius.
+ * The function loops through all positions within the radius and checks whether the tile at that
+ * position is of the specified type.
+ * If it is, it increments the count. The function returns the final count after all positions
+ * have been checked.
 */
 int radius_count(state_main_game_data *data, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 	int count = 0;
@@ -67,13 +72,19 @@ int radius_count(state_main_game_data *data, unsigned row, unsigned col, unsigne
 }
 
 /**
- * @brief Generates random walls and empty spaces in the map and smoothes the walls to make them look more natural
+ * @brief Generates random walls and empty spaces in the map and smoothes the walls to make them
+ * look more natural
  * @param data Pointer to the main game state data
  * @param radius1 The radius used in the smoothing process for the walls
  * @param radius2 The radius used in the smoothing process for the walls
  * @param tile The type of tile that represents walls
- * @details The function generates random walls and empty spaces in the map by filling the cells of the grid with the tile type or the empty tile type based on a random number generated using the rand() function. Then, the walls are smoothed by replacing the wall tile type of each cell with the empty tile type if it has fewer than radius2 wall neighbors or more than radius1 wall neighbors within a given radius. This process is repeated twice.
- * @note The function uses the FOR_GRID_BORDER macro to iterate through the grid borders and avoid accessing out-of-bounds cells.
+ * @details The function generates random walls and empty spaces in the map by filling the cells of
+ * the grid with the tile type or the empty tile type based on a random number generated using the
+ * rand() function. Then, the walls are smoothed by replacing the wall tile type of each cell with
+ * the empty tile type if it has fewer than radius2 wall neighbors or more than radius1 wall
+ * neighbors within a given radius. This process is repeated twice.
+ * @note The function uses the FOR_GRID_BORDER macro to iterate through the grid borders and avoid
+ * accessing out-of-bounds cells.
 */
 void generate_random(state_main_game_data *data, int radius1, int radius2, tile_type tile) {
 	srand(time(NULL));
@@ -143,7 +154,8 @@ void intersect_maps(state_main_game_data *map1,
 
 /**
  * @brief Draw a wall border around the map
- * This function draws a wall border around the map by setting the corresponding tiles to the TILE_WALL type.
+ * This function draws a wall border around the map by setting the corresponding tiles to the
+ * TILE_WALL type.
  * @param data Pointer to the main game data struct
 */
 void draw_border(state_main_game_data *data) {
@@ -160,9 +172,9 @@ void draw_border(state_main_game_data *data) {
 
 /**
  * @brief Spawn entities randomly on the game map.
- * This function randomly spawns entities on the game map. It generates a random position for each entity
- * and assigns a random type and health value. The entity positions are checked to ensure that they do not
- * overlap with walls or water tiles on the map.
+ * This function randomly spawns entities on the game map. It generates a random position for each
+ * entity and assigns a random type and health value. The entity positions are checked to ensure
+ * that they do not overlap with walls or water tiles on the map.
  * @param data A pointer to the game data structure.
 */
 void entity_spawn(state_main_game_data *data){
