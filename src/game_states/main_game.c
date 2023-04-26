@@ -185,17 +185,6 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 game_state state_main_game_create(void) {
 	erase(); /* Performant rendering requires a clean screen to start */
 
-	map m = map_allocate(1024, 1024);
-
-	entity_set entities = entity_set_allocate(2573);
-
-	/* Player entity (temporary) */
-	entities.entities[0].health = 1;
-	entities.entities[0].animation = animation_sequence_create();
-	entities.entities[0].type = ENTITY_PLAYER;
-	entities.entities[0].x = 512;
-	entities.entities[0].y = 512;
-
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
@@ -206,15 +195,15 @@ game_state state_main_game_create(void) {
 		.action = MAIN_GAME_IDLING,
 		.animation_step = 0,
 		.time_since_last_animation = 0,
-
-		.map = m,
-		.entities = entities,
 	};
 
 	generate_map_random(&data);
 
+	// TODO: Esta linha ficou aqui porque o import desta função está no topo deste ficheiro
+	data.entities.entities[0].animation = animation_sequence_create();
+
 	state_main_game_circle_light_map(
-		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
+		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;

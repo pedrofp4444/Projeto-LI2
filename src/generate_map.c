@@ -25,6 +25,13 @@
 #include <generate_map.h>
 #include <map.h>
 
+#define MAP_WIDTH 1024
+#define MAP_HEIGHT 1024
+
+#define ENTITY_COUNT 2500
+
+#define STARTER_CIRCLE 5
+
 /**
  * @def FOR_GRID_BORDER(row, col, border, data)
  * @brief Macro that defines a nested for loop to iterate over a 2D grid, ignoring the border.
@@ -34,15 +41,15 @@
  * @param row The name of the row variable used in the loop.
  * @param col The name of the column variable used in the loop.
  * @param border The number of border rows and columns to ignore.
- * @param data A pointer to the struct containing the map and other data.
+ * @param map Struct containing the map.
 */
-#define FOR_GRID_BORDER(row, col, border, data) \
-	for (unsigned row = border; row < data->map.height - border; row++) \
-		for (unsigned col = border; col < data->map.width - border; col++)
+#define FOR_GRID_BORDER(row, col, border, map) \
+	for (unsigned row = border; row < map.height - border; row++) \
+		for (unsigned col = border; col < map.width - border; col++)
 
 /**
  * @brief Counts the number of tiles of a certain type within a given radius around a given position.
- * @param data A pointer to the main game data.
+ * @param map A pointer to the main game data.
  * @param row The row of the center position.
  * @param col The column of the center position.
  * @param radius The radius of the search.
@@ -59,12 +66,12 @@
  * If it is, it increments the count. The function returns the final count after all positions
  * have been checked.
 */
-int radius_count(state_main_game_data *data, unsigned row, unsigned col, unsigned radius, tile_type tile) {
+int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 	int count = 0;
-	for (unsigned r = row - radius; r <= row + radius; r++) { // percorre linhas
-		for (unsigned c = col - radius; c <= col + radius; c++) { // percorre colunas
-			if (r < data->map.height && c < data->map.width &&
-			data->map.data[r * data->map.width + c].type == tile)
+	for (unsigned c = col - radius; c <= col + radius; c++) { // percorre colunas
+		for (unsigned r = row - radius; r <= row + radius; r++) { // percorre linhas
+			if (r < map.height && c < map.width &&
+			map.data[r * map.width + c].type == tile)
 			count++;
 		}
 	}
@@ -74,7 +81,7 @@ int radius_count(state_main_game_data *data, unsigned row, unsigned col, unsigne
 /**
  * @brief Generates random walls and empty spaces in the map and smoothes the walls to make them
  * look more natural
- * @param data Pointer to the main game state data
+ * @param map Struct containing the map
  * @param radius1 The radius used in the smoothing process for the walls
  * @param radius2 The radius used in the smoothing process for the walls
  * @param tile The type of tile that represents walls
@@ -86,34 +93,34 @@ int radius_count(state_main_game_data *data, unsigned row, unsigned col, unsigne
  * @note The function uses the FOR_GRID_BORDER macro to iterate through the grid borders and avoid
  * accessing out-of-bounds cells.
 */
-void generate_random(state_main_game_data *data, int radius1, int radius2, tile_type tile) {
+void generate_random(map map, int radius1, int radius2, tile_type tile) {
 	srand(time(NULL));
 
 	// Randomly generate the tile everywhere
-	FOR_GRID_BORDER(r, c, 2, data) {
-		data->map.data[r * data->map.width + c].type = ((rand()%100) < 45) ? tile : TILE_EMPTY;
+	FOR_GRID_BORDER(r, c, 2, map) {
+		map.data[r * map.width + c].type = ((rand()%100) < 45) ? tile : TILE_EMPTY;
 	}
 
 	// Smooths the tiles
 	for (int i = 0; i < 5; i++) {
-		tile_type mapa[data->map.height][data->map.width];
-		FOR_GRID_BORDER(r, c, 1, data) {
-			mapa[r][c] = (radius_count(data, r, c, 1, tile) >= radius1) ||
-			(radius_count(data, r, c, 2, tile) <= radius2) ? tile : TILE_EMPTY;
+		tile_type mapa[map.height][map.width];
+		FOR_GRID_BORDER(r, c, 1, map) {
+			mapa[r][c] = (radius_count(map, r, c, 1, tile) >= radius1) ||
+			(radius_count(map, r, c, 2, tile) <= radius2) ? tile : TILE_EMPTY;
 		}
-		FOR_GRID_BORDER(r, c, 1, data) {
-			data->map.data[r * data->map.width + c].type = mapa[r][c];
+		FOR_GRID_BORDER(r, c, 1, map) {
+			map.data[r * map.width + c].type = mapa[r][c];
 		}
 	}
 
 	// smooths the tiles again
 	for (int i = 0; i < 5; i++) {
-		tile_type mapa[data->map.height][data->map.width];
-		FOR_GRID_BORDER(r, c, 1, data) {
-			mapa[r][c] = (radius_count(data, r, c, 1, tile) >= 5) ? tile : TILE_EMPTY;
+		tile_type mapa[map.height][map.width];
+		FOR_GRID_BORDER(r, c, 1, map) {
+			mapa[r][c] = (radius_count(map, r, c, 1, tile) >= 5) ? tile : TILE_EMPTY;
 		}
-		FOR_GRID_BORDER(r, c, 1, data) {
-			data->map.data[r * data->map.width + c].type = mapa[r][c];
+		FOR_GRID_BORDER(r, c, 1, map) {
+			map.data[r * map.width + c].type = mapa[r][c];
 		}
 	}
 }
@@ -134,20 +141,20 @@ void generate_random(state_main_game_data *data, int radius1, int radius2, tile_
  * @param result A pointer to the resulting map.
  * @note The resulting map must have the same dimensions as map1 and map2.
 */
-void intersect_maps(state_main_game_data *map1,
-					state_main_game_data *map2,
-					state_main_game_data *result) {
+void intersect_maps(map map1,
+					map map2,
+					map result) {
 
-	// Interseccionar os dois mapas
+	// Intersect both maps
 	FOR_GRID_BORDER(r, c, 1, map1) {
-		result->map.data[r * result->map.width + c].type =
+		result.data[r * result.width + c].type =
 		(
-			(map1->map.data[r * map1->map.width + c].type == TILE_WATER) &&
-			(map2->map.data[r * map2->map.width + c].type == TILE_EMPTY)) ?
+			(map1.data[r * map1.width + c].type == TILE_WATER) &&
+			(map2.data[r * map2.width + c].type == TILE_EMPTY)) ?
 			TILE_WATER :
 		(
-			((map1->map.data[r * map1->map.width + c].type == TILE_EMPTY) &&
-			(map2->map.data[r * map2->map.width + c].type == TILE_EMPTY)) ?
+			((map1.data[r * map1.width + c].type == TILE_EMPTY) &&
+			(map2.data[r * map2.width + c].type == TILE_EMPTY)) ?
 			TILE_EMPTY : TILE_WALL);
 	}
 }
@@ -156,17 +163,18 @@ void intersect_maps(state_main_game_data *map1,
  * @brief Draw a wall border around the map
  * This function draws a wall border around the map by setting the corresponding tiles to the
  * TILE_WALL type.
- * @param data Pointer to the main game data struct
+ * @param map Struct containing the map
 */
-void draw_border(state_main_game_data *data) {
-	// Desenha uma parede em toda a borda do mapa
-	for (unsigned i = 0; i < data->map.width; i++) {
-		data->map.data[i].type = TILE_WALL;
-		data->map.data[(data->map.height - 1) * data->map.width + i].type = TILE_WALL;
+void draw_border(map map) {
+
+	// Draw a border around the map
+	for (unsigned i = 0; i < map.width; i++) {
+		map.data[i].type = TILE_WALL;
+		map.data[(map.height - 1) * map.width + i].type = TILE_WALL;
 	}
-	for (unsigned i = 0; i < data->map.height; i++) {
-		data->map.data[i * data->map.width].type = TILE_WALL;
-		data->map.data[(i + 1) * data->map.width - 1].type = TILE_WALL;
+	for (unsigned i = 0; i < map.height; i++) {
+		map.data[i * map.width].type = TILE_WALL;
+		map.data[(i + 1) * map.width - 1].type = TILE_WALL;
 	}
 }
 
@@ -179,14 +187,22 @@ void draw_border(state_main_game_data *data) {
 */
 void entity_spawn(state_main_game_data *data){
 
-	for (int i = 1; i < 2573; ++i) {
+	for (int i = 1; i < ENTITY_COUNT; ++i) {
+
 		data->entities.entities[i].health = 1;
-		data->entities.entities[i].type = rand() % 4 + 1;
+
+		int seed = rand() % 100 + 1;
+
+		if (seed < 50) {
+			data->entities.entities[i].type = ENTITY_RAT;
+		} else if (seed >= 50 && seed < 85) {
+			data->entities.entities[i].type = ENTITY_GOBLIN;
+		} else data->entities.entities[i].type = ENTITY_CRISTINO;
 
 		unsigned x, y;
 		do {
-			x = rand() % 1024;
-			y = rand() % 1024;
+			x = rand() % MAP_WIDTH;
+			y = rand() % MAP_WIDTH;
 		} while (data->map.data[y * data->map.width + x].type == TILE_WATER ||
 				 data->map.data[y * data->map.width + x].type == TILE_WALL);
 
@@ -195,37 +211,58 @@ void entity_spawn(state_main_game_data *data){
 	}
 }
 
+/**
+ * @brief Spawns the player entity and opens a safe starting area on the map.
+ *
+ * @param data Pointer to the main game state data.
+*/
+void player_spawn(state_main_game_data *data){
+
+	// Set Player Data
+	data->entities.entities[0].health = 1;
+	data->entities.entities[0].type = ENTITY_PLAYER;
+	data->entities.entities[0].x = data->map.width / 2;
+	data->entities.entities[0].y = data->map.height / 2;
+
+	// Open a safe place to start
+	for (unsigned y = data->map.height / 2 - STARTER_CIRCLE; y < data->map.height; y++) {
+        for (unsigned x = data->map.width / 2 - STARTER_CIRCLE; x < data->map.width; x++) {
+            if ((x - data->entities.entities[0].x) * (x - data->entities.entities[0].x)
+				+ (y - data->entities.entities[0].y) * (y - data->entities.entities[0].y)
+				<= STARTER_CIRCLE * STARTER_CIRCLE) {
+                data->map.data[y * data->map.width + x].type = TILE_EMPTY;
+            }
+        }
+    }
+}
+
 void generate_map_random(state_main_game_data *data) {
 
+	data->map = map_allocate(1024, 1024);
+
+	data->entities = entity_set_allocate(2500);
+
 	// Gerar mapa de água aleatoriamente
-	generate_random(data, 6, 1, TILE_WATER);
+	generate_random(data->map, 6, 1, TILE_WATER);
 
 	// Alocar mapa de paredes
-	map m = map_allocate(1024, 1024);
-
-	state_main_game_data wall_map = {
-
-		.fps_show	 = 0, .fps_count	 = 0,
-		.renders_show = 0, .renders_count = 0,
-		.elapsed_fps = 0.0,
-
-		.needs_rerender = 1,
-
-		.map = m,
-	};
+	map new_map = map_allocate(MAP_WIDTH, MAP_HEIGHT);
 
 	// Gerar mapa de parede aleatoriamente
-	generate_random(&wall_map, 5, 2, TILE_WALL);
+	generate_random(new_map, 5, 2, TILE_WALL);
 
 	// Intersecionar os dois mapas
-	intersect_maps(data, &wall_map, data);
+	intersect_maps(data->map, new_map, data->map);
 
-	free(m.data);
+	free(new_map.data);
 
 	// Desenhar borda
-	draw_border(data);
+	draw_border(data->map);
 
 	// Popular o mapa
 	entity_spawn(data);
+
+	// Colocar jogador no mapa
+	player_spawn(data);
 }
 
