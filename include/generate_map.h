@@ -26,7 +26,12 @@
 #include <game_states/main_game.h>
 #include <map.h>
 
-void generate_map_random(state_main_game_data *s);
+/**
+ * @brief Creates a random map with the player, tiles and entities.
+ *
+ * @param data Data for the main game state.
+ */
+void generate_map_random(state_main_game_data *data);
 
 #endif
 
