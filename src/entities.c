@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <entities.h>
+#include <math.h>
 
 entity_set entity_set_allocate(size_t count) {
 	entity_set ret = {
@@ -113,6 +114,12 @@ void entity_render(entity t) {
 	attrset(A_NORMAL);
 }
 
+int distance_point_player(int x1, int y1, int x2, int y2) {
+	int dx = x1 - x2;
+	int dy = y1 - y2;
+	return sqrt(dx*dx + dy*dy);
+}
+
 void entity_set_render(entity_set entity_set, map map,
                        int map_top , int map_left,
                        int term_top, int term_left,
@@ -121,7 +128,7 @@ void entity_set_render(entity_set entity_set, map map,
 	for (size_t i = 0; i < entity_set.count; ++i){
 		entity ent = entity_set.entities[i];
 
-		if (ent.health <= 0) continue; /* Skip invalid entities */
+		if(ent.health <= 0) continue; /* Skip invalid entities */
 
 		if(ent.x >= map_left        &&
 		   ent.x < map_left + width &&
@@ -130,9 +137,27 @@ void entity_set_render(entity_set entity_set, map map,
 		   map.data[ent.y * map.width + ent.x].light) {
 
 			move(term_top + (ent.y - map_top), term_left + (ent.x - map_left));
-			entity_render(ent);
-		}
+			 entity_render(ent);
+
+		//if(ent.type == ENTITY_PLAYER) {
+		//	int radius = 9;
+		//	for (int i = ent.x - radius; i <= ent.x + radius; i++) {
+		//		for (int j = ent.y - radius; j <= ent.y + radius; j++) {
+		//			if (i < 0 || i >= width || j < 0 || j >= height) {
+		//				continue; // tile is outside the map
+		//			}
+		//			if (distance_point_player(ent.x, ent.y, i, j) > radius) {
+		//				continue; // tile is outside the field of view
+		//			}
+		//			if (map.data[ent.y * map.width + ent.x].type == TILE_WALL) {
+		//				continue; // tile is a wall and blocks visibility
+		//			}
+		//			entity_render(ent); // != TILE_WALL; // tile is visible
+		//		}
+		//	}
+		//}
 	}
+}
 }
 
 /** @brief Animates an entity */
