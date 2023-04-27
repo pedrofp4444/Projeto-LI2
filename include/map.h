@@ -27,6 +27,7 @@
 */
 
 typedef enum {
+	TILE_NOLIGHT, /**< Unlit tile */
 	TILE_EMPTY, /**< An empty space */
 	TILE_WALL,  /**< A wall tile */
 	TILE_WATER, /**< Water puddle */

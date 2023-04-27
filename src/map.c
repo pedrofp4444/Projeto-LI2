@@ -28,12 +28,12 @@
  * @struct tile_type_render_info
  * @brief Stores information related to rendering a particular tile type.
  * @var tile_type_render_info::color
- *   The ncurses' color (`COLOR_BLACK <= color <= COLOR_WHITE`) of the tile (before light effects)
+ *   The ncurses' attribute to render the tile
  * @var tile_type_render_info::chr
  *   Character used to represent the tile when rendered
 */
 typedef struct {
-	int color;
+	int attr;
 	char chr;
 } tile_type_render_info;
 
@@ -52,22 +52,26 @@ tile_type_render_info tile_get_render_info(tile_type t) {
 	tile_type_render_info ret;
 
 	switch (t) {
+		case TILE_NOLIGHT:
+			ret.chr = ' '; /* Don't draw unlit tiles (space) */
+			ret.attr = COLOR_PAIR(COLOR_WHITE);
+			break;
 		case TILE_EMPTY:
-			ret.chr = ' ';
-			ret.color = COLOR_BLACK;
+			ret.chr = '.';
+			ret.attr = COLOR_PAIR(COLOR_WHITE) | A_DIM;
 			break;
 		case TILE_WALL:
 			ret.chr = '#';
-			ret.color = COLOR_WHITE;
+			ret.attr = COLOR_PAIR(COLOR_WHITE);
 			break;
 		case TILE_WATER:
 			ret.chr = '.';
-			ret.color = COLOR_BLUE;
+			ret.attr = COLOR_PAIR(COLOR_BLUE);
 			break;
 		default:
 			/* Not supposed to happen */
 			ret.chr = ' ';
-			ret.color = COLOR_BLACK;
+			ret.attr = COLOR_PAIR(COLOR_BLACK);
 			break;
 	}
 
@@ -98,9 +102,9 @@ void map_free(map map) {
 */
 void tile_render(tile t) {
 	tile_type_render_info info = tile_get_render_info(t.type);
-	attron(COLOR_PAIR(info.color));
+	attron(info.attr);
 	addch(info.chr);
-	attroff(COLOR_PAIR(info.color));
+	attroff(info.attr);
 }
 
 void map_render(map map,
@@ -113,7 +117,7 @@ void map_render(map map,
 		for (int x = 0; x < width; ++x) {
 
 			tile to_render = {
-				.type = TILE_EMPTY
+				.type = TILE_NOLIGHT
 			};
 
 			unsigned mx = map_left + x, my = map_top + y;
