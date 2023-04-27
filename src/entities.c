@@ -23,6 +23,23 @@
 #include <ncurses.h>
 #include <entities.h>
 
+const char *entity_get_name(entity_type t) {
+	switch (t) {
+		case ENTITY_PLAYER:
+			return "Player";
+		case ENTITY_RAT:
+			return "Rat";
+		case ENTITY_GOBLIN:
+			return "Goblin";
+		case ENTITY_CRISTINO:
+			return "Cristino";
+		default:
+			/* Not supposed to happen */
+			return "Unknown";
+	}
+}
+
+
 entity_set entity_set_allocate(size_t count) {
 	entity_set ret = {
 		.entities = malloc(count * sizeof(entity)),

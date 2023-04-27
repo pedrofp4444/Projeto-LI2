@@ -38,6 +38,9 @@ typedef enum {
 	ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
+/** @brief Gets the human-readable name of an entity type */
+const char *entity_get_name(entity_type t);
+
 /**
  * @brief Enumerates the types of weapons that can exist in the game.
 */
