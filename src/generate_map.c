@@ -24,11 +24,20 @@
 #include <time.h>
 #include <generate_map.h>
 #include <map.h>
+#include <animation.h>
+
+#include <entities/rat.h>
+#include <entities/goblin.h>
+#include <entities/cristino.h>
 
 #define MAP_WIDTH 1024
 #define MAP_HEIGHT 1024
 
 #define ENTITY_COUNT 2500
+
+#define ENTITY_RAT_HEALTH 20
+#define ENTITY_GOBLIN_HEALTH 50
+#define ENTITY_CRISTINO_HEALTH 200
 
 #define STARTER_CIRCLE 5
 
@@ -187,15 +196,7 @@ void entity_spawn(state_main_game_data *data){
 
 	for (int i = 1; i < ENTITY_COUNT; ++i) {
 
-		data->entities.entities[i].health = 1;
-
 		int seed = rand() % 100 + 1;
-
-		if (seed < 50) {
-			data->entities.entities[i].type = ENTITY_RAT;
-		} else if (seed >= 50 && seed < 85) {
-			data->entities.entities[i].type = ENTITY_GOBLIN;
-		} else data->entities.entities[i].type = ENTITY_CRISTINO;
 
 		unsigned x, y;
 		do {
@@ -204,8 +205,11 @@ void entity_spawn(state_main_game_data *data){
 		} while (data->map.data[y * data->map.width + x].type == TILE_WATER ||
 				 data->map.data[y * data->map.width + x].type == TILE_WALL);
 
-		data->entities.entities[i].x = x;
-		data->entities.entities[i].y = y;
+		if (seed < 50) {
+			data->entities.entities[i] = entity_create_rat(x, y, ENTITY_RAT_HEALTH);
+		} else if (seed >= 50 && seed < 85) {
+			data->entities.entities[i] = entity_create_goblin(x, y, ENTITY_GOBLIN_HEALTH);
+		} else data->entities.entities[i] = entity_create_cristino(x, y, ENTITY_CRISTINO_HEALTH);
 	}
 }
 
@@ -221,6 +225,7 @@ void player_spawn(state_main_game_data *data){
 	data->entities.entities[0].type = ENTITY_PLAYER;
 	data->entities.entities[0].x = data->map.width / 2;
 	data->entities.entities[0].y = data->map.height / 2;
+	data->entities.entities[0].animation = animation_sequence_create();
 
 	// Open a safe place to start
 	for (unsigned y = data->map.height / 2 - STARTER_CIRCLE; y < data->map.height; y++) {

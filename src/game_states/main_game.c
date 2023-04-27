@@ -199,9 +199,6 @@ game_state state_main_game_create(void) {
 
 	generate_map_random(&data);
 
-	// TODO: Esta linha ficou aqui porque o import desta função está no topo deste ficheiro
-	data.entities.entities[0].animation = animation_sequence_create();
-
 	state_main_game_circle_light_map(
 		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);
 
