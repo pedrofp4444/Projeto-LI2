@@ -21,16 +21,63 @@
 
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_path.h>
+#include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <ncurses.h>
 
 #define SIDEBAR_WIDTH 20
+#define HEALTHBAR_WIDTH (SIDEBAR_WIDTH - 5)
+
+/**
+ * @brief Draws the health of an entity on the side bar
+ */
+void main_game_render_health(entity ent, int y) {
+	/* Draw centered entity name */
+	const char *name = entity_get_name(ent.type);
+
+	int len = strlen(name);
+	move(y, (SIDEBAR_WIDTH - len) / 2);
+	printw("%s", name);
+
+	/* Draw health bar */
+	int health_dots = round(HEALTHBAR_WIDTH * ((float) ent.health / (float) ent.max_health));
+	move(y + 1, 1);
+	addch('[');
+
+	for (int i = 1; i <= HEALTHBAR_WIDTH; ++i) {
+		if (i <= health_dots) {
+			attron(COLOR_PAIR(COLOR_RED) | A_REVERSE);
+		} else {
+			attroff(A_REVERSE);
+		}
+		addch(' ');
+	}
+	attroff(COLOR_PAIR(COLOR_RED) | A_REVERSE);
+	addch(']');
+}
 
 /** @brief Renders the sidebar of the main game */
-void main_game_render_sidebar(const state_main_game_data *state, int width, int height) {
+void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	/* Draw vertical separation line */
 	for (int y = 0; y < height; ++y)
-		mvaddch(y, width - 1, '|');
+		mvaddch(y, SIDEBAR_WIDTH - 1, '|');
+
+	/* Draw game name */
+	const char *game_name = "Roguelite";
+	move(0, (SIDEBAR_WIDTH - strlen(game_name)) / 2);
+	printw("%s", game_name);
+
+	/* Draw health of surronding enemies */
+	int max_health_bars = (height - 5) / 3;
+	entity_set health_entities =
+		entity_get_closeby(PLAYER(state), state->entities, max_health_bars, &state->map);
+
+	for (size_t i = 0; i < health_entities.count; ++i) {
+		main_game_render_health(health_entities.entities[i], 2 + i * 3);
+	}
+
+	free(health_entities.entities); /* Don't use entity_set_free not to free entity data */
 
 	/* Draw FPS and number of renders */
 	char txt[SIDEBAR_WIDTH];
@@ -66,7 +113,7 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	int map_top  = PLAYER(state).y - (height / 2);
 	int map_left = PLAYER(state).x - ((width - SIDEBAR_WIDTH) / 2);
 
-	main_game_render_sidebar(state, SIDEBAR_WIDTH, height);
+	main_game_render_sidebar(state, height);
 
 	map_render(state->map,
 	           map_top, map_left,

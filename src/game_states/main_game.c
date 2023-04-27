@@ -201,11 +201,13 @@ game_state state_main_game_create(void) {
 	}
 
 	/* Populate the map with random invalid entities (temporary) */
-	entity_set entities = entity_set_allocate(1024);
-	for (int i = 1; i < 1024; ++i) {
+	entity_set entities = entity_set_allocate(70000);
+	for (int i = 1; i < 70000; ++i) {
 		entities.entities[i].animation = animation_sequence_create();
 
-		entities.entities[i].health = 1;
+		int max = (rand() % 15) + 1;
+		entities.entities[i].max_health = max;
+		entities.entities[i].health = (rand() % max) + 1;
 		entities.entities[i].type = rand() % 4 + 1;
 
 		entities.entities[i].destroy = NULL;
@@ -216,8 +218,10 @@ game_state state_main_game_create(void) {
 
 	/* Player entity (temporary) */
 	entities.entities[0].health = 1;
+	entities.entities[0].max_health = 2;
 	entities.entities[0].animation = animation_sequence_create();
 	entities.entities[0].type = ENTITY_PLAYER;
+	entities.entities[0].destroy = NULL;
 	entities.entities[0].x = 512;
 	entities.entities[0].y = 512;
 
