@@ -119,6 +119,18 @@ entity_set entity_set_allocate(size_t count);
 void entity_set_free(entity_set entities);
 
 /**
+ * @brief Gets the entities closest another entity
+ * @details The distance criterion is the Manhattan distance
+ *
+ * @param ent The reference entity (e.g.: for the sidebar, get entities close to the player)
+ * @param in  The set of all entities in the map
+ * @param map If not `NULL`, only visible entities will be added to @p out
+ *
+ * @return A set with **a maximum of** @p max_count entities ordered by distance to @p ent.
+ */
+entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const map *map);
+
+/**
  * @brief Renders a set of entities on the terminal, within some specified bounds.
  *
  * This function renders a set of entities in a given recatngular area of a larger map on the
