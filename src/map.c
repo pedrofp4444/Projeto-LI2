@@ -45,33 +45,31 @@ typedef struct {
  * a default `tile_type_render_info` struct with an empty space character.
  *
  * @param t The `tile_type` to get the rendering information
+ * @param light The illumitation of the current tile
  * @return A `tile_type_render_info` struct which contains the rendering information for a
  * tile type.
 */
-tile_type_render_info tile_get_render_info(tile_type t) {
+tile_type_render_info tile_get_render_info(tile_type t, int light) {
 	tile_type_render_info ret;
+	ret.attr = light ? A_NORMAL : A_DIM;
 
 	switch (t) {
-		case TILE_NOLIGHT:
-			ret.chr = ' '; /* Don't draw unlit tiles (space) */
-			ret.attr = COLOR_PAIR(COLOR_WHITE);
-			break;
 		case TILE_EMPTY:
-			ret.chr = '.';
-			ret.attr = COLOR_PAIR(COLOR_WHITE) | A_DIM;
+			ret.chr = light ? '.' : ' ';
+			ret.attr |= COLOR_PAIR(COLOR_WHITE) | A_DIM;
 			break;
 		case TILE_WALL:
 			ret.chr = '#';
-			ret.attr = COLOR_PAIR(COLOR_WHITE);
+			ret.attr |= COLOR_PAIR(COLOR_WHITE);
 			break;
 		case TILE_WATER:
 			ret.chr = '.';
-			ret.attr = COLOR_PAIR(COLOR_BLUE);
+			ret.attr |= COLOR_PAIR(COLOR_BLUE);
 			break;
 		default:
 			/* Not supposed to happen */
 			ret.chr = ' ';
-			ret.attr = COLOR_PAIR(COLOR_BLACK);
+			ret.attr |= COLOR_PAIR(COLOR_BLACK);
 			break;
 	}
 
@@ -101,7 +99,7 @@ void map_free(map map) {
  * @param t The tile to render
 */
 void tile_render(tile t) {
-	tile_type_render_info info = tile_get_render_info(t.type);
+	tile_type_render_info info = tile_get_render_info(t.type, t.light);
 	attron(info.attr);
 	addch(info.chr);
 	attroff(info.attr);
@@ -116,16 +114,12 @@ void map_render(map map,
 		move(term_top + y, term_left);
 		for (int x = 0; x < width; ++x) {
 
-			tile to_render = {
-				.type = TILE_NOLIGHT
-			};
-
 			unsigned mx = map_left + x, my = map_top + y;
-			if (mx < map.width && my < map.height && map.data[my * map.width + mx].light) {
-				to_render = map.data[my * map.width + mx];
+			if (mx < map.width && my < map.height) {
+				tile_render(map.data[my * map.width + mx]);
+			} else {
+				addch(' ');
 			}
-
-			tile_render(to_render);
 		}
 	}
 }
