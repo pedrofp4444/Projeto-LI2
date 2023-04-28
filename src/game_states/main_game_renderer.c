@@ -33,10 +33,9 @@
  * @brief Draws the health of an entity on the side bar
  */
 void main_game_render_health(entity ent, int y) {
-	/* Draw centered entity name */
-	const char *name = entity_get_name(ent.type);
-
-	int len = strlen(name);
+	/* Draw centered entity name and weapon */
+	char name[128];
+	int len = sprintf(name, "%s (%s)", entity_get_name(ent.type), weapon_get_name(ent.weapon));
 	move(y, (SIDEBAR_WIDTH - len) / 2);
 	printw("%s", name);
 
@@ -66,15 +65,24 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	/* Draw game name */
 	const char *game_name = "Roguelite";
 	move(0, (SIDEBAR_WIDTH - strlen(game_name)) / 2);
-	printw("%s", game_name);
+	attron(A_BOLD); printw("%s", game_name); attroff(A_BOLD);
+
+	/* Draw player weapon */
+	const char *equiped = "Weapon";
+	move(2, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
+	attron(A_BOLD); printw("%s", equiped); attroff(A_BOLD);
+
+	equiped = weapon_get_name(PLAYER(state).weapon);
+	move(3, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
+	printw("%s", equiped);
 
 	/* Draw health of surronding enemies */
-	int max_health_bars = (height - 5) / 3;
+	int max_health_bars = (height - 8) / 3;
 	entity_set health_entities =
 		entity_get_closeby(PLAYER(state), state->entities, max_health_bars, &state->map);
 
 	for (size_t i = 0; i < health_entities.count; ++i) {
-		main_game_render_health(health_entities.entities[i], 2 + i * 3);
+		main_game_render_health(health_entities.entities[i], 5 + i * 3);
 	}
 
 	free(health_entities.entities); /* Don't use entity_set_free not to free entity data */

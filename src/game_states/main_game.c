@@ -210,6 +210,8 @@ game_state state_main_game_create(void) {
 		entities.entities[i].health = (rand() % max) + 1;
 		entities.entities[i].type = rand() % 4 + 1;
 
+		entities.entities[i].weapon = rand() % 6;
+
 		entities.entities[i].destroy = NULL;
 
 		entities.entities[i].x = rand() % 1024;
@@ -219,6 +221,7 @@ game_state state_main_game_create(void) {
 	/* Player entity (temporary) */
 	entities.entities[0].health = 1;
 	entities.entities[0].max_health = 2;
+	entities.entities[0].weapon = WEAPON_DAGGER;
 	entities.entities[0].animation = animation_sequence_create();
 	entities.entities[0].type = ENTITY_PLAYER;
 	entities.entities[0].destroy = NULL;
@@ -266,6 +269,8 @@ void state_main_game_destroy(game_state* state) {
 	state_main_game_data *game_data = state_extract_data(state_main_game_data, state);
 	map_free(game_data->map);
 	entity_set_free(game_data->entities);
+	if (game_data->overlay)
+		free(game_data->overlay);
 	free(state->data);
 }
 

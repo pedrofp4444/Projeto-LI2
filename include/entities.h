@@ -22,6 +22,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <combat.h>
 #include <animation.h>
 #include <map.h>
 #include <game_state.h>
@@ -40,18 +41,6 @@ typedef enum {
 
 /** @brief Gets the human-readable name of an entity type */
 const char *entity_get_name(entity_type t);
-
-/**
- * @brief Enumerates the types of weapons that can exist in the game.
-*/
-typedef enum {
-	WEAPON_HAND,    /**< Entity's hands */
-	WEAPON_DAGGER,  /**< Weak strength weapon */
-	WEAPON_ARROW,   /**< Medium strength weapon */
-	WEAPON_BOMB,    /**< Strong strength weapon */
-	WEAPON_LANTERN, /**< Provides light */
-	WEAPON_IPAD,    /**< Extremely strong weapon */
-} weapon;
 
 /**
  * @struct entity
