@@ -29,6 +29,7 @@
 #include <entities/rat.h>
 #include <entities/goblin.h>
 #include <entities/cristino.h>
+#include <entities/player.h>
 
 #define MAP_WIDTH 1024
 #define MAP_HEIGHT 1024
@@ -221,11 +222,7 @@ void entity_spawn(state_main_game_data *data){
 void player_spawn(state_main_game_data *data){
 
 	// Set Player Data
-	data->entities.entities[0].health = 1;
-	data->entities.entities[0].type = ENTITY_PLAYER;
-	data->entities.entities[0].x = data->map.width / 2;
-	data->entities.entities[0].y = data->map.height / 2;
-	data->entities.entities[0].animation = animation_sequence_create();
+	data->entities.entities[0] = entity_create_player(data->map.width / 2, data->map.height / 2, 1);
 
 	// Open a safe place to start
 	for (unsigned y = data->map.height / 2 - STARTER_CIRCLE; y < data->map.height; y++) {
