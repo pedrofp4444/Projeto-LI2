@@ -234,6 +234,7 @@ game_state state_main_game_create(void) {
 		.elapsed_fps = 0.0,
 
 		.needs_rerender = 1,
+		.overlay = NULL,
 
 		.action = MAIN_GAME_IDLING,
 		.animation_step = 0,

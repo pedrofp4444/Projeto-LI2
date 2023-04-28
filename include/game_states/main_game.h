@@ -22,6 +22,7 @@
 #ifndef MAIN_GAME_H
 #define MAIN_GAME_H
 
+#include <game_states/main_game_renderer.h>
 #include <game_state.h>
 #include <map.h>
 #include <entities.h>
@@ -49,6 +50,8 @@ typedef enum {
  *
  * @var state_main_game_data::needs_rerender
  *   If an update happened (e.g.: user input, window resize) requiring the game to be rendered
+ * @var state_main_game_data::overlay
+ *   Overlay on the top of the map (for drawing combat elements like bombs and arrows).
  *
  * @var state_main_game_data::action
  *   What is currently happening in the game (see ::state_main_game_action)
@@ -67,6 +70,7 @@ typedef struct {
 	double elapsed_fps;
 
 	int needs_rerender;
+	ncurses_char *overlay;
 
 	state_main_game_action action;
 	size_t animation_step;

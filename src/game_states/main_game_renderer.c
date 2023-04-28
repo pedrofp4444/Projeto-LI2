@@ -90,6 +90,21 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	printw("%s", txt);
 }
 
+/** @brief Renders the overlay on top of the map */
+void main_game_render_overlay(ncurses_char *overlay, int width, int height) {
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width - SIDEBAR_WIDTH; ++x) {
+			if (overlay->chr) { /* Don't draw '\0' */
+				attron(overlay->attr);
+				mvaddch(y, SIDEBAR_WIDTH + x, overlay->chr);
+				attroff(overlay->attr);
+			}
+
+			overlay++;
+		}
+	}
+}
+
 game_loop_callback_return_value state_main_game_onrender(void *s, int width, int height) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
@@ -131,16 +146,25 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	                  0, SIDEBAR_WIDTH,
 	                  height, width - SIDEBAR_WIDTH);
 
+	main_game_render_overlay(state->overlay, width, height);
+
 	refresh();
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
 game_loop_callback_return_value state_main_game_onresize(void *s, int width, int height) {
-	(void) width; (void) height;
-
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 	state->needs_rerender = 1;
+
+	/* Reallocate the overlay (if it has been allocated already) */
+	const size_t bytes = (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char);
+	if (state->overlay)
+		state->overlay = realloc(state->overlay, bytes);
+	else
+		state->overlay = malloc(bytes);
+
+	memset(state->overlay, 0, bytes);
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
