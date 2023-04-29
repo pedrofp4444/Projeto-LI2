@@ -22,7 +22,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#define COMBAT_ONLY_WEAPONS
 #include <combat.h>
+
 #include <animation.h>
 #include <map.h>
 #include <game_state.h>

@@ -23,11 +23,10 @@
 #define COMBAT_H
 
 #include <stddef.h>
-#include <animation.h>
 
 /**
  * @brief Enumerates the types of weapons that can exist in the game.
-*/
+ */
 typedef enum {
 	WEAPON_HAND,    /**< Entity's hands */
 	WEAPON_DAGGER,  /**< Weak strength weapon */
@@ -40,5 +39,25 @@ typedef enum {
 /** @brief Gets the human-readable name of a weapon */
 const char *weapon_get_name(weapon w);
 
+/* Used to fix #include bug. Allows for inclusion of only the weapon enum */
+#ifndef COMBAT_ONLY_WEAPONS
+
+#include <map.h>
+#include <entities.h>
+#include <animation.h>
+
+/**
+ * @brief Based on the equiped weapon, detect whether an entity can attack another
+ *
+ * @param attacker
+ *   The entity that will attack the @p attacked
+ * @param attacked
+ *   The entity that will be attacked by @p attacker
+ * @param map
+ *   The game map (for light and collision information)
+ */
+int combat_can_attack(const entity *attacker, const entity *attacked, const map *map);
+
+#endif
 #endif
 
