@@ -29,8 +29,12 @@
 
 /** @brief Type of action during the game */
 typedef enum {
-	MAIN_GAME_IDLING,    /**< Waiting for user input for the next turn */
-	MAIN_GAME_ANIMATING, /**< Animating between-turn events */
+	MAIN_GAME_MOVEMENT_INPUT,            /**< Waiting for user input for the next movement */
+	MAIN_GAME_ANIMATING_PLAYER_MOVEMENT, /**< Animating player movement */
+	MAIN_GAME_COMBAT_INPUT,              /**< Waiting for user input for the next attack */
+	MAIN_GAME_ANIMATING_PLAYER_COMBAT,   /**< Animating player's attack */
+	MAIN_GAME_ANIMATING_MOBS_MOVEMENT,   /**< Animating movement of mobs */
+	MAIN_GAME_ANIMATING_MOBS_COMBAT,    /**< Animating attacks of mobs */
 } state_main_game_action;
 
 /**
@@ -48,6 +52,9 @@ typedef enum {
  * @var state_main_game_data::elapsed_fps
  *   The time elapsed (in seconds) since the last ::state_main_game_data::fps_show update.
  *
+ * @var state_main_game_data::must_leave
+ *   If the game should be exited of (after a message box prompt)
+ *
  * @var state_main_game_data::needs_rerender
  *   If an update happened (e.g.: user input, window resize) requiring the game to be rendered
  * @var state_main_game_data::overlay
@@ -64,10 +71,17 @@ typedef enum {
  *   The game map
  * @var state_main_game_data::entities
  *   Entities in the map
+ *
+ * @var state_main_game_data::cursorx
+ *   Horizontal position (on the map) of the cursor (to choose mob to attack)
+ * @var state_main_game_data::cursory
+ *   Vertical position (on the map) of the cursor (to choose mob to attack)
  */
 typedef struct {
 	int fps_show, fps_count, renders_show, renders_count;
 	double elapsed_fps;
+
+	int must_leave;
 
 	int needs_rerender;
 	ncurses_char *overlay;
@@ -78,6 +92,8 @@ typedef struct {
 
 	map map;
 	entity_set entities;
+
+	int cursorx, cursory;
 } state_main_game_data;
 
 /** @brief Returns the player (first entity) of a ::state_main_game_data pointer */
@@ -90,3 +106,4 @@ game_state state_main_game_create(void);
 void state_main_game_destroy(game_state *state);
 
 #endif
+

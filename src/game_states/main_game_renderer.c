@@ -156,6 +156,13 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 
 	main_game_render_overlay(state->overlay, width, height);
 
+	if (state->action == MAIN_GAME_COMBAT_INPUT)
+		state_main_game_draw_cursor(state,
+		                            map_top, map_left,
+		                            0, SIDEBAR_WIDTH,
+		                            height, width - SIDEBAR_WIDTH);
+
+
 	refresh();
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
