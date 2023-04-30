@@ -19,11 +19,12 @@
  *   limitations under the License.
  */
 
+#include <combat.h>
 #include <game_states/main_game.h>
 #include <game_states/main_game_renderer.h>
+#include <game_states/main_game_animation.h>
 #include <game_states/player_path.h>
 #include <game_states/msg_box.h>
-
 #include <entities_search.h>
 
 #include <time.h>
@@ -32,7 +33,6 @@
 #include <ncurses.h>
 
 #define CIRCLE_RADIUS 15
-#define MAIN_GAME_ANIMATION_TIME 0.3
 
 /* @brief **DEGUB** function for drawing a circle of light on the map */
 void state_main_game_circle_light_map(map m, int x, int y, int r) {
@@ -55,58 +55,6 @@ void state_main_game_circle_clean_light_map(map m, int x, int y, int r) {
 		for (int xp = x - r; xp <= x + r; ++xp)
 			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height)
 				m.data[yp * m.width + xp].light = 0;
-}
-
-/**
- * @brief Animates entity movement
- * @details Animates the player or the mobs, according to ::state_main_game_data::action
- */
-void state_main_game_animate_movement(state_main_game_data *state) {
-	entity_set to_animate = state->entities;
-
-	/* Choose what entities to animate (only player or all but the player) */
-	if (state->action == MAIN_GAME_ANIMATING_PLAYER_MOVEMENT) {
-		to_animate.count = 1;
-	} else if (state->action == MAIN_GAME_ANIMATING_MOBS_MOVEMENT) {
-		to_animate.entities++;
-		to_animate.count--;
-	}
-
-	/* Actual entity moving */
-		if (entity_set_animate(to_animate, state->animation_step)) {
-		/* Done animating */
-
-		if (state->action == MAIN_GAME_ANIMATING_PLAYER_MOVEMENT) {
-			state->cursorx = PLAYER(state).x;
-			state->cursory = PLAYER(state).y;
-
-			state->action = MAIN_GAME_COMBAT_INPUT;
-		} else if (state->action == MAIN_GAME_ANIMATING_MOBS_MOVEMENT) {
-			state->action = MAIN_GAME_ANIMATING_MOBS_COMBAT;
-		}
-
-		state->animation_step = 0;
-
-		/* Clear all entities' animations */
-		for (size_t i = 0; i < state->entities.count; ++i)
-			state->entities.entities[i].animation.length = 0;
-	} else {
-		/* Some entities have animation steps left */
-		state->animation_step++;
-	}
-}
-
-/**
- * @brief Animates entity combat
- * @details Animates the player or the mobs, according to ::state_main_game_data::action
- */
-void state_main_game_animate_combat(state_main_game_data *state) {
-	/* As of now, do nothing, onyl advance to the next step */
-	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
-		state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
-	} else if (state->action == MAIN_GAME_ANIMATING_MOBS_COMBAT) {
-		state->action = MAIN_GAME_MOVEMENT_INPUT;
-	}
 }
 
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
@@ -136,33 +84,7 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	state->fps_count++;
 	state->renders_count += state->needs_rerender;
 
-	/* Animate entities (movment or combat) */
-	if (state->action != MAIN_GAME_MOVEMENT_INPUT && state->action != MAIN_GAME_COMBAT_INPUT) {
-		/* Animation timing */
-		if (state->time_since_last_animation >= MAIN_GAME_ANIMATION_TIME) {
-			state->time_since_last_animation = 0;
-
-			state_main_game_circle_clean_light_map(
-				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
-
-			if (state->action == MAIN_GAME_ANIMATING_PLAYER_MOVEMENT ||
-			    state->action == MAIN_GAME_ANIMATING_MOBS_MOVEMENT) {
-
-				state_main_game_animate_movement(state);
-			} else if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT ||
-			           state->action == MAIN_GAME_ANIMATING_MOBS_COMBAT) {
-
-				state_main_game_animate_combat(state);
-			}
-
-			state_main_game_circle_light_map(
-				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
-
-			state->needs_rerender = 1;
-		} else {
-			state->time_since_last_animation += elapsed;
-		}
-	}
+	state_main_game_animate(state, elapsed);
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
@@ -269,6 +191,7 @@ game_state state_main_game_create(void) {
 	entity_set entities = entity_set_allocate(70000);
 	for (int i = 1; i < 70000; ++i) {
 		entities.entities[i].animation = animation_sequence_create();
+		entities.entities[i].combat_target = NULL;
 
 		int max = (rand() % 15) + 1;
 		entities.entities[i].max_health = max;
@@ -286,8 +209,9 @@ game_state state_main_game_create(void) {
 	/* Player entity (temporary) */
 	entities.entities[0].health = 1;
 	entities.entities[0].max_health = 2;
-	entities.entities[0].weapon = WEAPON_DAGGER;
+	entities.entities[0].weapon = WEAPON_ARROW;
 	entities.entities[0].animation = animation_sequence_create();
+	entities.entities[0].combat_target = NULL;
 	entities.entities[0].type = ENTITY_PLAYER;
 	entities.entities[0].destroy = NULL;
 	entities.entities[0].x = m.width  / 2;

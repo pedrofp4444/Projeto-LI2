@@ -136,7 +136,7 @@ void state_main_game_attack_cursor(state_main_game_data *state, game_state *box_
 	/* Try to attack entity */
 	if (target) {
 		if (combat_can_attack(&PLAYER(state), target, &state->map)) {
-			/* TODO - actually make player attack */
+			combat_attack(&PLAYER(state), target, &state->map);
 			state->action = MAIN_GAME_ANIMATING_PLAYER_COMBAT;
 		} else {
 			const char *button = "OK";

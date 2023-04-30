@@ -39,6 +39,17 @@ const char *entity_get_name(entity_type t) {
 	}
 }
 
+void entity_free_combat_target(entity *ent) {
+	if (ent->combat_target) {
+		if (ent->weapon == WEAPON_ARROW) {
+			animation_sequence_free(((combat_arrow_info *)ent->combat_target)->animation);
+			free(ent->combat_target);
+		} else if (ent->weapon == WEAPON_BOMB) {
+			free(ent->combat_target);
+		}
+	}
+	ent->combat_target = NULL;
+}
 
 entity_set entity_set_allocate(size_t count) {
 	entity_set ret = {
@@ -51,6 +62,8 @@ entity_set entity_set_allocate(size_t count) {
 void entity_set_free(entity_set entities) {
 	for (size_t i = 0; i < entities.count; ++i) {
 		animation_sequence_free(entities.entities[i].animation);
+		entity_free_combat_target(&entities.entities[i]);
+
 		if (entities.entities[i].destroy)
 			entities.entities[i].destroy(&entities.entities[i]);
 	}

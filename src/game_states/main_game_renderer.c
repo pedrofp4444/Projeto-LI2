@@ -19,6 +19,7 @@
  *   limitations under the License.
  */
 
+#include <combat.h>
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_path.h>
 #include <stdlib.h>
@@ -154,7 +155,18 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	                  0, SIDEBAR_WIDTH,
 	                  height, width - SIDEBAR_WIDTH);
 
-	main_game_render_overlay(state->overlay, width, height);
+
+	/* Draw combat overlay, after cleaning it and drawing it */
+	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT ||
+	    state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
+
+		memset(state->overlay, 0, (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char));
+		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
+	                                map_top, map_left,
+	                                height, width - SIDEBAR_WIDTH);
+
+		main_game_render_overlay(state->overlay, width, height);
+	}
 
 	if (state->action == MAIN_GAME_COMBAT_INPUT)
 		state_main_game_draw_cursor(state,

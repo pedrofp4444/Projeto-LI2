@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <combat.h>
+#include <ncurses.h>
 
 const char *weapon_get_name(weapon w) {
 	switch (w) {
@@ -44,6 +45,48 @@ const char *weapon_get_name(weapon w) {
 /** @brief The sign of a number (branchless implementation) */
 #define sgn(x) (((x) > 0) - ((x) < 0))
 
+/**
+ * @brief  Calculates the movement of an arrow for an attack
+ * @return Will return an animation with 0 lenght if the movement is impossible
+ */
+animation_sequence combat_arrow_movement
+	(const entity *attacker, const entity *attacked, const map *map) {
+
+	animation_sequence ret = animation_sequence_create();
+
+	/* Entities must be aligned horizontally or vertically with line of sight */
+	if (!(attacker->x == attacked->x || attacker->y == attacked->y)) return ret;
+
+	int dx = sgn(attacked->x - attacker->x), dy = sgn(attacked->y - attacker->y);
+
+	animation_step pos = {
+		.x = attacker->x, .y = attacker->y
+	};
+
+	/* Check for walls and unlit spots in the middle of the path */
+	while (!(attacked->x == pos.x && attacked->y == pos.y)) {
+
+		if (!(pos.x >= 0                    && pos.y >= 0 &&
+		      (unsigned) pos.x < map->width && (unsigned) pos.y < map->height)) {
+
+			ret.length = 0;
+			return ret; /* Out of bounds arrow */
+		}
+
+		if (map->data[pos.y * map->width + pos.x].type == TILE_WALL ||
+		    map->data[pos.y * map->width + pos.x].light == 0) {
+
+			ret.length = 0;
+			return ret; /* Wall in the middle of the path or unlit area */
+		}
+
+		pos.x += dx; pos.y += dy;
+		animation_sequence_add_step(&ret, pos);
+	}
+
+	return ret;
+}
+
 int combat_can_attack(const entity *attacker, const entity *attacked, const map *map) {
 	int dist = abs(attacker->x - attacked->x) + abs(attacker->y - attacked->y);
 
@@ -55,27 +98,11 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 			return dist <= 5;
 
 		case WEAPON_ARROW: {
-			/* Entities must be aligned horizontally or vertically with line of sight */
-			if (!(attacker->x == attacked->x || attacker->y == attacked->y)) return 0;
-
-			int dx = sgn(attacked->x - attacker->x), dy = sgn(attacked->y - attacker->y);
-			int posx = attacker->x, posy = attacker->y;
-
-			/* Check for walls in the middle of the path */
-			while (!(attacked->x == posx && attacked->y == posy)) {
-
-				if (!(posx >= 0                    && posy >= 0 &&
-				      (unsigned) posx < map->width && (unsigned) posy < map->height))
-					return 0; /* Out of bounds arrow */
-
-				if (map->data[posy * map->width + posx].type == TILE_WALL)
-					return 0; /* Wall in the middle of the path */
-
-				posx += dx; posy += dy;
-			}
-			return 1;
+			animation_sequence seq = combat_arrow_movement(attacker, attacked, map);
+			int ret = seq.length > 0;
+			animation_sequence_free(seq);
+			return ret;
 		}
-		break;
 
 		case WEAPON_BOMB:
 			/* Bombs can only be thrown to lit map spots (in-bounds) */
@@ -89,6 +116,98 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 		default:
 			/* Unknown weapon can't attack */
 			return 0;
+	}
+}
+
+void combat_attack(entity *attacker, const entity *attacked, const map *map) {
+	switch (attacker->weapon) {
+		case WEAPON_ARROW: {
+			combat_arrow_info *t = malloc(sizeof(combat_arrow_info));
+			t->animation = combat_arrow_movement(attacker, attacked, map);
+			attacker->combat_target = t;
+		}
+		break;
+
+		case WEAPON_BOMB: {
+			combat_bomb_info *t = malloc(sizeof(combat_bomb_info));
+			t->x = attacked->x;
+			t->y = attacked->y;
+			attacker->combat_target = t;
+		}
+		break;
+
+		case WEAPON_HAND:
+		case WEAPON_DAGGER:
+		case WEAPON_LANTERN:
+		case WEAPON_IPAD:
+		default:
+			attacker->combat_target = (entity *) attacked;
+			break;
+	}
+}
+
+#define BOMB_EXPLOSION_LENGTH 4
+
+int combat_animation_update(entity_set entity_set, size_t step_index) {
+	for (size_t i = 0; i < entity_set.count; ++i) {
+		entity cur = entity_set.entities[i];
+
+		/* Skip dead and inactive entities */
+		if (cur.health <= 0 || cur.combat_target == NULL) continue;
+
+		size_t length = 0;
+		if (cur.weapon == WEAPON_ARROW) {
+			length = ((combat_arrow_info *) cur.combat_target)->animation.length;
+		} else if (cur.weapon == WEAPON_BOMB) {
+			length = BOMB_EXPLOSION_LENGTH;
+		}
+
+		if (length > step_index)
+			return 0;
+	}
+	return 1;
+}
+
+/* @brief If in-bounds, place a character in map coordinates in the overlay */
+void combat_write_overlay_write(ncurses_char chr, int x, int y, ncurses_char *overlay,
+                                       int map_top , int map_left,
+                                       int height  , int width) {
+
+	x -= map_left; y -= map_top;
+	if (x >= 0 && y >= 0 && x < width && y < height)
+		overlay[y * width + x] = chr;
+}
+
+void combat_entity_set_animate(entity_set entity_set, size_t step_index,
+                               ncurses_char *overlay,
+                               int map_top , int map_left,
+                               int height  , int width) {
+
+	for (size_t i = 0; i < entity_set.count; ++i) {
+		entity cur = entity_set.entities[i];
+
+		/* Skip dead and inactive entities */
+		if (cur.health <= 0 || cur.combat_target == NULL) continue;
+
+		/* Draw arrows and bombs (only visible animations) */
+		if (cur.weapon == WEAPON_ARROW) {
+			animation_sequence seq = ((combat_arrow_info *) cur.combat_target)->animation;
+
+			if (step_index < seq.length) {
+				ncurses_char chr = { .attr = COLOR_PAIR(COLOR_WHITE), .chr = '/' };
+				combat_write_overlay_write(chr,
+					seq.steps[step_index].x, seq.steps[step_index].y, overlay,
+					map_top, map_left, height, width);
+			}
+		} else if (cur.weapon == WEAPON_BOMB && step_index % 2 == 0) { /* mod 2 for blinking */
+			combat_bomb_info bomb = * (combat_bomb_info *) cur.combat_target;
+
+			ncurses_char chr = { .attr = COLOR_PAIR(COLOR_RED), .chr = '@' };
+			for (int y = bomb.y - 1; y <= bomb.y + 1; ++y)
+				for (int x = bomb.x - 1; x <= bomb.x + 1; ++x)
+					combat_write_overlay_write(chr, x, y, overlay,
+						map_top, map_left, height, width);
+		}
 	}
 }
 

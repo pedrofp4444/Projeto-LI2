@@ -22,7 +22,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#define COMBAT_ONLY_WEAPONS
+#define COMBAT_NO_ENTITY_DEPENDENCY
 #include <combat.h>
 
 #include <animation.h>
@@ -69,6 +69,11 @@ const char *entity_get_name(entity_type t);
  *
  * @var entity::animation
  *   Animation sequence for an entity.
+ * @var entity::combat_target
+ *   - `NULL` if an entity won't perform an attack during the current turn
+ *   - ::combat_bomb_info* if ::entity::weapon is ::WEAPON_BOMB
+ *   - ::combat_arrow_info* if ::entity::weapon is ::WEAPON_ARROW
+ *   - ::entity* (target entity) for other values of ::entity::weapon
  *
  * @var entity::destroy
  *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
@@ -84,9 +89,13 @@ typedef struct entity {
 	void *data;
 
 	animation_sequence animation;
+	void *combat_target;
 
 	void (*destroy)(struct entity *ent);
 } entity;
+
+/* @brief Frees the combat target in an entity and sets it to `NULL` */
+void entity_free_combat_target(entity *ent);
 
 /**
  * @struct entity_set
