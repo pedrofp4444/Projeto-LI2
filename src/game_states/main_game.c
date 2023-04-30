@@ -86,6 +86,11 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 
 	state_main_game_animate(state, elapsed);
 
+	if (PLAYER(state).health <= 0) {
+		/* TODO - game over screen */
+		return GAME_LOOP_CALLBACK_RETURN_BREAK;
+	}
+
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
@@ -136,6 +141,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 
 				/* DEBUG purpose - move all entities to the right */
 				for (size_t i = 1; i < state->entities.count; ++i) {
+					if (state->entities.entities[i].health <= 0) continue;
 					animation_step step = {
 						.x = state->entities.entities[i].x + 1,
 						.y = state->entities.entities[i].y,
@@ -188,8 +194,8 @@ game_state state_main_game_create(void) {
 	}
 
 	/* Populate the map with random invalid entities (temporary) */
-	entity_set entities = entity_set_allocate(70000);
-	for (int i = 1; i < 70000; ++i) {
+	entity_set entities = entity_set_allocate(1024);
+	for (int i = 1; i < 1024; ++i) {
 		entities.entities[i].animation = animation_sequence_create();
 		entities.entities[i].combat_target = NULL;
 
@@ -207,9 +213,9 @@ game_state state_main_game_create(void) {
 	}
 
 	/* Player entity (temporary) */
-	entities.entities[0].health = 1;
-	entities.entities[0].max_health = 2;
-	entities.entities[0].weapon = WEAPON_ARROW;
+	entities.entities[0].health = 10;
+	entities.entities[0].max_health = 10;
+	entities.entities[0].weapon = WEAPON_BOMB;
 	entities.entities[0].animation = animation_sequence_create();
 	entities.entities[0].combat_target = NULL;
 	entities.entities[0].type = ENTITY_PLAYER;

@@ -61,6 +61,8 @@ entity_set entity_set_allocate(size_t count) {
 
 void entity_set_free(entity_set entities) {
 	for (size_t i = 0; i < entities.count; ++i) {
+		if (entities.entities[i].health <= 0) continue; /* Skip invalid entities */
+
 		animation_sequence_free(entities.entities[i].animation);
 		entity_free_combat_target(&entities.entities[i]);
 
@@ -251,7 +253,11 @@ int entity_set_animate(entity_set entity_set, size_t step_index) {
 	int stop = 1; /* Return value, whether all animations are finished */
 
 	for (size_t i = 0; i < entity_set.count; ++i) {
+
 		entity *ent = &entity_set.entities[i];
+
+		if (ent->health <= 0) continue; /* Skip invalid entities */
+
 		entity_animate(ent, step_index);
 
 		if (step_index + 1 < ent->animation.length) { /* Unfinished animation */

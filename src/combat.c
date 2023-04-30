@@ -148,7 +148,52 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map) {
 
 #define BOMB_EXPLOSION_LENGTH 4
 
-int combat_animation_update(entity_set entity_set, size_t step_index) {
+/** @brief Deals random damage to @p target based on the strength of @w */
+void combat_deal_damage(weapon w, entity *target) {
+	if (target->health > 0) {
+		switch (w) {
+			case WEAPON_HAND:
+			case WEAPON_LANTERN:
+				target->health--;
+				break;
+
+			case WEAPON_DAGGER:
+			case WEAPON_ARROW:
+				target->health -= (rand() % 3) + 1; /* 1 <= damage <= 3 */
+				break;
+
+			case WEAPON_BOMB:
+				target->health -= (rand() % 2) + 2; /* 2 <= damage <= 3 */
+				break;
+
+			case WEAPON_IPAD:
+				target->health -= (rand() % 3) + 3; /* 3 <= damage <= 5 */
+				break;
+
+			default:
+				break; /* Unknown weapon */
+		}
+
+		/* Check if the entity has been killed to destroy it */
+		if (target->health <= 0) {
+			animation_sequence_free(target->animation);
+			entity_free_combat_target(target);
+
+			if (target->destroy)
+				target->destroy(target);
+		}
+	}
+}
+
+/** @brief Deals random damage to all entities in a location, based on the strength of @p w */
+void combat_deal_damage_position(weapon w, entity_set entities, int x, int y) {
+	for (size_t i = 0; i < entities.count; ++i)
+		/* No need to check health >= 0, as combat_deal_damage does that */
+		if (entities.entities[i].x == x && entities.entities[i].y == y)
+			combat_deal_damage(w, &entities.entities[i]);
+}
+
+int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index) {
 	for (size_t i = 0; i < entity_set.count; ++i) {
 		entity cur = entity_set.entities[i];
 
@@ -157,12 +202,30 @@ int combat_animation_update(entity_set entity_set, size_t step_index) {
 
 		size_t length = 0;
 		if (cur.weapon == WEAPON_ARROW) {
-			length = ((combat_arrow_info *) cur.combat_target)->animation.length;
+			animation_sequence anim = ((combat_arrow_info *) cur.combat_target)->animation;
+			length = anim.length;
+
+			/* Don't attack entities in the middle of the path */
+			if (length != 0 && length - 1 == step_index) {
+				animation_step last = anim.steps[length - 1];
+				combat_deal_damage_position(cur.weapon, all, last.x, last.y);
+			}
+
 		} else if (cur.weapon == WEAPON_BOMB) {
+			combat_bomb_info bomb = *((combat_bomb_info *) cur.combat_target);
 			length = BOMB_EXPLOSION_LENGTH;
+
+			if (step_index == length)
+				for (int y = bomb.y - 1; y <= bomb.y + 1; ++y)
+					for (int x = bomb.x - 1; x <= bomb.x + 1; ++x)
+						combat_deal_damage_position(cur.weapon, all, x, y);
+
+		} else {
+			combat_deal_damage(cur.weapon, cur.combat_target);
+
 		}
 
-		if (length > step_index)
+		if (length >= step_index)
 			return 0;
 	}
 	return 1;
@@ -193,6 +256,7 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index,
 		if (cur.weapon == WEAPON_ARROW) {
 			animation_sequence seq = ((combat_arrow_info *) cur.combat_target)->animation;
 
+			/* Draw a slash in the position of the arrow */
 			if (step_index < seq.length) {
 				ncurses_char chr = { .attr = COLOR_PAIR(COLOR_WHITE), .chr = '/' };
 				combat_write_overlay_write(chr,
@@ -202,6 +266,7 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index,
 		} else if (cur.weapon == WEAPON_BOMB && step_index % 2 == 0) { /* mod 2 for blinking */
 			combat_bomb_info bomb = * (combat_bomb_info *) cur.combat_target;
 
+			/* Draw a red square on the bomb area */
 			ncurses_char chr = { .attr = COLOR_PAIR(COLOR_RED), .chr = '@' };
 			for (int y = bomb.y - 1; y <= bomb.y + 1; ++y)
 				for (int x = bomb.x - 1; x <= bomb.x + 1; ++x)

@@ -55,17 +55,18 @@ entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_a
  * @brief Calls ::entity_set_animate or ::combat_animation_done depending on @p act
  * @returns The return value of the called function (if the animation is done)
  */
-int state_main_game_animate_entities(state_main_game_action act,
-                                     entity_set entities, size_t step_index) {
+int state_main_game_animate_entities(state_main_game_action act, entity_set entities,
+                                     entity_set to_animate, size_t step_index) {
+
 	switch (act) {
 		case MAIN_GAME_ANIMATING_PLAYER_MOVEMENT:
 		case MAIN_GAME_ANIMATING_MOBS_MOVEMENT:
-			return entity_set_animate(entities, step_index);
+			return entity_set_animate(to_animate, step_index);
 		case MAIN_GAME_ANIMATING_MOBS_COMBAT:
 		case MAIN_GAME_ANIMATING_PLAYER_COMBAT:
-			return combat_animation_update(entities, step_index);
+			return combat_animation_update(entities, to_animate, step_index);
 		default:
-			/* Not supposed to happen. SKip to next action */
+			/* Not supposed to happen. Skip to next action */
 			return 1;
 	}
 }
@@ -89,14 +90,16 @@ void state_main_game_animation_cleanup(entity_set just_animated, state_main_game
 			__attribute__ ((fallthrough)); /* Explicit falltrough to disable warning */
 		case MAIN_GAME_ANIMATING_MOBS_MOVEMENT:
 			for (i = 0; i < just_animated.count; ++i)
-				just_animated.entities[i].animation.length = 0;
+				if (just_animated.entities[i].health > 0)
+					just_animated.entities[i].animation.length = 0;
 			break;
 
 		case MAIN_GAME_ANIMATING_MOBS_COMBAT:
 		case MAIN_GAME_ANIMATING_PLAYER_COMBAT:
 
 			for (i = 0; i < just_animated.count; ++i)
-				entity_free_combat_target(&just_animated.entities[i]);
+				if (just_animated.entities[i].health > 0)
+					entity_free_combat_target(&just_animated.entities[i]);
 			break;
 		default:
 			break;
@@ -117,7 +120,8 @@ void state_main_game_animate(state_main_game_data *state, double elapsed) {
 			entity_set to_animate =
 				state_main_game_entities_to_animate(state->entities, state->action);
 
-			if (state_main_game_animate_entities(state->action, to_animate, state->animation_step)) {
+			if (state_main_game_animate_entities(
+				state->action, state->entities, to_animate, state->animation_step)) {
 
 				/* End of animation. Clean up and move to next action */
 				state_main_game_animation_cleanup(to_animate, state->action,

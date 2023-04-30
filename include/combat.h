@@ -100,10 +100,14 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map);
  * @brief Causes the consequences of the @p step_index -th step of an animation
  * @details Responsible for causing damage on entities
  *
+ * @param all        The set of all entities (to deal damage)
+ * @param entity_set The set of entities to be animated (the only combat actions considered)
+ * @param step_index Number of the animation step to be processed
+ *
  * @return 1 if incrementing @p step_index would cause nothing to happen (end of combat
  *         animations), 0 otherwise.
  */
-int combat_animation_update(entity_set entity_set, size_t step_index);
+int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index);
 
 /**
  * @brief Animates all combat actions in an entity set.
