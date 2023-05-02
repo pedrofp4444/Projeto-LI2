@@ -146,7 +146,7 @@ void state_main_game_move_entities(state_main_game_data *state) {
 		animation_step end   = { .x = PLAYER(state).x, .y = PLAYER(state).y };
 
 		animation_sequence_free(closest->animation);
-		closest->animation = search_path(&state->map, start, end);
+		closest->animation = search_path(&state->map, closest->type, start, end);
 	}
 }
 
