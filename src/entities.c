@@ -23,6 +23,23 @@
 #include <ncurses.h>
 #include <entities.h>
 
+const char *entity_get_name(entity_type t) {
+	switch (t) {
+		case ENTITY_PLAYER:
+			return "Player";
+		case ENTITY_RAT:
+			return "Rat";
+		case ENTITY_GOBLIN:
+			return "Goblin";
+		case ENTITY_CRISTINO:
+			return "Cristino";
+		default:
+			/* Not supposed to happen */
+			return "Unknown";
+	}
+}
+
+
 entity_set entity_set_allocate(size_t count) {
 	entity_set ret = {
 		.entities = malloc(count * sizeof(entity)),
@@ -39,6 +56,80 @@ void entity_set_free(entity_set entities) {
 	}
 
 	free(entities.entities);
+}
+
+/**
+ * @brief Inserts an entity in an ordered entity list
+ * @details Auxiliary function for ::entity_get_closeby
+ * @param ent          The entity to be inserted
+ * @param dist         The distance of @p ent to the reference entity
+ * @param chg          The entity list to be changed
+ * @param dists        The list of distances of each entity to the reference entity
+ * @param count        The current number of elements
+ * @param can_increase The size of the list can be increased
+ */
+void entity_insert(entity ent, int dist, entity *chg, int *dists, size_t count, int can_increase) {
+	if (can_increase) {
+		/* Regular insertion */
+		int i;
+		for (i = count - 1; i >= 0 && dist < dists[i]; --i) {
+			chg[i + 1] = chg[i]; dists[i + 1] = dists[i];
+		}
+		chg [i + 1] = ent; dists[i + 1] = dist;
+	} else {
+		/* Find insertion position */
+		size_t pos = count;
+		for (int i = count - 1; i >= 0 && dist < dists[i]; --i)
+			pos = i;
+
+		if (pos < count) {
+			/* Discard last element, moving others forward */
+			for (size_t i = count - 1; i > pos; --i) {
+				chg[i] = chg[i - 1]; dists[i] = dists[i - 1];
+			}
+
+			/* Add current entity */
+			chg[pos] = ent; dists[pos] = dist;
+		}
+	}
+}
+
+entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const map *map) {
+	entity *out = malloc(max_count * sizeof(entity));
+	/* Distances of each outputted entity to the player (for sorting purposes) */
+	int *dists = malloc(max_count * sizeof(int));
+	size_t out_count = 0;
+
+	for (size_t i = 0; i < in.count; ++i) {
+		entity cur = in.entities[i];
+
+		if (cur.health <= 0) continue;
+
+		if (map) {
+			/* Ignore out-of-bounds entities */
+			if (cur.x < 0                      || cur.y < 0                        ||
+			    (unsigned) cur.x >= map->width || (unsigned) cur.y >= map->height) continue;
+
+			/* Ignore unlit entities */
+			if (map->data[cur.y * map->width + cur.x].light == 0) continue;
+		}
+
+		int dist = abs(ent.x - cur.x) + abs(ent.y - cur.y);
+
+		/* Insert the entity on the output list. */
+		if (out_count < max_count) {
+			entity_insert(cur, dist, out, dists, out_count, 1);
+			out_count++;
+		} else {
+			entity_insert(cur, dist, out, dists, out_count, 0);
+		}
+	}
+
+	entity_set ret = {
+		.entities = out, .count = out_count
+	};
+	free(dists);
+	return ret;
 }
 
 /**
