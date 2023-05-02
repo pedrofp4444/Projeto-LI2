@@ -35,6 +35,7 @@
 #define MAP_HEIGHT 1024
 
 #define ENTITY_COUNT 2500
+#define TILE_PERCENTAGE 45
 
 #define ENTITY_RAT_HEALTH 20
 #define ENTITY_GOBLIN_HEALTH 50
@@ -78,8 +79,9 @@
 */
 int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 	int count = 0;
-	for (unsigned c = col - radius; c <= col + radius; c++) { // loop through columns
-		for (unsigned r = row - radius; r <= row + radius; r++) { // loop through lines
+	unsigned c = 0, r = 0;
+	for (c = col - radius; c <= col + radius; c++) { // loop through columns
+		for (r = row - radius; r <= row + radius; r++) { // loop through lines
 			if (r < map.height && c < map.width &&
 			map.data[r * map.width + c].type == tile)
 			count++;
@@ -104,36 +106,44 @@ int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type
  * accessing out-of-bounds cells.
 */
 void generate_random(map map, int radius1, int radius2, tile_type tile) {
-	srand(time(NULL));
+    srand(time(NULL));
+    tile_type** allocated_map = (tile_type**) malloc(map.height * sizeof(tile_type*));
+    for(unsigned i = 0; i < map.height; i++) {
+        allocated_map[i] = (tile_type*) malloc(map.width * sizeof(tile_type));
+    }
 
-	// Randomly generate the tile everywhere
-	FOR_GRID_BORDER(r, c, 2, map) {
-		map.data[r * map.width + c].type = ((rand()%100) < 45) ? tile : TILE_EMPTY;
-	}
+    // Randomly generate the tile everywhere
+    FOR_GRID_BORDER(r, c, 2, map) {
+        map.data[r * map.width + c].type = ((rand()%100) < TILE_PERCENTAGE) ? tile : TILE_EMPTY;
+    }
 
-	// Smooths the tiles
-	for (int i = 0; i < 5; i++) {
-		tile_type mapa[map.height][map.width];
-		FOR_GRID_BORDER(r, c, 1, map) {
-			mapa[r][c] = (radius_count(map, r, c, 1, tile) >= radius1) ||
-			(radius_count(map, r, c, 2, tile) <= radius2) ? tile : TILE_EMPTY;
-		}
-		FOR_GRID_BORDER(r, c, 1, map) {
-			map.data[r * map.width + c].type = mapa[r][c];
-		}
-	}
+    // Smooths the tiles
+    for (int i = 0; i < 5; i++) {
+        FOR_GRID_BORDER(r, c, 1, map) {
+            allocated_map[r][c] = (radius_count(map, r, c, 1, tile) >= radius1) ||
+            (radius_count(map, r, c, 2, tile) <= radius2) ? tile : TILE_EMPTY;
+        }
+        FOR_GRID_BORDER(r, c, 1, map) {
+            map.data[r * map.width + c].type = allocated_map[r][c];
+        }
+    }
 
-	// smooths the tiles again
-	for (int i = 0; i < 5; i++) {
-		tile_type mapa[map.height][map.width];
-		FOR_GRID_BORDER(r, c, 1, map) {
-			mapa[r][c] = (radius_count(map, r, c, 1, tile) >= 5) ? tile : TILE_EMPTY;
-		}
-		FOR_GRID_BORDER(r, c, 1, map) {
-			map.data[r * map.width + c].type = mapa[r][c];
-		}
-	}
+    // smooths the tiles again
+    for (int i = 0; i < 5; i++) {
+        FOR_GRID_BORDER(r, c, 1, map) {
+            allocated_map[r][c] = (radius_count(map, r, c, 1, tile) >= 5) ? tile : TILE_EMPTY;
+        }
+        FOR_GRID_BORDER(r, c, 1, map) {
+            map.data[r * map.width + c].type = allocated_map[r][c];
+        }
+    }
+
+    for(unsigned i = 0; i < map.height; i++) {
+        free(allocated_map[i]);
+    }
+    free(allocated_map);
 }
+
 
 /**
  * @brief Intersects two maps, creating a third map that represents the intersection.
