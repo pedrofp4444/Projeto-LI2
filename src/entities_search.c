@@ -36,15 +36,18 @@ float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
 	return manhattan_distance(x1, y1, x2, y2);
 }
 
-int is_valid_position(map *map, unsigned x, unsigned y) {
-	return (x < map->width && y < map->height &&
-	        map->data[y * map->width + x].type == TILE_EMPTY);
+int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
+	tile_type type = map->data[y * map->width + x].type;
+	if (ent == ENTITY_CRISTINO)
+		return (x < map->width && y < map->height && (type == TILE_EMPTY || type == TILE_WATER));
+	else
+		return (x < map->width && y < map->height && type == TILE_EMPTY);
 }
 
-float get_cost(map *map, animation_step start, animation_step end) {
+float get_cost(map *map, entity_type ent, animation_step start, animation_step end) {
 
 	float cost = manhattan_distance(start.x, start.y, end.x, end.y);
-	if (!is_valid_position(map, end.x, end.y)) {
+	if (!is_valid_position(map, ent, end.x, end.y)) {
 		cost += INFINITY;
 	}
 	return cost;
@@ -83,7 +86,9 @@ void node_destroy(node *node) {
 	/* Disable this warning here. We know what we're doing (TODO - valgrind testing) */
 	//#pragma GCC diagnostic push
 	//#pragma GCC diagnostic ignored "-Wuse-after-free"
-	free(node->parent);
+	if (node != NULL) {
+		free(node);
+	}
 	//#pragma GCC diagnostic pop
 }
 
@@ -91,7 +96,9 @@ void list_destroy(node **list, int num_list) {
 	for (int i = 0; i < num_list; i++) {
 		node_destroy(list[i]);
 	}
-	free(list);
+	if (list != NULL) {
+		free(list);
+	}
 }
 
 animation_sequence calculate_path(node *end_node) {
@@ -119,41 +126,63 @@ animation_sequence calculate_path(node *end_node) {
 	return ret;
 }
 
-animation_sequence search_path(map *map, animation_step start, animation_step end) {
+animation_step find_nearest_empty_tile(map *map, animation_step pos) {
+	float min_distance = INFINITY;
+	animation_step nearest_empty_tile = {-1,-1};
+
+	for (unsigned y = 0; y < 20; y++) {
+		for (unsigned x = 0; x < 20; x++) {
+			if (map->data[y * map->width + x].type == TILE_EMPTY) {
+				float distance = manhattan_distance(pos.x, pos.y, x, y);
+				if (distance < min_distance) {
+					min_distance = distance;
+					nearest_empty_tile = (animation_step){(int)x, (int)y};
+				}
+			}
+		}
+	}
+	return nearest_empty_tile;
+}
+
+animation_sequence search_path(map *map, entity_type ent, animation_step start, animation_step end) {
+
+	if (ent != ENTITY_CRISTINO && map->data[end.y * map->width + end.x].type == TILE_WATER) {
+		end = find_nearest_empty_tile(map, end);
+		if (end.y == -1 && end.x == -1) return animation_sequence_create();
+	}
 
 	node *start_node = create_node(start, 0, 0, 0, NULL);
 	node *end_node = create_node(end, 0, 0, 0, NULL);
 	node **open = malloc(sizeof(node *));
 	node **closed = malloc(sizeof(node *));
-	int n_open = 0, n_closed = 0;
-	open[n_open++] = start_node;
+	int n_open = 1, n_closed = 0;
+	open[0] = start_node;
 
 	while (n_open > 0) {
+
 		node *current_node = get_lowest_f_node(open, n_open);
 		if (current_node->pos.x == end_node->pos.x && current_node->pos.y == end_node->pos.y) {
 			animation_sequence ret = calculate_path(current_node);
 
 			list_destroy(open, n_open);
 			list_destroy(closed, n_closed);
-			node_destroy(start_node);
-			node_destroy(end_node);
 
 			return ret;
 		}
 
-		for (unsigned x = -1; x <= 1; x++) {
-			for (unsigned y = -1; y <= 1; y++) {
-				if (x == 0 && y == 0) continue;
-				if (x != 0 && y != 0) continue; /* Exclude diagonal moving of entities*/
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+
 				unsigned new_x = current_node->pos.x + x;
 				unsigned new_y = current_node->pos.y + y;
-				if (!is_valid_position(map, new_x, new_y)) continue;
 
 				animation_step new_pos = {new_x, new_y};
 				node *new = get_node_in_list(closed, n_closed, new_pos);
-				if (new != NULL) continue;
 
-				float cost = get_cost(map, current_node->pos, new_pos);
+				if ((x == 0 && y == 0) || (x != 0 && y != 0) ||
+				    (!is_valid_position(map, ent, new_x, new_y)) || new != NULL) continue;
+
+				float cost = get_cost(map, ent, current_node->pos, new_pos);
 				float g = current_node->g + cost;
 				node *open_node = get_node_in_list(open, n_open, new_pos);
 				if (open_node == NULL || g < open_node->g) {
@@ -192,10 +221,6 @@ animation_sequence search_path(map *map, animation_step start, animation_step en
 
 	list_destroy(open, n_open);
 	list_destroy(closed, n_closed);
-	node_destroy(start_node);
-	node_destroy(end_node);
-	free(start_node);
-	free(end_node);
 
 	return animation_sequence_create(); /* Empty sequence */
 }
