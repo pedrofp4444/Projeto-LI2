@@ -24,6 +24,7 @@
 #include <game_states/player_path.h>
 #include <game_states/illumination.h>
 
+#include <generate_map.h>
 #include <entities_search.h>
 
 #include <time.h>
@@ -171,50 +172,6 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 game_state state_main_game_create(void) {
 	erase(); /* Performant rendering requires a clean screen to start */
 
-	map m = map_allocate(1024, 1024);
-	srand(time(NULL));
-	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
-		int r = rand() % 100;
-		tile_type type;
-		if      (r < 20) type = TILE_WALL;
-		else if (r < 40) type = TILE_WATER;
-		else             type = TILE_EMPTY;
-
-		tile t = {
-			.type = type,
-			.light = 0
-		};
-		m.data[i] = t;
-	}
-
-	/* Populate the map with random invalid entities (temporary) */
-	entity_set entities = entity_set_allocate(70000);
-	for (int i = 1; i < 70000; ++i) {
-		entities.entities[i].animation = animation_sequence_create();
-
-		int max = (rand() % 15) + 1;
-		entities.entities[i].max_health = max;
-		entities.entities[i].health = (rand() % max) + 1;
-		entities.entities[i].type = rand() % 4 + 1;
-
-		entities.entities[i].destroy = NULL;
-
-		entities.entities[i].x = rand() % 1024;
-		entities.entities[i].y = rand() % 1024;
-	}
-
-	/* Player entity (temporary) */
-	entities.entities[0].health = 1;
-	entities.entities[0].max_health = 2;
-	entities.entities[0].animation = animation_sequence_create();
-	entities.entities[0].type = ENTITY_PLAYER;
-	entities.entities[0].destroy = NULL;
-	entities.entities[0].x = 512;
-	entities.entities[0].y = 512;
-
-	state_main_game_circle_light_map(
-		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
-
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
@@ -225,10 +182,12 @@ game_state state_main_game_create(void) {
 		.action = MAIN_GAME_IDLING,
 		.animation_step = 0,
 		.time_since_last_animation = 0,
-
-		.map = m,
-		.entities = entities,
 	};
+
+	generate_map_random(&data);
+
+	state_main_game_circle_light_map(
+		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;
