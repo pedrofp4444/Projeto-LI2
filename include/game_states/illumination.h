@@ -1,6 +1,6 @@
 /**
- * @file  entities_search.h
- * @brief The implementation of the search for the player (A* algorithm)
+ * @file  illumination.h
+ * @brief The implementation of illumination.
  */
 
 /*
@@ -35,5 +35,15 @@
  * @param r The radius of the vision circle
 */
 void state_main_game_circle_light_map(map m, int x, int y, int r);
+
+/**
+ * @brief Show the circle of player's vision.
+ *
+ * @param m The map containing the dimensions and obstacles.
+ * @param x The X coordinate of the player.
+ * @param y The Y coordinate of the player.
+ * @param r The radius of the vision circle
+*/
+void state_main_game_circle_clean_light_map(map m, int x, int y, int r);
 
 #endif

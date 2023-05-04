@@ -35,15 +35,6 @@
 #define CIRCLE_RADIUS 15
 #define MAIN_GAME_ANIMATION_TIME 0.3
 
-
-/* @brief **DEGUB** function for clearing a circle of light on the map */
-void state_main_game_circle_clean_light_map(map m, int x, int y, int r) {
-	for (int yp = y - r; yp <= y + r; ++yp)
-		for (int xp = x - r; xp <= x + r; ++xp)
-			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height)
-				m.data[yp * m.width + xp].light = 0;
-}
-
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);

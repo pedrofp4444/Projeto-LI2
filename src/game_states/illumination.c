@@ -1,6 +1,6 @@
 /**
- * @file  main_game.c
- * @brief The implementation of the player's vision
+ * @file  illumination.c
+ * @brief The implementation of illumination.
  */
 
 /*
@@ -27,7 +27,6 @@
 
 #define CIRCLE_RADIUS 15
 
-/** @brief **DEGUB** function for drawing a circle of light on the map */
 void state_main_game_circle_light_map(map m, int x, int y, int r) {
 	int rsquared = r * r;
 	for (int yp = y - r; yp <= y + r; ++yp) {
@@ -72,3 +71,11 @@ void state_main_game_circle_light_map(map m, int x, int y, int r) {
 		}
 	}
 }
+
+void state_main_game_circle_clean_light_map(map m, int x, int y, int r) {
+	for (int yp = y - r; yp <= y + r; ++yp)
+		for (int xp = x - r; xp <= x + r; ++xp)
+			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height)
+				m.data[yp * m.width + xp].light = 0;
+}
+
