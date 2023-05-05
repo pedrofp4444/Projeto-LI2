@@ -22,6 +22,7 @@
 #include <game_states/main_game.h>
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_path.h>
+#include <game_states/illumination.h>
 
 #include <generate_map.h>
 #include <entities_search.h>
@@ -33,29 +34,6 @@
 
 #define CIRCLE_RADIUS 15
 #define MAIN_GAME_ANIMATION_TIME 0.3
-
-/* @brief **DEGUB** function for drawing a circle of light on the map */
-void state_main_game_circle_light_map(map m, int x, int y, int r) {
-	int rsquared = r * r;
-	for (int yp = y - r; yp <= y + r; ++yp) {
-		int disty = (yp - y) * (yp - y);
-
-		for (int xp = x - r; xp <= x + r; ++xp) {
-			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height) {
-				if ((xp - x) * (xp - x) + disty <= rsquared)
-					m.data[yp * m.width + xp].light = 1;
-			}
-		}
-	}
-}
-
-/* @brief **DEGUB** function for clearing a circle of light on the map */
-void state_main_game_circle_clean_light_map(map m, int x, int y, int r) {
-	for (int yp = y - r; yp <= y + r; ++yp)
-		for (int xp = x - r; xp <= x + r; ++xp)
-			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height)
-				m.data[yp * m.width + xp].light = 0;
-}
 
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
