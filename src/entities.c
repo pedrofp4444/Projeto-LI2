@@ -164,10 +164,6 @@ entity_type_render_info entity_get_render_info(entity_type t) {
 			break;
 		case ENTITY_RAT:
 			ret.chr = 'R';
-			ret.attributes = COLOR_PAIR(COLOR_WHITE);
-			break;
-		case ENTITY_TROLL:
-			ret.chr = 'T';
 			ret.attributes = COLOR_PAIR(COLOR_BLUE) | A_BOLD;
 			break;
 		case ENTITY_GOBLIN:
