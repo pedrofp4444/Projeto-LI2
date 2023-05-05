@@ -37,11 +37,14 @@ float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
 }
 
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
-	tile_type type = map->data[y * map->width + x].type;
-	if (ent == ENTITY_CRISTINO)
-		return (x < map->width && y < map->height && (type == TILE_EMPTY || type == TILE_WATER));
-	else
-		return (x < map->width && y < map->height && type == TILE_EMPTY);
+	if (x < map->width && y < map->height) {
+		tile_type type = map->data[y * map->width + x].type;
+		if (ent == ENTITY_CRISTINO)
+			return (type == TILE_EMPTY || type == TILE_WATER);
+		else
+			return (type == TILE_EMPTY);
+	}
+	else return 0;
 }
 
 float get_cost(map *map, entity_type ent, animation_step start, animation_step end) {
@@ -171,6 +174,8 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 
 			return ret;
 		}
+
+		if (manhattan_distance(current_node->pos.x, current_node->pos.y, start.x, start.y) > 20) break;
 
 		for (int x = -1; x <= 1; x++) {
 			for (int y = -1; y <= 1; y++) {
