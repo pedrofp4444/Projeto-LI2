@@ -20,6 +20,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <ncurses.h>
 #include <time.h>
 #include <generate_map.h>
@@ -79,12 +80,13 @@
 */
 int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 	int count = 0;
-	unsigned c = 0, r = 0;
+	unsigned c = col - radius, r = row - radius;
 	for (c = col - radius; c <= col + radius; c++) { // loop through columns
 		for (r = row - radius; r <= row + radius; r++) { // loop through lines
 			if (r < map.height && c < map.width &&
-			map.data[r * map.width + c].type == tile)
-			count++;
+			map.data[r * map.width + c].type == tile) {
+				count++;
+			}
 		}
 	}
 	return count;
@@ -106,8 +108,11 @@ int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type
  * accessing out-of-bounds cells.
 */
 void generate_random(map map, int radius1, int radius2, tile_type tile) {
+	memset(map.data, 0, sizeof(tile) * map.width * map.height);
+
     srand(time(NULL));
     tile_type** allocated_map = (tile_type**) malloc(map.height * sizeof(tile_type*));
+	memset(allocated_map, 0, map.height * sizeof(tile_type*));
     for(unsigned i = 0; i < map.height; i++) {
         allocated_map[i] = (tile_type*) malloc(map.width * sizeof(tile_type));
     }
@@ -248,9 +253,9 @@ void player_spawn(state_main_game_data *data){
 
 void generate_map_random(state_main_game_data *data) {
 
-	data->map = map_allocate(1024, 1024);
+	data->map = map_allocate(MAP_WIDTH, MAP_HEIGHT);
 
-	data->entities = entity_set_allocate(2500);
+	data->entities = entity_set_allocate(ENTITY_COUNT);
 
 	// Randomly generate water map
 	generate_random(data->map, 6, 1, TILE_WATER);
