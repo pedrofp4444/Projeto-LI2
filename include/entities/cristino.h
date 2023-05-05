@@ -1,6 +1,6 @@
 /**
- * @file troll.h
- * @brief Troll
+ * @file cristino.h
+ * @brief Cristino
  */
 
 /*
@@ -19,22 +19,20 @@
  *   limitations under the License.
  */
 
-#ifndef TROLL_H
-#define TROLL_H
+#ifndef CRISTINO_H
+#define CRISTINO_H
 
 #include <entities.h>
 
 /**
- * @brief  Creates a new entity type of type ENTITY_TROLL.
- * @detail The function assigns a random weapon to the entity, limited to ::WEAPON_HAND,
- *         ::WEAPON_DAGGER, ::WEAPON_ARROW.
+ * @brief   Creates a new entity type of type ENTITY_CRISTINO.
  *
  * @param x The x coordinate of the entity on the map
  * @param y The y coordinate of the entity on the map
  * @param health The entity health points
  * @return The newly created entity
 */
-entity entity_create_troll(unsigned x, unsigned y, int health);
+entity entity_create_cristino(unsigned x, unsigned y, int health);
 
 #endif
 

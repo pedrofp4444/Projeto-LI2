@@ -1,6 +1,6 @@
 /**
- * @file troll.c
- * @brief Troll implementation
+ * @file generate_map.h
+ * @brief Game Map Generation
  */
 
 /*
@@ -19,27 +19,19 @@
  *   limitations under the License.
  */
 
-#include <stdlib.h>
-#include <time.h>
-#include <entities/troll.h>
+#ifndef GENERATE_MAP_H
+#define GENERATE_MAP_H
 
-entity entity_create_troll(unsigned x, unsigned y, int health) {
-	int weapon_index = rand() % 3;
+#include <entities.h>
+#include <game_states/main_game.h>
+#include <map.h>
 
-	entity troll = {
-		.x = x,
-		.y = y,
-		.type = ENTITY_TROLL,
+/**
+ * @brief Creates a random map with the player, tiles and entities.
+ *
+ * @param data Data for the main game state.
+ */
+void generate_map_random(state_main_game_data *data);
 
-		.health = health, .max_health = health,
-		.weapon = weapon_index,
-
-		.animation = animation_sequence_create(),
-
-		.data = NULL,
-		.destroy = NULL
-	};
-
-	return troll;
-}
+#endif
 
