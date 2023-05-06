@@ -21,11 +21,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h>
 #include <time.h>
 #include <generate_map.h>
 #include <map.h>
-#include <animation.h>
 
 #include <entities/rat.h>
 #include <entities/goblin.h>
@@ -54,7 +52,7 @@
  * @param col The name of the column variable used in the loop.
  * @param border The number of border rows and columns to ignore.
  * @param map Struct containing the map.
-*/
+ */
 #define FOR_GRID_BORDER(row, col, border, map) \
 	for (unsigned row = border; row < map.height - border; row++) \
 		for (unsigned col = border; col < map.width - border; col++)
@@ -77,18 +75,13 @@
  * position is of the specified type.
  * If it is, it increments the count. The function returns the final count after all positions
  * have been checked.
-*/
+ */
 int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 	int count = 0;
-	unsigned c = col - radius, r = row - radius;
-	for (c = col - radius; c <= col + radius; c++) { // loop through columns
-		for (r = row - radius; r <= row + radius; r++) { // loop through lines
-			if (r < map.height && c < map.width &&
-			map.data[r * map.width + c].type == tile) {
+	for (unsigned c = col - radius; c <= col + radius; c++)
+		for (unsigned r = row - radius; r <= row + radius; r++)
+			if (r < map.height && c < map.width && map.data[r * map.width + c].type == tile)
 				count++;
-			}
-		}
-	}
 	return count;
 }
 
@@ -106,47 +99,54 @@ int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type
  * neighbors within a given radius. This process is repeated twice.
  * @note The function uses the FOR_GRID_BORDER macro to iterate through the grid borders and avoid
  * accessing out-of-bounds cells.
-*/
+ */
 void generate_random(map map, int radius1, int radius2, tile_type tile) {
-	memset(map.data, 0, sizeof(tile) * map.width * map.height);
+	srand(time(NULL));
 
-    srand(time(NULL));
-    tile_type** allocated_map = (tile_type**) malloc(map.height * sizeof(tile_type*));
+	tile_type** allocated_map = (tile_type**) malloc(map.height * sizeof(tile_type*));
 	memset(allocated_map, 0, map.height * sizeof(tile_type*));
-    for(unsigned i = 0; i < map.height; i++) {
-        allocated_map[i] = (tile_type*) malloc(map.width * sizeof(tile_type));
-    }
+	for(unsigned i = 0; i < map.height; i++) {
+		allocated_map[i] = (tile_type*) malloc(map.width * sizeof(tile_type));
+	}
 
-    // Randomly generate the tile everywhere
-    FOR_GRID_BORDER(r, c, 2, map) {
-        map.data[r * map.width + c].type = ((rand()%100) < TILE_PERCENTAGE) ? tile : TILE_EMPTY;
-    }
+	// Initialize empty map data to prevent access to uninitialized data
+	FOR_GRID_BORDER(r, c, 0, map) {
+		map.data[r * map.width + c].type = TILE_EMPTY;
+		map.data[r * map.width + c].light = 0;
+	}
 
-    // Smooths the tiles
-    for (int i = 0; i < 5; i++) {
-        FOR_GRID_BORDER(r, c, 1, map) {
-            allocated_map[r][c] = (radius_count(map, r, c, 1, tile) >= radius1) ||
-            (radius_count(map, r, c, 2, tile) <= radius2) ? tile : TILE_EMPTY;
-        }
-        FOR_GRID_BORDER(r, c, 1, map) {
-            map.data[r * map.width + c].type = allocated_map[r][c];
-        }
-    }
+	// Randomly generate the tile everywhere
+	FOR_GRID_BORDER(r, c, 2, map) {
+		map.data[r * map.width + c].type = ((rand()%100) < TILE_PERCENTAGE) ? tile : TILE_EMPTY;
+	}
 
-    // smooths the tiles again
-    for (int i = 0; i < 5; i++) {
-        FOR_GRID_BORDER(r, c, 1, map) {
-            allocated_map[r][c] = (radius_count(map, r, c, 1, tile) >= 5) ? tile : TILE_EMPTY;
-        }
-        FOR_GRID_BORDER(r, c, 1, map) {
-            map.data[r * map.width + c].type = allocated_map[r][c];
-        }
-    }
+	// Smooths the tiles
+	for (int i = 0; i < 5; i++) {
+		FOR_GRID_BORDER(r, c, 1, map) {
+			allocated_map[r][c] = (radius_count(map, r, c, 1, tile) >= radius1) ||
+				(radius_count(map, r, c, 2, tile) <= radius2) ? tile : TILE_EMPTY;
+		}
 
-    for(unsigned i = 0; i < map.height; i++) {
-        free(allocated_map[i]);
-    }
-    free(allocated_map);
+		FOR_GRID_BORDER(r, c, 1, map) {
+			map.data[r * map.width + c].type = allocated_map[r][c];
+		}
+	}
+
+	// smooths the tiles again
+	for (int i = 0; i < 5; i++) {
+		FOR_GRID_BORDER(r, c, 1, map) {
+			allocated_map[r][c] = (radius_count(map, r, c, 1, tile) >= 5) ? tile : TILE_EMPTY;
+		}
+
+		FOR_GRID_BORDER(r, c, 1, map) {
+			map.data[r * map.width + c].type = allocated_map[r][c];
+		}
+	}
+
+	for(unsigned i = 0; i < map.height; i++) {
+		free(allocated_map[i]);
+	}
+	free(allocated_map);
 }
 
 
@@ -165,7 +165,7 @@ void generate_random(map map, int radius1, int radius2, tile_type tile) {
  * @param map2 A pointer to the second map.
  * @param result A pointer to the resulting map.
  * @note The resulting map must have the same dimensions as map1 and map2.
-*/
+ */
 void intersect_maps(map map1, map map2, map result) {
 
 	// Intersect both maps
@@ -187,7 +187,7 @@ void intersect_maps(map map1, map map2, map result) {
  * This function draws a wall border around the map by setting the corresponding tiles to the
  * TILE_WALL type.
  * @param map Struct containing the map
-*/
+ */
 void draw_border(map map) {
 
 	// Draw a border around the map
@@ -207,7 +207,7 @@ void draw_border(map map) {
  * entity and assigns a random type and health value. The entity positions are checked to ensure
  * that they do not overlap with walls or water tiles on the map.
  * @param data A pointer to the game data structure.
-*/
+ */
 void entity_spawn(state_main_game_data *data){
 
 	for (int i = 1; i < ENTITY_COUNT; ++i) {
@@ -233,7 +233,7 @@ void entity_spawn(state_main_game_data *data){
  * @brief Spawns the player entity and opens a safe starting area on the map.
  *
  * @param data Pointer to the main game state data.
-*/
+ */
 void player_spawn(state_main_game_data *data){
 
 	// Set Player Data
