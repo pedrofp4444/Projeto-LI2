@@ -157,8 +157,8 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 
 	node *start_node = create_node(start, 0, 0, 0, NULL);
 	node *end_node = create_node(end, 0, 0, 0, NULL);
-	node **open = malloc(sizeof(node *) * 10);
-	node **closed = malloc(sizeof(node *) * 10);
+	node **open = malloc(sizeof(node *));
+	node **closed = malloc(sizeof(node *));
 	int n_open = 1, n_closed = 0;
 	open[0] = start_node;
 
@@ -202,6 +202,9 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 					else {
 						n_open++;
 						open = realloc(open, sizeof(node *) * n_open);
+						while (open == NULL) {
+							open = realloc(open, sizeof(node *) * n_open);
+						}
 					}
 					open[n_open - 1] = new_node;
 				}
@@ -210,6 +213,9 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 
 		n_closed++;
 		closed = realloc(closed, sizeof(node *) * n_closed);
+		while (closed == NULL) {
+			closed = realloc(closed, sizeof(node *) * n_closed);
+		}
 		closed[n_closed - 1] = current_node;
 
 		for (int i = 0; i < n_open; i++) {
@@ -219,6 +225,9 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 				}
 				n_open--;
 				open = realloc(open, sizeof(node *) * n_open);
+				while (open == NULL) {
+					open = realloc(open, sizeof(node *) * n_open);
+				}
 				break;
 			}
 		}
