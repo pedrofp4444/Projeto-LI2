@@ -78,6 +78,9 @@ typedef struct {
  */
 map map_allocate(unsigned width, unsigned height);
 
+/* @brief Initializes map data to an empty unlit map */
+void map_zero(map m);
+
 /* @brief Frees memory allocated in ::map_allocate for @p map */
 void map_free(map map);
 
