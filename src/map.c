@@ -86,6 +86,14 @@ map map_allocate(unsigned width, unsigned height) {
 	return ret;
 }
 
+void map_zero(map m) {
+	unsigned tile_count = m.width * m.height;
+	for (unsigned i = 0; i < tile_count; ++i) {
+		m.data[i].type = TILE_EMPTY;
+		m.data[i].light = 0;
+	}
+}
+
 void map_free(map map) {
 	free(map.data);
 }
