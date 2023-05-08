@@ -25,6 +25,8 @@
 #include <game_states/main_game_animation.h>
 #include <game_states/player_path.h>
 #include <game_states/msg_box.h>
+#include <game_states/illumination.h>
+#include <generate_map.h>
 #include <entities_search.h>
 
 #include <time.h>
@@ -33,29 +35,6 @@
 #include <ncurses.h>
 
 #define CIRCLE_RADIUS 15
-
-/* @brief **DEGUB** function for drawing a circle of light on the map */
-void state_main_game_circle_light_map(map m, int x, int y, int r) {
-	int rsquared = r * r;
-	for (int yp = y - r; yp <= y + r; ++yp) {
-		int disty = (yp - y) * (yp - y);
-
-		for (int xp = x - r; xp <= x + r; ++xp) {
-			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height) {
-				if ((xp - x) * (xp - x) + disty <= rsquared)
-					m.data[yp * m.width + xp].light = 1;
-			}
-		}
-	}
-}
-
-/* @brief **DEGUB** function for clearing a circle of light on the map */
-void state_main_game_circle_clean_light_map(map m, int x, int y, int r) {
-	for (int yp = y - r; yp <= y + r; ++yp)
-		for (int xp = x - r; xp <= x + r; ++xp)
-			if (0 <= xp && xp < (int) m.width && 0 <= yp && yp < (int) m.height)
-				m.data[yp * m.width + xp].light = 0;
-}
 
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
@@ -177,54 +156,12 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 }
 
 game_state state_main_game_create(void) {
-	map m = map_allocate(1024, 1024);
-	srand(time(NULL));
-	for (int i = 0; i < 1024 * 1024; ++i) { /* Fill map with garbage data (temporary) */
-		int r = rand() % 100;
-		tile_type type;
-		if      (r < 20) type = TILE_WALL;
-		else if (r < 40) type = TILE_WATER;
-		else             type = TILE_EMPTY;
-
-		tile t = {
-			.type = type,
-			.light = 0
-		};
-		m.data[i] = t;
-	}
-
-	/* Populate the map with random invalid entities (temporary) */
-	entity_set entities = entity_set_allocate(1024);
-	for (int i = 1; i < 1024; ++i) {
-		entities.entities[i].animation = animation_sequence_create();
-		entities.entities[i].combat_target = NULL;
-
-		int max = (rand() % 15) + 1;
-		entities.entities[i].max_health = max;
-		entities.entities[i].health = (rand() % max) + 1;
-		entities.entities[i].type = rand() % 4 + 1;
-
-		entities.entities[i].weapon = rand() % 6;
-
-		entities.entities[i].destroy = NULL;
-
-		entities.entities[i].x = rand() % 1024;
-		entities.entities[i].y = rand() % 1024;
-	}
-
-	/* Player entity (temporary) */
-	entities.entities[0].health = 10;
-	entities.entities[0].max_health = 10;
-	entities.entities[0].weapon = WEAPON_BOMB;
-	entities.entities[0].animation = animation_sequence_create();
-	entities.entities[0].combat_target = NULL;
-	entities.entities[0].type = ENTITY_PLAYER;
-	entities.entities[0].destroy = NULL;
-	entities.entities[0].x = m.width  / 2;
-	entities.entities[0].y = m.height / 2;
 
 	state_main_game_circle_light_map(
 		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
+
+	erase(); /* Performant rendering requires a clean screen to start */
+
 
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
@@ -240,12 +177,14 @@ game_state state_main_game_create(void) {
 		.animation_step = 0,
 		.time_since_last_animation = 0,
 
-		.map = m,
-		.entities = entities,
-
 		.cursorx = m.width  / 2,
 		.cursory = m.height / 2,
 	};
+
+	generate_map_random(&data);
+
+	state_main_game_circle_light_map(
+		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;
@@ -273,4 +212,3 @@ void state_main_game_destroy(game_state* state) {
 		free(game_data->overlay);
 	free(state->data);
 }
-
