@@ -22,6 +22,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#define COMBAT_NO_ENTITY_DEPENDENCY
+#include <combat.h>
+
 #include <animation.h>
 #include <map.h>
 #include <game_state.h>
@@ -39,18 +42,6 @@ typedef enum {
 
 /** @brief Gets the human-readable name of an entity type */
 const char *entity_get_name(entity_type t);
-
-/**
- * @brief Enumerates the types of weapons that can exist in the game.
-*/
-typedef enum {
-	WEAPON_HAND,    /**< Entity's hands */
-	WEAPON_DAGGER,  /**< Weak strength weapon */
-	WEAPON_ARROW,   /**< Medium strength weapon */
-	WEAPON_BOMB,    /**< Strong strength weapon */
-	WEAPON_LANTERN, /**< Provides light */
-	WEAPON_IPAD,    /**< Extremely strong weapon */
-} weapon;
 
 /**
  * @struct entity
@@ -77,6 +68,11 @@ typedef enum {
  *
  * @var entity::animation
  *   Animation sequence for an entity.
+ * @var entity::combat_target
+ *   - `NULL` if an entity won't perform an attack during the current turn
+ *   - ::combat_bomb_info* if ::entity::weapon is ::WEAPON_BOMB
+ *   - ::combat_arrow_info* if ::entity::weapon is ::WEAPON_ARROW
+ *   - ::entity* (target entity) for other values of ::entity::weapon
  *
  * @var entity::destroy
  *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
@@ -92,9 +88,13 @@ typedef struct entity {
 	void *data;
 
 	animation_sequence animation;
+	void *combat_target;
 
 	void (*destroy)(struct entity *ent);
 } entity;
+
+/* @brief Frees the combat target in an entity and sets it to `NULL` */
+void entity_free_combat_target(entity *ent);
 
 /**
  * @struct entity_set

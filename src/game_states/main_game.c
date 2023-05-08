@@ -19,11 +19,13 @@
  *   limitations under the License.
  */
 
+#include <combat.h>
 #include <game_states/main_game.h>
 #include <game_states/main_game_renderer.h>
+#include <game_states/main_game_animation.h>
 #include <game_states/player_path.h>
+#include <game_states/msg_box.h>
 #include <game_states/illumination.h>
-
 #include <generate_map.h>
 #include <entities_search.h>
 
@@ -33,11 +35,13 @@
 #include <ncurses.h>
 
 #define CIRCLE_RADIUS 15
-#define MAIN_GAME_ANIMATION_TIME 0.3
 
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	if (state->must_leave)
+		return GAME_LOOP_CALLBACK_RETURN_BREAK;
 
 	state->elapsed_fps += elapsed;
 	if (state->elapsed_fps > 1) {
@@ -59,74 +63,28 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	state->fps_count++;
 	state->renders_count += state->needs_rerender;
 
-	/* Animate entities */
-	if (state->action == MAIN_GAME_ANIMATING) {
-		/* Animation timing */
-		if (state->time_since_last_animation >= MAIN_GAME_ANIMATION_TIME) {
-			state->time_since_last_animation = 0;
+	state_main_game_animate(state, elapsed);
 
-			state_main_game_circle_clean_light_map(
-				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
-
-			/* Actual entity moving */
-			if (entity_set_animate(state->entities, state->animation_step)) {
-				/* Done animating */
-				state->action = MAIN_GAME_IDLING;
-				state->animation_step = 0;
-
-				/* Clear all entities' animations */
-				for (size_t i = 0; i < state->entities.count; ++i)
-					state->entities.entities[i].animation.length = 0;
-
-			} else {
-				/* Some entities have animation steps left */
-				state->animation_step++;
-			}
-
-
-			state_main_game_circle_light_map(
-				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
-
-		} else {
-			state->time_since_last_animation += elapsed;
-		}
-
-		state->needs_rerender = 1;
+	if (PLAYER(state).health <= 0) {
+		/* TODO - game over screen */
+		return GAME_LOOP_CALLBACK_RETURN_BREAK;
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief **DEBUG** function for testing A*. Move closest entity to the player to its position */
-void state_main_game_move_entities(state_main_game_data *state) {
-	if (state->action == MAIN_GAME_IDLING) {
-		state->action = MAIN_GAME_ANIMATING;
+/** @brief Is called when the exit confimation message box is left */
+void state_main_game_msg_box_callback(void *s, int button) {
+	if (button == 1) /* OK button */
+		state_extract_data(state_main_game_data, s)->must_leave = 1;
+}
 
-		/* Find the closest entity to the player */
-		int closest_index = -1;
-		float min_dist = INFINITY;
-		for (size_t i = 1; i < state->entities.count; ++i) {
-			entity current = state->entities.entities[i];
-			if (current.health <= 0) continue;
-
-			/* x^2 + y^2. Avoid expensive square root */
-			float dist = (PLAYER(state).x - current.x) * (PLAYER(state).x - current.x) +
-			             (PLAYER(state).y - current.y) * (PLAYER(state).y - current.y);
-
-			if (dist < min_dist) {
-				closest_index = i;
-				min_dist = dist;
-			}
-		}
-		entity *closest = &state->entities.entities[closest_index];
-
-		/* Use A* to find the player (old position) */
-		animation_step start = { .x = closest->x     , .y = closest->y      };
-		animation_step end   = { .x = PLAYER(state).x, .y = PLAYER(state).y };
-
-		animation_sequence_free(closest->animation);
-		closest->animation = search_path(&state->map, start, end);
-	}
+/** @brief Uses a message box to ask the user if they want to leave the game */
+void state_main_game_exit_confirmation(game_state *state) {
+	const char *buttons[2] = { "Cancel", "OK" };
+	game_state msg = state_msg_box_create(*state, state_main_game_msg_box_callback,
+	                                      "Leave the game?", buttons, 2, 0);
+	state_switch(state, &msg, 0);
 }
 
 /** @brief Responds to user input in the main game state */
@@ -134,21 +92,58 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
 	switch (key) {
-		case '\x1b':
-			return GAME_LOOP_CALLBACK_RETURN_BREAK; /* Exit game on escape */
+		case '\x1b': /* Escape */
+			if (state->action == MAIN_GAME_MOVEMENT_INPUT &&
+			    PLAYER(state).animation.length > 0) {
 
-		case '\r': /* On ENTER, animate all entities moving three blocks left - temporary */
-			if (state->action == MAIN_GAME_IDLING) {
-				state_main_game_move_entities(state);
+				/* Reset player movement */
+				PLAYER(state).animation.length = 0;
 			}
+			else if (state->action == MAIN_GAME_COMBAT_INPUT &&
+			         !(state->cursorx == PLAYER(state).x &&
+			           state->cursory == PLAYER(state).y)) {
+
+				/* Reset cursor position */
+				state->cursorx = PLAYER(state).x;
+				state->cursory = PLAYER(state).y;
+			} else {
+				/* Ask to leave game */
+				state_main_game_exit_confirmation((game_state *) s);
+			}
+			break;
+
+		case '\r':
+			if (state->action == MAIN_GAME_MOVEMENT_INPUT) {
+				state->action = MAIN_GAME_ANIMATING_PLAYER_MOVEMENT;
+			} else if (state->action == MAIN_GAME_COMBAT_INPUT) {
+				state_main_game_attack_cursor(state, (game_state *) s);
+
+				/* DEBUG purpose - move all entities to the right */
+				for (size_t i = 1; i < state->entities.count; ++i) {
+					if (state->entities.entities[i].health <= 0) continue;
+					animation_step step = {
+						.x = state->entities.entities[i].x + 1,
+						.y = state->entities.entities[i].y,
+					};
+					state->entities.entities[i].animation.length = 1;
+					state->entities.entities[i].animation.steps[0] = step;
+				}
+			}
+			break;
+
+		case 's': case 'S': /* Skip player combat */
+			if (state->action == MAIN_GAME_COMBAT_INPUT)
+				state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
 			break;
 
 		case KEY_UP:
 		case KEY_DOWN:
 		case KEY_LEFT:
 		case KEY_RIGHT:
-			if (state->action == MAIN_GAME_IDLING) {
+			if (state->action == MAIN_GAME_MOVEMENT_INPUT) {
 				state_main_game_move_player(state, key);
+			} else if (state->action == MAIN_GAME_COMBAT_INPUT) {
+				state_main_game_move_cursor(state, key);
 			}
 			break;
 
@@ -161,6 +156,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 }
 
 game_state state_main_game_create(void) {
+
 	erase(); /* Performant rendering requires a clean screen to start */
 
 	state_main_game_data data = {
@@ -168,14 +164,20 @@ game_state state_main_game_create(void) {
 		.renders_show = 0, .renders_count = 0,
 		.elapsed_fps = 0.0,
 
-		.needs_rerender = 1,
+		.must_leave = 0,
 
-		.action = MAIN_GAME_IDLING,
+		.needs_rerender = 1,
+		.overlay = NULL,
+
+		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,
 		.time_since_last_animation = 0,
 	};
 
 	generate_map_random(&data);
+
+	data.cursorx = data.map.width  / 2;
+	data.cursory = data.map.height / 2;
 
 	state_main_game_circle_light_map(
 		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);
@@ -202,6 +204,7 @@ void state_main_game_destroy(game_state* state) {
 	state_main_game_data *game_data = state_extract_data(state_main_game_data, state);
 	map_free(game_data->map);
 	entity_set_free(game_data->entities);
+	if (game_data->overlay)
+		free(game_data->overlay);
 	free(state->data);
 }
-

@@ -35,6 +35,7 @@ entity entity_create_cristino(unsigned x, unsigned y, int health) {
 		.weapon = weapon_index,
 
 		.animation = animation_sequence_create(),
+		.combat_target = NULL,
 
 		.data = NULL,
 		.destroy = NULL

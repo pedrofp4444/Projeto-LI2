@@ -50,11 +50,12 @@ game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
 		case '\r': {
 			/* Copy needed data as state will be freed */
 			int chosen_button = state->chosen_button;
+			state_msg_box_exit_callback exit_callback = state->exit_callback;
 			game_state parent = state->parent;
 
 			state_switch((game_state *) s, &parent, 1);
-			if (state->exit_callback)
-				state->exit_callback((game_state *) s, chosen_button);
+			if (exit_callback)
+				exit_callback((game_state *) s, chosen_button);
 			break;
 		}
 

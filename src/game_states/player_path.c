@@ -20,7 +20,9 @@
  */
 
 #include <map.h>
+#include <combat.h>
 #include <game_states/main_game.h>
+#include <game_states/msg_box.h>
 
 #include <ncurses.h>
 
@@ -102,6 +104,53 @@ void state_main_game_move_player(state_main_game_data *state, int key) {
 	}
 }
 
+void state_main_game_move_cursor(state_main_game_data *state, int key) {
+	int dx = 0, dy = 0;
+	get_dx_dy(key, &dx, &dy);
+
+	int x = state->cursorx + dx, y = state->cursory + dy;
+
+	/* Don't let cursor get out of bounds or out of the visible area */
+	if (x >= 0 && y >= 0 && (unsigned) x < state->map.width && (unsigned) y < state->map.height
+	    && state->map.data[y * state->map.width + x].light) {
+		state->cursorx = x, state->cursory = y;
+	} else {
+		beep();
+	}
+}
+
+void state_main_game_attack_cursor(state_main_game_data *state, game_state *box_state) {
+
+	/* Get entity in the cursor postion */
+	entity *target = NULL;
+	for (size_t i = 1; i < state->entities.count; ++i) { /* Start at one not to attack player */
+		if (state->entities.entities[i].health <= 0) continue;
+
+		if (state->entities.entities[i].x == state->cursorx &&
+		    state->entities.entities[i].y == state->cursory) {
+			target = &state->entities.entities[i];
+			break;
+		}
+	}
+
+	/* Try to attack entity */
+	if (target) {
+		if (combat_can_attack(&PLAYER(state), target, &state->map)) {
+			combat_attack(&PLAYER(state), target, &state->map);
+			state->action = MAIN_GAME_ANIMATING_PLAYER_COMBAT;
+		} else {
+			const char *button = "OK";
+			game_state msg = state_msg_box_create(*box_state, NULL, "Out of range weapon!",
+				&button, 1, 0);
+			state_switch(box_state, &msg, 0);
+		}
+	} else {
+		const char *button = "OK";
+		game_state msg = state_msg_box_create(*box_state, NULL, "No mob here!", &button, 1, 0);
+		state_switch(box_state, &msg, 0);
+	}
+}
+
 void state_main_game_draw_player_path(state_main_game_data *state,
                                       int map_top , int map_left,
                                       int term_top, int term_left,
@@ -123,3 +172,22 @@ void state_main_game_draw_player_path(state_main_game_data *state,
 	}
 	attrset(A_NORMAL);
 }
+
+void state_main_game_draw_cursor(state_main_game_data *state,
+                                 int map_top , int map_left,
+                                 int term_top, int term_left,
+                                 int height  , int width) {
+
+	int screenx = term_left + (state->cursorx - map_left),
+	    screeny = term_top  + (state->cursory - map_top);
+
+	if (screenx >= 0 && screenx < term_left + width &&
+	    screeny >= 0 && screeny < term_top + height) {
+
+		move(screeny, screenx);
+		attron(COLOR_PAIR(COLOR_BLACK) | A_REVERSE);
+		addch(' ');
+		attroff(COLOR_PAIR(COLOR_BLACK) | A_REVERSE);
+	}
+}
+

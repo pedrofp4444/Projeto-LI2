@@ -1,6 +1,6 @@
 /**
- * @file rat.c
- * @brief Rat implementation
+ * @file  main_game_animation.h
+ * @brief Animations for the main game state
  */
 
 /*
@@ -19,25 +19,19 @@
  *   limitations under the License.
  */
 
-#include <stdlib.h>
-#include <entities/rat.h>
+#ifndef MAIN_GAME_ANIMATION_H
+#define MAIN_GAME_ANIMATION_H
 
-entity entity_create_rat(unsigned x, unsigned y, int health) {
-	entity rat = {
-		.x = x,
-		.y = y,
-		.type = ENTITY_RAT,
+#include <game_states/main_game.h>
 
-		.health = health, .max_health = health,
-		.weapon = WEAPON_HAND,
+/**
+ * @brief Does everything animation related for the main game
+ * @details Deals with animation timings, screen updates and entity updates.
+ *
+ * @param state The game state
+ * @param elapsed Elapsed time since the last update
+ */
+void state_main_game_animate(state_main_game_data *state, double elapsed);
 
-		.animation = animation_sequence_create(),
-		.combat_target = NULL,
-
-		.data = NULL,
-		.destroy = NULL
-	};
-
-	return rat;
-}
+#endif
 

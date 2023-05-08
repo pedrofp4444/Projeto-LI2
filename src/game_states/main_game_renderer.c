@@ -19,6 +19,7 @@
  *   limitations under the License.
  */
 
+#include <combat.h>
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_path.h>
 #include <stdlib.h>
@@ -33,10 +34,9 @@
  * @brief Draws the health of an entity on the side bar
  */
 void main_game_render_health(entity ent, int y) {
-	/* Draw centered entity name */
-	const char *name = entity_get_name(ent.type);
-
-	int len = strlen(name);
+	/* Draw centered entity name and weapon */
+	char name[128];
+	int len = sprintf(name, "%s (%s)", entity_get_name(ent.type), weapon_get_name(ent.weapon));
 	move(y, (SIDEBAR_WIDTH - len) / 2);
 	printw("%s", name);
 
@@ -66,15 +66,24 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	/* Draw game name */
 	const char *game_name = "Roguelite";
 	move(0, (SIDEBAR_WIDTH - strlen(game_name)) / 2);
-	printw("%s", game_name);
+	attron(A_BOLD); printw("%s", game_name); attroff(A_BOLD);
+
+	/* Draw player weapon */
+	const char *equiped = "Weapon";
+	move(2, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
+	attron(A_BOLD); printw("%s", equiped); attroff(A_BOLD);
+
+	equiped = weapon_get_name(PLAYER(state).weapon);
+	move(3, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
+	printw("%s", equiped);
 
 	/* Draw health of surronding enemies */
-	int max_health_bars = (height - 5) / 3;
+	int max_health_bars = (height - 8) / 3;
 	entity_set health_entities =
 		entity_get_closeby(PLAYER(state), state->entities, max_health_bars, &state->map);
 
 	for (size_t i = 0; i < health_entities.count; ++i) {
-		main_game_render_health(health_entities.entities[i], 2 + i * 3);
+		main_game_render_health(health_entities.entities[i], 5 + i * 3);
 	}
 
 	free(health_entities.entities); /* Don't use entity_set_free not to free entity data */
@@ -88,6 +97,21 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	len = sprintf(txt, "Renders: %d", state->renders_show);
 	move(height - 1, (SIDEBAR_WIDTH - len) / 2);
 	printw("%s", txt);
+}
+
+/** @brief Renders the overlay on top of the map */
+void main_game_render_overlay(ncurses_char *overlay, int width, int height) {
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width - SIDEBAR_WIDTH; ++x) {
+			if (overlay->chr) { /* Don't draw '\0' */
+				attron(overlay->attr);
+				mvaddch(y, SIDEBAR_WIDTH + x, overlay->chr);
+				attroff(overlay->attr);
+			}
+
+			overlay++;
+		}
+	}
 }
 
 game_loop_callback_return_value state_main_game_onrender(void *s, int width, int height) {
@@ -131,16 +155,43 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	                  0, SIDEBAR_WIDTH,
 	                  height, width - SIDEBAR_WIDTH);
 
+
+	/* Draw combat overlay, after cleaning it and drawing it */
+	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT ||
+	    state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
+
+		memset(state->overlay, 0, (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char));
+		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
+	                                map_top, map_left,
+	                                height, width - SIDEBAR_WIDTH);
+
+		main_game_render_overlay(state->overlay, width, height);
+	}
+
+	if (state->action == MAIN_GAME_COMBAT_INPUT)
+		state_main_game_draw_cursor(state,
+		                            map_top, map_left,
+		                            0, SIDEBAR_WIDTH,
+		                            height, width - SIDEBAR_WIDTH);
+
+
 	refresh();
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
 game_loop_callback_return_value state_main_game_onresize(void *s, int width, int height) {
-	(void) width; (void) height;
-
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 	state->needs_rerender = 1;
+
+	/* Reallocate the overlay (if it has been allocated already) */
+	const size_t bytes = (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char);
+	if (state->overlay)
+		state->overlay = realloc(state->overlay, bytes);
+	else
+		state->overlay = malloc(bytes);
+
+	memset(state->overlay, 0, bytes);
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
