@@ -157,11 +157,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 
 game_state state_main_game_create(void) {
 
-	state_main_game_circle_light_map(
-		m, entities.entities[0].x, entities.entities[0].y, CIRCLE_RADIUS);
-
 	erase(); /* Performant rendering requires a clean screen to start */
-
 
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
@@ -176,12 +172,12 @@ game_state state_main_game_create(void) {
 		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,
 		.time_since_last_animation = 0,
-
-		.cursorx = m.width  / 2,
-		.cursory = m.height / 2,
 	};
 
 	generate_map_random(&data);
+
+	data.cursorx = data.map.width  / 2;
+	data.cursory = data.map.height / 2;
 
 	state_main_game_circle_light_map(
 		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);

@@ -32,6 +32,7 @@ entity entity_create_player(unsigned x, unsigned y, int health) {
 		.weapon = WEAPON_HAND,
 
 		.animation = animation_sequence_create(),
+		.combat_target = NULL,
 
 		.data = NULL,
 		.destroy = NULL
