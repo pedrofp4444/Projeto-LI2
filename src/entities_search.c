@@ -171,8 +171,6 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 
 			list_destroy(open, n_open);
 			list_destroy(closed, n_closed);
-			node_destroy(start_node);
-			node_destroy(end_node);
 
 			return ret;
 		}
