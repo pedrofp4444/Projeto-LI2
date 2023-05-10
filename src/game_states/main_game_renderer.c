@@ -27,8 +27,38 @@
 #include <math.h>
 #include <ncurses.h>
 
-#define SIDEBAR_WIDTH 20
-#define HEALTHBAR_WIDTH (SIDEBAR_WIDTH - 5)
+#define SIDEBAR_WIDTH 20 /**< @brief Width of the sidebar (includes vertical separation line)*/
+
+/** @brief Width of an health bar excluding brackets */
+#define HEALTHBAR_WIDTH  (SIDEBAR_WIDTH - 5)
+#define HEALTHBAR_HEIGHT 3 /**< @brief Height of a health bar (includes spacing between bars) */
+
+/**
+ * @brief The number of lines on the sidebar before the health bars
+ * @details Currently five:
+ *
+ * 1. Game name
+ * 2. Empty line for spacing
+ * 3. Weapon
+ * 4. Name of the player's weapon
+ * 5. Space between top lines and health bars
+ */
+#define SIDEBAR_TOP_LINES 5
+
+/**
+ * @brief The number of lines on the sidebar after the health bars
+ * @details Currently three:
+ *
+ * 1. Space between bottom lines and health bars
+ * 2. FPS
+ * 3. Number of renders
+ */
+#define SIDEBAR_BOTTOM_LINES 3
+
+/**
+ * @brief The number of lines on the sidebar occupied by data other than health bars
+ */
+#define SIDEBAR_TOP_BOTTOM_LINES (SIDEBAR_TOP_LINES + SIDEBAR_BOTTOM_LINES)
 
 /**
  * @brief Draws the health of an entity on the side bar
@@ -41,15 +71,16 @@ void main_game_render_health(entity ent, int y) {
 	printw("%s", name);
 
 	/* Draw health bar */
+	/* Example: [███     ] */
 	int health_dots = round(HEALTHBAR_WIDTH * ((float) ent.health / (float) ent.max_health));
 	move(y + 1, 1);
 	addch('[');
 
 	for (int i = 1; i <= HEALTHBAR_WIDTH; ++i) {
 		if (i <= health_dots) {
-			attron(COLOR_PAIR(COLOR_RED) | A_REVERSE);
+			attron(COLOR_PAIR(COLOR_RED) | A_REVERSE); /* Red background (health) */
 		} else {
-			attroff(A_REVERSE);
+			attroff(A_REVERSE); /* Empty (lost health points) */
 		}
 		addch(' ');
 	}
@@ -63,27 +94,37 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	for (int y = 0; y < height; ++y)
 		mvaddch(y, SIDEBAR_WIDTH - 1, '|');
 
-	/* Draw game name */
+	/* Draw game name (centered) */
 	const char *game_name = "Roguelite";
 	move(0, (SIDEBAR_WIDTH - strlen(game_name)) / 2);
 	attron(A_BOLD); printw("%s", game_name); attroff(A_BOLD);
 
-	/* Draw player weapon */
+	/* Draw player weapon (centered)
+	 *
+	 * 1.    Weapon
+	 * 2.  Weapon name
+	 */
+
+	/* 1. Weapon word centered */
 	const char *equiped = "Weapon";
 	move(2, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
 	attron(A_BOLD); printw("%s", equiped); attroff(A_BOLD);
 
+	/* 2. Weapon name centered */
 	equiped = weapon_get_name(PLAYER(state).weapon);
 	move(3, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
 	printw("%s", equiped);
 
+
+
 	/* Draw health of surronding enemies */
-	int max_health_bars = (height - 8) / 3;
+	int max_health_bars = (height - SIDEBAR_TOP_BOTTOM_LINES) / HEALTHBAR_HEIGHT;
 	entity_set health_entities =
 		entity_get_closeby(PLAYER(state), state->entities, max_health_bars, &state->map);
 
 	for (size_t i = 0; i < health_entities.count; ++i) {
-		main_game_render_health(health_entities.entities[i], 5 + i * 3);
+		main_game_render_health(health_entities.entities[i],
+			SIDEBAR_TOP_LINES + i * HEALTHBAR_HEIGHT);
 	}
 
 	free(health_entities.entities); /* Don't use entity_set_free not to free entity data */
@@ -120,10 +161,9 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	state->needs_rerender = 0;
 	erase();
 
-	/* TODO - better define conditions for an invalid screen size */
-	if (width < 40 || height < 15) {
+	if (width < 80 || height < 24) {
 
-		/* Print invalid layout in the middle */
+		/* Terminal too small: print invalid layout in the middle */
 		const char * const msg = "Invalid terminal size";
 		int len = strlen(msg);
 		move(height / 2, (width - len) / 2);
@@ -134,7 +174,7 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 
 	/* Render game normally (valid screen) */
 
-	map_window wnd = {
+	map_window wnd = { /* Region of the screen for the map (exclude sidebar) */
 		.map_top  = PLAYER(state).y - (height / 2),
 		.map_left = PLAYER(state).x - ((width - SIDEBAR_WIDTH) / 2),
 		.term_top = 0, .term_left = SIDEBAR_WIDTH,
@@ -149,12 +189,11 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 
 	entity_set_render(state->entities, state->map, &wnd);
 
-
 	/* Draw combat overlay, after cleaning it and drawing it */
 	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT ||
 	    state->action == MAIN_GAME_ANIMATING_MOBS_COMBAT) {
 
-		memset(state->overlay, 0, (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char));
+		memset(state->overlay, 0, wnd.width * wnd.height * sizeof(ncurses_char));
 		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
 	                                &wnd);
 
@@ -165,7 +204,6 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 		state_main_game_draw_cursor(state, &wnd);
 
 	refresh();
-
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
