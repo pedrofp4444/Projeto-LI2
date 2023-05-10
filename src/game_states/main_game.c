@@ -34,8 +34,6 @@
 #include <math.h>
 #include <ncurses.h>
 
-#define CIRCLE_RADIUS 15
-
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
@@ -112,7 +110,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 			}
 			break;
 
-		case '\r':
+		case '\r': /* Enter */
 			if (state->action == MAIN_GAME_MOVEMENT_INPUT) {
 				state->action = MAIN_GAME_ANIMATING_PLAYER_MOVEMENT;
 			} else if (state->action == MAIN_GAME_COMBAT_INPUT) {
@@ -207,3 +205,4 @@ void state_main_game_destroy(game_state* state) {
 
 	free(state->data);
 }
+
