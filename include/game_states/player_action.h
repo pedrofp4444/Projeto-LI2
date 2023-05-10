@@ -1,6 +1,6 @@
 /**
- * @file player_path.h
- * @brief Draw and update the player movement path
+ * @file player_action.h
+ * @brief Deal with player movement and combat actions
  */
 
 /*

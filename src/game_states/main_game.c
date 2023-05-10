@@ -23,7 +23,7 @@
 #include <game_states/main_game.h>
 #include <game_states/main_game_renderer.h>
 #include <game_states/main_game_animation.h>
-#include <game_states/player_path.h>
+#include <game_states/player_action.h>
 #include <game_states/msg_box.h>
 #include <game_states/illumination.h>
 #include <generate_map.h>
