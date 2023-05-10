@@ -135,7 +135,7 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
 			if (map->data[cur.y * map->width + cur.x].light == 0) continue;
 		}
 
-		int dist = abs(ent.x - cur.x) + abs(ent.y - cur.y);
+		int dist = manhattan_distance(cur.x, cur.y, ent.x, ent.y);
 
 		/* Insert the entity on the output list. */
 		if (out_count < max_count) {

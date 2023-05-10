@@ -71,7 +71,7 @@ animation_sequence combat_arrow_movement
 }
 
 int combat_can_attack(const entity *attacker, const entity *attacked, const map *map) {
-	int dist = abs(attacker->x - attacked->x) + abs(attacker->y - attacked->y);
+	int dist = manhattan_distance(attacker->x, attacker->y, attacked->x, attacked->y);
 
 	switch (attacker->weapon) {
 		/* Simple range-based weapons */
