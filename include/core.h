@@ -89,6 +89,17 @@ typedef struct {
 	INLINE void ncurses_char_print(ncurses_char chr);
 #endif
 
+/**
+ * @brief Calculates the Manhattan distance between two position
+ *
+ * @param x1 The X coordinate of the first position.
+ * @param y1 The Y coordinate of the first position.
+ * @param x2 The X coordinate of the second position.
+ * @param y2 The Y coordinate of the second position.
+ * @returns The Manhattan distance between the two positions.
+ */
+int manhattan_distance(int x1, int y1, int x2, int y2);
+
 /** @brief Checks if a point (in map coordinates) is inside the visible area */
 int map_window_visible(int x, int y, const map_window *wnd);
 

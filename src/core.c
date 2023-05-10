@@ -22,6 +22,12 @@
 #define CORE_H_DEFINITIONS /**< For method definitions if inlining is disabled */
 #include <core.h>
 
+#include <stdlib.h>
+
+int manhattan_distance(int x1, int y1, int x2, int y2) {
+	return abs(x1 - x2) + abs(y1 - y2);
+}
+
 int map_window_visible(int x, int y, const map_window *wnd) {
 	return x >= wnd->map_left               &&
 		 x <  wnd->map_left + wnd->width  &&
