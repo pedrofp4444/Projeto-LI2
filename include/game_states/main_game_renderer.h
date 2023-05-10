@@ -22,21 +22,7 @@
 #ifndef MAIN_GAME_RENDERER_H
 #define MAIN_GAME_RENDERER_H
 
-/**
- * @struct  ncurses_char
- * @brief   A structure for containing character and attribute data
- * @details Used in ::state_main_game_data::overlay
- *
- * @var ncurses_char::attr
- *   ncurses' attributes
- * @var ncurses_char::chr
- *   The textual data. On an overlay, it won't be rendered if '\0'.
- */
-typedef struct {
-	int attr;
-	char chr;
-} ncurses_char;
-
+#include <core.h>
 #include <game_loop.h>
 #include <game_states/main_game.h>
 

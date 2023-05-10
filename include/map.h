@@ -56,7 +56,7 @@ typedef struct {
  *   The `data` variable is a pointer to the first element of the tile data array,
  *   which is dynamically alocated and stores the tile data for the map.
  *   To access coordinate (x, y), use the expression `data[y * width + x]`.
- *   The array size is `with*height` and each element is of the type `tile`.
+ *   The array size is `width*height` and each element is of the type `tile`.
  */
 typedef struct {
 	unsigned width;

@@ -22,8 +22,10 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <ncurses.h>
+
 #ifdef __NO_INLINE__
-	#define INLINE inline
+	#define INLINE
 #else
 	#define INLINE __attribute__((always_inline)) inline
 #endif
@@ -35,6 +37,34 @@
 
 /** @brief The sign of a value (branchless implementation) */
 #define sgn(x) (((x) > 0) - ((x) - 0))
+
+/**
+ * @struct  ncurses_char
+ * @brief   A structure for containing character and attribute data
+ *
+ * @var ncurses_char::attr
+ *   ncurses' attributes
+ * @var ncurses_char::chr
+ *   The textual data. On an overlay, it won't be rendered if '\0'.
+ */
+typedef struct {
+	int attr;
+	char chr;
+} ncurses_char;
+
+/* Define the functions if they are inline or in the core.c file (CORE_H_DEFINITIONS) */
+#if defined(CORE_H_DEFINITIONS) || !defined(__NO_INLINE__)
+
+	/** @brief Prints an ::ncurses_char to ::stdscr */
+	INLINE void ncurses_char_print(ncurses_char chr) {
+		attron(chr.attr);
+		addch(chr.chr);
+		attroff(chr.attr);
+	}
+
+#else
+	INLINE void ncurses_char_print(ncurses_char chr);
+#endif
 
 #endif
 

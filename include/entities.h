@@ -32,7 +32,7 @@
 
 /**
  * @brief Enumerates the types of the entities that can exist in the game.
-*/
+ */
 typedef enum {
 	ENTITY_PLAYER,   /**< The player */
 	ENTITY_RAT,      /**< A mob of low intelligence */
@@ -77,7 +77,7 @@ const char *entity_get_name(entity_type t);
  * @var entity::destroy
  *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
  *   applicable. If `NULL`, it won't be called.
-*/
+ */
 typedef struct entity {
 	int x, y;
 	entity_type type;
@@ -108,7 +108,7 @@ void entity_free_combat_target(entity *ent);
  *   Pointer to the contiguous list of entities.
  * @var entity_set::count
  *   Number of entities in the set
-*/
+ */
 typedef struct entity_set {
 	entity *entities;
 	size_t count;
@@ -147,7 +147,7 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
  * @param term_left The left coordinate of the terminal where the map will be rendered
  * @param height The height of the map and the parts of the terminal to render
  * @param width The width of the map and the parts of the terminal to render
-*/
+ */
 void entity_set_render(entity_set entity_set, map map,
                        int map_top , int map_left,
                        int term_top, int term_left,

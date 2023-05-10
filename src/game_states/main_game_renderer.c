@@ -104,9 +104,8 @@ void main_game_render_overlay(ncurses_char *overlay, int width, int height) {
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width - SIDEBAR_WIDTH; ++x) {
 			if (overlay->chr) { /* Don't draw '\0' */
-				attron(overlay->attr);
-				mvaddch(y, SIDEBAR_WIDTH + x, overlay->chr);
-				attroff(overlay->attr);
+				move(y, SIDEBAR_WIDTH + x);
+				ncurses_char_print(*overlay);
 			}
 
 			overlay++;

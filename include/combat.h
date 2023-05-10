@@ -67,9 +67,9 @@ typedef struct combat_arrow_info {
 /* Used to fix #include bug. Allows for inclusion of only the weapon enum */
 #ifndef COMBAT_NO_ENTITY_DEPENDENCY
 
+#include <core.h>
 #include <map.h>
 #include <entities.h>
-#include <game_states/main_game_renderer.h>
 
 /**
  * @brief Based on the equiped weapon, detect whether an entity can attack another

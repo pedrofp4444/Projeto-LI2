@@ -21,6 +21,8 @@
 
 #include <stdlib.h>
 #include <ncurses.h>
+
+#include <core.h>
 #include <entities.h>
 
 const char *entity_get_name(entity_type t) {
@@ -39,6 +41,10 @@ const char *entity_get_name(entity_type t) {
 	}
 }
 
+/**
+ * @brief Frees memory of an entity's combat target and sets it to NULL
+ * @details That is done depending on the entity's weapon, that determines the type of the data
+ */
 void entity_free_combat_target(entity *ent) {
 	if (ent->combat_target) {
 		if (ent->weapon == WEAPON_ARROW) {
@@ -81,7 +87,7 @@ void entity_set_free(entity_set entities) {
  * @param chg          The entity list to be changed
  * @param dists        The list of distances of each entity to the reference entity
  * @param count        The current number of elements
- * @param can_increase The size of the list can be increased
+ * @param can_increase Whether the size of the list can be increased
  */
 void entity_insert(entity ent, int dist, entity *chg, int *dists, size_t count, int can_increase) {
 	if (can_increase) {
@@ -148,71 +154,42 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
 }
 
 /**
- * @struct entity_type_render_info
- * @brief Stores rendering information related to rendering a particular entity type.
- * @var entity_type_render_info::attributes
- *   Ncurses' attributes to render the entity
- * @var entity_type_render_info::chr
- *   Character used to represent the entity when rendered
-*/
-typedef struct {
-	int attributes;
-	char chr;
-} entity_type_render_info;
-
-/**
  * @brief Returns the rendering information for a entity type.
  *
  * Determines the appropriate rendering information for the specified entity type.
  *
  * @param t The `entity_type` to get the rendering information
- * @return A `entity_type_render_info` struct which contains the rendering information for a
- * entity type.
-*/
-entity_type_render_info entity_get_render_info(entity_type t) {
-	entity_type_render_info ret;
+ * @return An `ncurses_char` that contains the rendering information for an entity of the given
+ *         type.
+ */
+ncurses_char entity_get_render_info(entity_type t) {
+	ncurses_char ret;
 
 	switch (t) {
 		case ENTITY_PLAYER:
 			ret.chr = 'O';
-			ret.attributes = COLOR_PAIR(COLOR_WHITE) | A_BOLD;
+			ret.attr = COLOR_PAIR(COLOR_WHITE) | A_BOLD;
 			break;
 		case ENTITY_RAT:
 			ret.chr = 'R';
-			ret.attributes = COLOR_PAIR(COLOR_BLUE) | A_BOLD;
+			ret.attr = COLOR_PAIR(COLOR_BLUE) | A_BOLD;
 			break;
 		case ENTITY_GOBLIN:
 			ret.chr = 'G';
-			ret.attributes = COLOR_PAIR(COLOR_GREEN) | A_BOLD;
+			ret.attr = COLOR_PAIR(COLOR_GREEN) | A_BOLD;
 			break;
 		case ENTITY_CRISTINO:
 			ret.chr = 'M';
-			ret.attributes = COLOR_PAIR(COLOR_MAGENTA) | A_BOLD;
+			ret.attr = COLOR_PAIR(COLOR_MAGENTA) | A_BOLD;
 			break;
 		default:
 			/* Not supposed to happen */
 			ret.chr = 'X';
-			ret.attributes = COLOR_PAIR(COLOR_RED) | A_BOLD;
+			ret.attr = COLOR_PAIR(COLOR_RED) | A_BOLD;
 			break;
 	}
 
 	return ret;
-}
-
-/**
- * @brief Renders a entity on the terminal.
- *
- * This function renders the given entity to the terminal using the entity's information,
- * which is obtained by using ::entity_get_render_info().
- *
- * @param t The entity to render
-*/
-void entity_render(entity t) {
-	entity_type_render_info info = entity_get_render_info(t.type);
-
-	attron(info.attributes);
-	addch(info.chr);
-	attrset(A_NORMAL);
 }
 
 void entity_set_render(entity_set entity_set, map map,
@@ -225,23 +202,15 @@ void entity_set_render(entity_set entity_set, map map,
 
 		if (ent.health <= 0) continue; /* Skip invalid entities */
 
-		if(ent.x >= map_left        &&
-		   ent.x < map_left + width &&
-		   ent.y >= map_top         &&
-		   ent.y < map_top + height &&
-		   map.data[ent.y * map.width + ent.x].light) {
+		if (ent.x >= map_left        &&
+		    ent.x < map_left + width &&
+		    ent.y >= map_top         &&
+		    ent.y < map_top + height &&
+		    map.data[ent.y * map.width + ent.x].light) {
 
 			move(term_top + (ent.y - map_top), term_left + (ent.x - map_left));
-			entity_render(ent);
+			ncurses_char_print(entity_get_render_info(ent.type));
 		}
-	}
-}
-
-/** @brief Animates an entity */
-void entity_animate(entity *e, size_t step_index) {
-	if (step_index < e->animation.length) {
-		e->x = e->animation.steps[step_index].x;
-		e->y = e->animation.steps[step_index].y;
 	}
 }
 
@@ -254,7 +223,10 @@ int entity_set_animate(entity_set entity_set, size_t step_index) {
 
 		if (ent->health <= 0) continue; /* Skip invalid entities */
 
-		entity_animate(ent, step_index);
+		if (step_index < ent->animation.length) {
+			ent->x = ent->animation.steps[step_index].x;
+			ent->y = ent->animation.steps[step_index].y;
+		}
 
 		if (step_index + 1 < ent->animation.length) { /* Unfinished animation */
 			stop = 0;

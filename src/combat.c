@@ -42,9 +42,6 @@ const char *weapon_get_name(weapon w) {
 	}
 }
 
-/** @brief The sign of a number (branchless implementation) */
-#define sgn(x) (((x) > 0) - ((x) < 0))
-
 /**
  * @brief  Calculates the movement of an arrow for an attack
  * @return Will return an animation with 0 lenght if the movement is impossible
