@@ -97,7 +97,7 @@ typedef struct {
 } state_main_game_data;
 
 /** @brief Returns the player (first entity) of a ::state_main_game_data pointer */
-#define PLAYER(state) state->entities.entities[0]
+#define PLAYER(state) ((state)->entities.entities[0])
 
 /** @brief Creates a state for the main game */
 game_state state_main_game_create(void);

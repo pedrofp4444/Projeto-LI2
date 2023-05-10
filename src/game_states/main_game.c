@@ -156,9 +156,6 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 }
 
 game_state state_main_game_create(void) {
-
-	erase(); /* Performant rendering requires a clean screen to start */
-
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
@@ -180,7 +177,7 @@ game_state state_main_game_create(void) {
 	data.cursory = data.map.height / 2;
 
 	state_main_game_circle_light_map(
-		data.map, data.entities.entities[0].x, data.entities.entities[0].y, CIRCLE_RADIUS);
+		data.map, PLAYER(&data).x, PLAYER(&data).y, CIRCLE_RADIUS);
 
 	state_main_game_data *data_ptr = malloc(sizeof(state_main_game_data));
 	*data_ptr = data;
@@ -202,9 +199,11 @@ game_state state_main_game_create(void) {
 
 void state_main_game_destroy(game_state* state) {
 	state_main_game_data *game_data = state_extract_data(state_main_game_data, state);
+
 	map_free(game_data->map);
 	entity_set_free(game_data->entities);
 	if (game_data->overlay)
 		free(game_data->overlay);
+
 	free(state->data);
 }

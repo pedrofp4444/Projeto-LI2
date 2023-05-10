@@ -21,13 +21,9 @@
 
 #include <combat.h>
 #include <game_states/main_game_animation.h>
+#include <game_states/illumination.h>
 
 #define MAIN_GAME_ANIMATION_TIME 0.3
-
-/* TODO - remove. This is temporary before the lighting system is in place */
-#define CIRCLE_RADIUS 15
-void state_main_game_circle_light_map(map m, int x, int y, int r);
-void state_main_game_circle_clean_light_map(map m, int x, int y, int r);
 
 /** @brief Choose what entities need to be animated (only the player or all but the player) */
 entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_action act) {
