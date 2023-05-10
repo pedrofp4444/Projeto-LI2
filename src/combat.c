@@ -24,7 +24,12 @@
 
 /**
  * @brief  Calculates the movement of an arrow for an attack
- * @return Will return an animation with 0 lenght if the movement is impossible
+ * @return Will return an empty animation if the movement is impossible (wall collision or no
+ *         light), or the arrow animation in case of success
+ *
+ * @param attacker The entity that attacks @p attacked
+ * @param attacked The entity attacked by @attacker
+ * @param map      The map, for arrow-wall collision information
  */
 animation_sequence combat_arrow_movement
 	(const entity *attacker, const entity *attacked, const map *map) {
@@ -34,6 +39,7 @@ animation_sequence combat_arrow_movement
 	/* Entities must be aligned horizontally or vertically with line of sight */
 	if (!(attacker->x == attacked->x || attacker->y == attacked->y)) return ret;
 
+	/* Movement vector of the arrow (each animation frame) */
 	int dx = sgn(attacked->x - attacker->x), dy = sgn(attacked->y - attacker->y);
 
 	animation_step pos = {
@@ -68,12 +74,19 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 	int dist = abs(attacker->x - attacked->x) + abs(attacker->y - attacked->y);
 
 	switch (attacker->weapon) {
+		/* Simple range-based weapons */
 		case WEAPON_HAND:
 		case WEAPON_LANTERN:
 			return dist <= 2;
 		case WEAPON_DAGGER:
 			return dist <= 5;
+		case WEAPON_IPAD:
+			return dist <= 10;
 
+		/*
+		 * Arrows: if the attacked entity is aligned with and in sight of the attacker
+		 * (i.e., the animation sequence can be formed).
+		 */
 		case WEAPON_ARROW: {
 			animation_sequence seq = combat_arrow_movement(attacker, attacked, map);
 			int ret = seq.length > 0;
@@ -83,13 +96,9 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 
 		case WEAPON_BOMB:
 			/* Bombs can only be thrown to lit map spots (in-bounds) */
-			if (attacked->x >= 0                    && attacked->y >= 0 &&
-			    (unsigned) attacked->x < map->width && (unsigned) attacked->y < map->width)
-				return map->data[attacked->y * map->width + attacked->x].light;
-			return 0;
-
-		case WEAPON_IPAD:
-			return dist <= 10;
+			return attacked->x >= 0                   && attacked->y >= 0 &&
+				(unsigned) attacked->x < map->width && (unsigned) attacked->y < map->width
+				&& map->data[attacked->y * map->width + attacked->x].light;
 		default:
 			/* Unknown weapon can't attack */
 			return 0;
@@ -209,13 +218,12 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
 }
 
 /* @brief If in-bounds, place a character in map coordinates in the overlay */
-void combat_write_overlay_write(ncurses_char chr, int x, int y, ncurses_char *overlay,
-                                       int map_top , int map_left,
-                                       int height  , int width) {
+void combat_overlay_write(ncurses_char chr, int x, int y, ncurses_char *overlay,
+                          const map_window *wnd) {
 
-	x -= map_left; y -= map_top;
-	if (x >= 0 && y >= 0 && x < width && y < height)
-		overlay[y * width + x] = chr;
+	if (map_window_visible(x, y, wnd)) {
+		overlay[(y - wnd->map_top) * wnd->width + (x - wnd->map_left)] = chr;
+	}
 }
 
 void combat_entity_set_animate(entity_set entity_set, size_t step_index,
@@ -234,10 +242,10 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index,
 			/* Draw a slash in the position of the arrow */
 			if (step_index < seq.length) {
 				ncurses_char chr = { .attr = COLOR_PAIR(COLOR_WHITE), .chr = '/' };
-				combat_write_overlay_write(chr,
-					seq.steps[step_index].x, seq.steps[step_index].y, overlay,
-					wnd->map_top, wnd->map_left, wnd->height, wnd->width);
+				combat_overlay_write(chr, seq.steps[step_index].x, seq.steps[step_index].y,
+					overlay, wnd);
 			}
+
 		} else if (cur.weapon == WEAPON_BOMB && step_index % 2 == 0) { /* mod 2 for blinking */
 			combat_bomb_info bomb = * (combat_bomb_info *) cur.combat_target;
 
@@ -245,8 +253,7 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index,
 			ncurses_char chr = { .attr = COLOR_PAIR(COLOR_RED), .chr = '@' };
 			for (int y = bomb.y - 1; y <= bomb.y + 1; ++y)
 				for (int x = bomb.x - 1; x <= bomb.x + 1; ++x)
-					combat_write_overlay_write(chr, x, y, overlay,
-						wnd->map_top, wnd->map_left, wnd->height, wnd->width);
+					combat_overlay_write(chr, x, y, overlay, wnd);
 		}
 	}
 }

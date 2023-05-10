@@ -40,8 +40,9 @@
 int combat_can_attack(const entity *attacker, const entity *attacked, const map *map);
 
 /**
- * @brief Set the combat target of the @p attacker. No damage will be dealt
- * @details Call ::combat_can_attack before, or this may lead to invalid attacks
+ * @brief Set the ::entity::combat_target of the @p attacker.
+ * @details Call ::combat_can_attack before, or this may lead to invalid attacks.
+ *          Also, no damage will be dealt (that is done while animating).
  *
  * @param attacker
  *   The entity that will attack the @p attacked
@@ -56,7 +57,7 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map);
  * @brief Causes the consequences of the @p step_index -th step of an animation
  * @details Responsible for causing damage on entities
  *
- * @param all        The set of all entities (to deal damage)
+ * @param all        The set of all entities (to deal damage to)
  * @param entity_set The set of entities to be animated (the only combat actions considered)
  * @param step_index Number of the animation step to be processed
  *
@@ -72,7 +73,7 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
  * @param entity_set The set to be animated
  * @param step_index The index of the current animation step. If some entities' combat animations
  *                   have less than this number of steps, they just won't be animated.
- * @param overlay Overlay on top of the map for animation rendering. Can be `NULL` for no rendering
+ * @param overlay Overlay on top of the map for animation rendering
  * @param wnd The visible map window
  */
 void combat_entity_set_animate(entity_set entity_set, size_t step_index, ncurses_char *overlay,
