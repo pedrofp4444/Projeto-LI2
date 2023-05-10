@@ -85,16 +85,14 @@ void map_free(map map) {
 	free(map.data);
 }
 
-void map_render(map map,
-                int map_top , int map_left,
-                int term_top, int term_left,
-                int height  , int width) {
 
-	for (int y = 0; y < height; ++y) {
-		move(term_top + y, term_left);
-		for (int x = 0; x < width; ++x) {
+void map_render(map map, const map_window *wnd) {
 
-			unsigned mx = map_left + x, my = map_top + y;
+	for (int y = 0; y < wnd->height; ++y) {
+		move(wnd->term_top + y, wnd->term_left);
+		for (int x = 0; x < wnd->width; ++x) {
+
+			unsigned mx = wnd->map_left + x, my = wnd->map_top + y;
 			if (mx < map.width && my < map.height) {
 
 				tile t = map.data[my * map.width + mx];

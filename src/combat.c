@@ -219,9 +219,7 @@ void combat_write_overlay_write(ncurses_char chr, int x, int y, ncurses_char *ov
 }
 
 void combat_entity_set_animate(entity_set entity_set, size_t step_index,
-                               ncurses_char *overlay,
-                               int map_top , int map_left,
-                               int height  , int width) {
+                               ncurses_char *overlay, const map_window *wnd) {
 
 	for (size_t i = 0; i < entity_set.count; ++i) {
 		entity cur = entity_set.entities[i];
@@ -238,7 +236,7 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index,
 				ncurses_char chr = { .attr = COLOR_PAIR(COLOR_WHITE), .chr = '/' };
 				combat_write_overlay_write(chr,
 					seq.steps[step_index].x, seq.steps[step_index].y, overlay,
-					map_top, map_left, height, width);
+					wnd->map_top, wnd->map_left, wnd->height, wnd->width);
 			}
 		} else if (cur.weapon == WEAPON_BOMB && step_index % 2 == 0) { /* mod 2 for blinking */
 			combat_bomb_info bomb = * (combat_bomb_info *) cur.combat_target;
@@ -248,7 +246,7 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index,
 			for (int y = bomb.y - 1; y <= bomb.y + 1; ++y)
 				for (int x = bomb.x - 1; x <= bomb.x + 1; ++x)
 					combat_write_overlay_write(chr, x, y, overlay,
-						map_top, map_left, height, width);
+						wnd->map_top, wnd->map_left, wnd->height, wnd->width);
 		}
 	}
 }

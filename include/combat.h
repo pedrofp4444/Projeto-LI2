@@ -73,17 +73,10 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
  * @param step_index The index of the current animation step. If some entities' combat animations
  *                   have less than this number of steps, they just won't be animated.
  * @param overlay Overlay on top of the map for animation rendering. Can be `NULL` for no rendering
- *
- * @param map_top The top coordinate of the map to be rendered
- * @param map_left The left coordinate of the map to be rendered
- * @param term_top The top coordinate of the terminal where the map will be rendered
- * @param term_left The left coordinate of the terminal where the map will be rendered
- * @param height The height of the map and the parts of the terminal to render
- * @param width The width of the map and the parts of the terminal to render
+ * @param wnd The visible map window
  */
 void combat_entity_set_animate(entity_set entity_set, size_t step_index, ncurses_char *overlay,
-                              int map_top , int map_left,
-                              int height  , int width);
+                               const map_window *wnd);
 
 #endif
 

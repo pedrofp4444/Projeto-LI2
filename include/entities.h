@@ -140,17 +140,9 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
  *
  * @param entity_set A linked list of entities to render
  * @param map The game map, for light information
- * @param map_top The top coordinate of the map to be rendered
- * @param map_left The left coordinate of the map to be rendered
- * @param term_top The top coordinate of the terminal where the map will be rendered
- * @param term_left The left coordinate of the terminal where the map will be rendered
- * @param height The height of the map and the parts of the terminal to render
- * @param width The width of the map and the parts of the terminal to render
+ * @param wnd The visible map window
  */
-void entity_set_render(entity_set entity_set, map map,
-                       int map_top , int map_left,
-                       int term_top, int term_left,
-                       int height  , int width);
+void entity_set_render(entity_set entity_set, map map, const map_window *wnd);
 
 /**
  * @brief Animates all entities in an entity set (changes their position)

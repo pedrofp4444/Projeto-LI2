@@ -133,26 +133,21 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	}
 
 	/* Render game normally (valid screen) */
-	int map_top  = PLAYER(state).y - (height / 2);
-	int map_left = PLAYER(state).x - ((width - SIDEBAR_WIDTH) / 2);
+
+	map_window wnd = {
+		.map_top  = PLAYER(state).y - (height / 2),
+		.map_left = PLAYER(state).x - ((width - SIDEBAR_WIDTH) / 2),
+		.term_top = 0, .term_left = SIDEBAR_WIDTH,
+		.height = height, .width = width - SIDEBAR_WIDTH
+	};
 
 	main_game_render_sidebar(state, height);
 
-	map_render(state->map,
-	           map_top, map_left,
-	           0, SIDEBAR_WIDTH,
-	           height, width - SIDEBAR_WIDTH);
+	map_render(state->map, &wnd);
 
-	state_main_game_draw_player_path(state,
-	                  map_top, map_left,
-	                  0, SIDEBAR_WIDTH,
-	                  height, width - SIDEBAR_WIDTH);
+	state_main_game_draw_player_path(state, &wnd);
 
-
-	entity_set_render(state->entities, state->map,
-	                  map_top, map_left,
-	                  0, SIDEBAR_WIDTH,
-	                  height, width - SIDEBAR_WIDTH);
+	entity_set_render(state->entities, state->map, &wnd);
 
 
 	/* Draw combat overlay, after cleaning it and drawing it */
@@ -161,18 +156,13 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 
 		memset(state->overlay, 0, (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char));
 		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
-	                                map_top, map_left,
-	                                height, width - SIDEBAR_WIDTH);
+	                                &wnd);
 
 		main_game_render_overlay(state->overlay, width, height);
 	}
 
 	if (state->action == MAIN_GAME_COMBAT_INPUT)
-		state_main_game_draw_cursor(state,
-		                            map_top, map_left,
-		                            0, SIDEBAR_WIDTH,
-		                            height, width - SIDEBAR_WIDTH);
-
+		state_main_game_draw_cursor(state, &wnd);
 
 	refresh();
 

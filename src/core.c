@@ -21,3 +21,16 @@
 
 #define CORE_H_DEFINITIONS /**< For method definitions if inlining is disabled */
 #include <core.h>
+
+int map_window_visible(int x, int y, const map_window *wnd) {
+	return x >= wnd->map_left               &&
+		 x <  wnd->map_left + wnd->width  &&
+		 y >= wnd->map_top                &&
+		 y <  wnd->map_top  + wnd->height;
+}
+
+void map_window_to_screen(const map_window *wnd, int mapx, int mapy, int *screenx, int *screeny) {
+	*screeny = wnd->term_top  + (mapy - wnd->map_top);
+	*screenx = wnd->term_left + (mapx - wnd->map_left);
+}
+

@@ -192,23 +192,20 @@ ncurses_char entity_get_render_info(entity_type t) {
 	return ret;
 }
 
-void entity_set_render(entity_set entity_set, map map,
-                       int map_top , int map_left,
-                       int term_top, int term_left,
-                       int height  , int width) {
+void entity_set_render(entity_set entity_set, map map, const map_window *wnd) {
 
 	for (size_t i = 0; i < entity_set.count; ++i){
 		entity ent = entity_set.entities[i];
 
 		if (ent.health <= 0) continue; /* Skip invalid entities */
 
-		if (ent.x >= map_left        &&
-		    ent.x < map_left + width &&
-		    ent.y >= map_top         &&
-		    ent.y < map_top + height &&
+		if (map_window_visible(ent.x, ent.y, wnd) &&
 		    map.data[ent.y * map.width + ent.x].light) {
 
-			move(term_top + (ent.y - map_top), term_left + (ent.x - map_left));
+			int screenx, screeny;
+			map_window_to_screen(wnd, ent.x, ent.y, &screenx, &screeny);
+
+			move(screeny, screenx);
 			ncurses_char_print(entity_get_render_info(ent.type));
 		}
 	}
