@@ -22,13 +22,12 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#define COMBAT_NO_ENTITY_DEPENDENCY
-#include <combat.h>
+#include <stddef.h>
 
+#include <combat_types.h>
 #include <animation.h>
 #include <map.h>
 #include <game_state.h>
-#include <stddef.h>
 
 /**
  * @brief Enumerates the types of the entities that can exist in the game.

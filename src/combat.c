@@ -21,26 +21,6 @@
 
 #include <stdlib.h>
 #include <combat.h>
-#include <ncurses.h>
-
-const char *weapon_get_name(weapon w) {
-	switch (w) {
-		case WEAPON_HAND:
-			return "Hand";
-		case WEAPON_DAGGER:
-			return "Dagger";
-		case WEAPON_ARROW:
-			return "Arrows";
-		case WEAPON_BOMB:
-			return "Bomb";
-		case WEAPON_LANTERN:
-			return "Lantern";
-		case WEAPON_IPAD:
-			return "iPad";
-		default:
-			return "Unknown";
-	}
-}
 
 /**
  * @brief  Calculates the movement of an arrow for an attack

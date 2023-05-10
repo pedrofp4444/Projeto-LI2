@@ -22,52 +22,8 @@
 #ifndef COMBAT_H
 #define COMBAT_H
 
-#include <stddef.h>
-#include <animation.h>
-
-/**
- * @brief Enumerates the types of weapons that can exist in the game.
- */
-typedef enum {
-	WEAPON_HAND,    /**< Entity's hands */
-	WEAPON_DAGGER,  /**< Weak strength weapon */
-	WEAPON_ARROW,   /**< Medium strength weapon */
-	WEAPON_BOMB,    /**< Strong strength weapon */
-	WEAPON_LANTERN, /**< Provides light */
-	WEAPON_IPAD,    /**< Extremely strong weapon */
-} weapon;
-
-/** @brief Gets the human-readable name of a weapon */
-const char *weapon_get_name(weapon w);
-
-/**
- * @struct combat_bomb_info
- * @brief Information about a bomb drop
- *
- * @var combat_bomb_info::x
- *   Horizontal position of the bomb
- * @var combat_bomb_info::y
- *   Vertical position of the bomb
- */
-typedef struct {
-	int x, y;
-} combat_bomb_info;
-
-/**
- * @struct combat_arrow_info
- * @brief Information about a thrown arrow
- *
- * @var combat_arrow_info::animation
- *   Path of the arrow on the map
- */
-typedef struct combat_arrow_info {
-	animation_sequence animation;
-} combat_arrow_info;
-
-/* Used to fix #include bug. Allows for inclusion of only the weapon enum */
-#ifndef COMBAT_NO_ENTITY_DEPENDENCY
-
 #include <core.h>
+#include <combat_types.h>
 #include <map.h>
 #include <entities.h>
 
@@ -129,6 +85,5 @@ void combat_entity_set_animate(entity_set entity_set, size_t step_index, ncurses
                               int map_top , int map_left,
                               int height  , int width);
 
-#endif
 #endif
 
