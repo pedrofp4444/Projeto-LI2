@@ -76,7 +76,6 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 	switch (attacker->weapon) {
 		/* Simple range-based weapons */
 		case WEAPON_HAND:
-		case WEAPON_LANTERN:
 			return dist <= 2;
 		case WEAPON_DAGGER:
 			return dist <= 5;
@@ -124,7 +123,6 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map) {
 
 		case WEAPON_HAND:
 		case WEAPON_DAGGER:
-		case WEAPON_LANTERN:
 		case WEAPON_IPAD:
 		default:
 			attacker->combat_target = (entity *) attacked;
@@ -139,7 +137,6 @@ void combat_deal_damage(weapon w, entity *target, entity_kill_callback onkill, v
 	if (target->health > 0) {
 		switch (w) {
 			case WEAPON_HAND:
-			case WEAPON_LANTERN:
 				target->health--;
 				break;
 

@@ -24,7 +24,7 @@
 #include <entities/cristino.h>
 
 entity entity_create_cristino(unsigned x, unsigned y, int health) {
-	int weapon_index = rand() % 6;
+	int weapon_index = rand() % 5;
 
 	entity cristino = {
 		.x = x,

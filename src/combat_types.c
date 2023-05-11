@@ -31,8 +31,6 @@ const char *weapon_get_name(weapon w) {
 			return "Arrows";
 		case WEAPON_BOMB:
 			return "Bomb";
-		case WEAPON_LANTERN:
-			return "Lantern";
 		case WEAPON_IPAD:
 			return "iPad";
 		default:
