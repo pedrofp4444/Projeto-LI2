@@ -65,24 +65,26 @@ float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
  * @brief Checks if a given position is valid on the map.
  *
  * @param map A pointer to the map containing the dimensions and obstacles.
+ * @param ent The entity whose positions are being checked
  * @param x The X coordinate of the position.
  * @param y The Y coordinate of the position.
  * @returns 1 if the position is within the map boundaries and not obstructed, 0 otherwise.
  */
-int is_valid_position(map *map, unsigned x, unsigned y);
+int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y);
 
 /**
  * @brief Calculates the cost of moving from a start position to an end position.
  *
  * If the end position is invalid, the function returns INFINITY (which should not happen).
  *
- * @param map A pointer to the map containing the dimensions and additional data..
+ * @param map A pointer to the map containing the dimensions and additional data.
+ * @param ent The entity whose cost are being calculated
  * @param start The starting position.
  * @param end The ending position.
  * @returns The cost of moving from the start position to the end position, including the heuristic
  * if applicable or INFINITY if the end position is invalid.
  */
-float get_cost(map *map, animation_step start, animation_step end);
+float get_cost(map *map, entity_type ent, animation_step start, animation_step end);
 
 /**
  * @brief Returns the node with the lowest f value from the list of open nodes.
@@ -142,6 +144,15 @@ void list_destroy(node **list, int n_list);
 animation_sequence calculate_path(node *end_node);
 
 /**
+ * @brief Finds the nearest empty tile to the given position.
+ *
+ * @param map Pointer to the map struct.
+ * @param pos The position to start searching from.
+ * @return The nearest empty tile, or (-1,-1) if no empty tile was found.
+*/
+animation_step find_nearest_empty_tile(map *map, animation_step pos);
+
+/**
  * @brief Implements the A* algorithm to find the shortest path between two positions on the map.
  *
  * It starts with the initial position node and adds its neighbors to the list of open nodes,
@@ -151,11 +162,12 @@ animation_sequence calculate_path(node *end_node);
  * empty, which means there is no possible path between the two positions.
  *
  * @param map A pointer to the map containing the dimensions and additional data.
+ * @param ent The entity whose path is being found.
  * @param start The starting position of the path.
  * @param end The ending position of the path.
  * @return An animation sequence. Its length will be zero if no path could be found.
 */
-animation_sequence search_path(map *map, animation_step start, animation_step end);
+animation_sequence search_path(map *map, entity_type ent, animation_step start, animation_step end);
 
 #endif
 
