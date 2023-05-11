@@ -48,17 +48,6 @@ typedef struct node {
 } node;
 
 /**
- * @brief Calculates the Manhattan distance between two positions on the map
- *
- * @param x1 The X coordinate of the first position.
- * @param y1 The Y coordinate of the first position.
- * @param x2 The X coordinate of the second position.
- * @param y2 The Y coordinate of the second position.
- * @returns The manhattan distance between the two positions.
- */
-float manhattan_distance(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
-
-/**
  * @brief Calculates a heuristic estimate of the cost to reach the destination from a given position.
  *
  * This function uses the Manhattan distance to provide a heuristic estimate of the cost

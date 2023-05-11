@@ -22,8 +22,10 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <ncurses.h>
+
 #ifdef __NO_INLINE__
-	#define INLINE inline
+	#define INLINE
 #else
 	#define INLINE __attribute__((always_inline)) inline
 #endif
@@ -35,6 +37,74 @@
 
 /** @brief The sign of a value (branchless implementation) */
 #define sgn(x) (((x) > 0) - ((x) - 0))
+
+/**
+ * @struct  ncurses_char
+ * @brief   A structure for containing character and attribute data
+ *
+ * @var ncurses_char::attr
+ *   ncurses' attributes
+ * @var ncurses_char::chr
+ *   The textual data. On an overlay, it won't be rendered if '\0'.
+ */
+typedef struct {
+	int attr;
+	char chr;
+} ncurses_char;
+
+/**
+ * @struct map_window
+ * @brief The window of the map visible on screen and its screen placement information
+ *
+ * @var map_window::map_top
+ *   The top coordinate of the map
+ * @var map_window::map_left
+ *   The left coordinate of the map
+ * @var map_window::term_top
+ *   The top coordinate of the terminal
+ * @var map_window::term_left
+ *   The left coordinate of the terminal
+ * @var map_window::height
+ *   The height of the map window (map and screen dimensions are the same)
+ * @var map_window::width
+ *   The width of the map window (map and screen dimensions are the same)
+ */
+typedef struct {
+	int map_top , map_left;
+	int term_top, term_left;
+	int height  , width;
+} map_window;
+
+/* Define the functions if they are inline or in the core.c file (CORE_H_DEFINITIONS) */
+#if defined(CORE_H_DEFINITIONS) || !defined(__NO_INLINE__)
+
+	/** @brief Prints an ::ncurses_char to ::stdscr */
+	INLINE void ncurses_char_print(ncurses_char chr) {
+		attron(chr.attr);
+		addch(chr.chr);
+		attroff(chr.attr);
+	}
+
+#else
+	INLINE void ncurses_char_print(ncurses_char chr);
+#endif
+
+/**
+ * @brief Calculates the Manhattan distance between two position
+ *
+ * @param x1 The X coordinate of the first position.
+ * @param y1 The Y coordinate of the first position.
+ * @param x2 The X coordinate of the second position.
+ * @param y2 The Y coordinate of the second position.
+ * @returns The Manhattan distance between the two positions.
+ */
+int manhattan_distance(int x1, int y1, int x2, int y2);
+
+/** @brief Checks if a point (in map coordinates) is inside the visible area */
+int map_window_visible(int x, int y, const map_window *wnd);
+
+/** @brief Converts map coordinates to screen coordinates in a window. */
+void map_window_to_screen(const map_window *wnd, int mapx, int mapy, int *screenx, int *screeny);
 
 #endif
 

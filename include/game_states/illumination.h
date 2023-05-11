@@ -24,16 +24,19 @@
 
 #include <map.h>
 
+#define CIRCLE_RADIUS 15
+
 /**
  * @brief Shows the tiles that the player can see.
  *
- * This function uses the Bresenham's algorithm to calculate the tiles that the player can see.
+ * @details This function calculates the tiles that the player can see, taking walls and a limit
+ * vision range into account.
  *
  * @param m The map containing the dimensions and obstacles.
  * @param x The X coordinate of the player.
  * @param y The Y coordinate of the player.
  * @param r The radius of the vision circle
-*/
+ */
 void state_main_game_circle_light_map(map m, int x, int y, int r);
 
 /**
@@ -43,7 +46,7 @@ void state_main_game_circle_light_map(map m, int x, int y, int r);
  * @param x The X coordinate of the player.
  * @param y The Y coordinate of the player.
  * @param r The radius of the vision circle
-*/
+ */
 void state_main_game_circle_clean_light_map(map m, int x, int y, int r);
 
 #endif

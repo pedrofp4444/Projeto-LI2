@@ -22,6 +22,8 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <core.h>
+
 /**
  * @brief Enumerates the types of the tiles that can exist in the game.
 */
@@ -49,14 +51,14 @@ typedef struct {
  * @struct map
  * @brief A pointer for the first element of the tile data array.
  * @var map::width
- *   Width of the map in the tiles
+ *   Width of the map in tiles
  * @var map::height
- *   Height of the map in the tiles
+ *   Height of the map in tiles
  * @var map::data
  *   The `data` variable is a pointer to the first element of the tile data array,
  *   which is dynamically alocated and stores the tile data for the map.
  *   To access coordinate (x, y), use the expression `data[y * width + x]`.
- *   The array size is `with*height` and each element is of the type `tile`.
+ *   The array size is `width * height`.
  */
 typedef struct {
 	unsigned width;
@@ -93,17 +95,9 @@ void map_free(map map);
  * then the function will render empty tiles.
  *
  * @param map The map to render
- * @param map_top The top coordinate of the map to be rendered
- * @param map_left The left coordinate of the map to be rendered
- * @param term_top The top coordinate of the terminal where the map will be rendered
- * @param term_left The left coordinate of the terminal where the map will be rendered
- * @param height The height of the map and the parts of the terminal to render
- * @param width The width of the map and the parts of the terminal to render
-*/
-void map_render(map map,
-                int map_top , int map_left,
-                int term_top, int term_left,
-                int height  , int width);
+ * @param wnd The window of the map to be rendered
+ */
+void map_render(map map, const map_window *wnd);
 
 #endif
 
