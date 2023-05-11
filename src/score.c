@@ -19,6 +19,11 @@
  *   limitations under the License.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
 #include <score.h>
 
 int score_from_entity(entity_type t) {
@@ -32,5 +37,53 @@ int score_from_entity(entity_type t) {
 		default:
 			return 0;
 	}
+}
+
+/** @brief Score list criterion for sorting */
+int score_list_criterion(const void *a, const void *b) {
+	return ((const player_score *) b)->score - ((const player_score *) a)->score;
+}
+
+void score_list_load(score_list *out) {
+	FILE *f = fopen(SCORE_FILE, "r");
+
+	if (f == NULL) { /* Failed to open file. Empty score list */
+		memset(out, 0, sizeof(score_list));
+		return;
+	}
+
+	size_t read = fread(out, sizeof(score_list), 1, f);
+	if (read == 0) { /* Failed to load data */
+		memset(out, 0, sizeof(score_list));
+		fclose(f);
+		return;
+	}
+
+	/* Sort list before outputting */
+	qsort(out->scores, SCORE_LIST_MAX, sizeof(player_score), score_list_criterion);
+	fclose(f);
+}
+
+void score_list_save(const score_list *list) {
+	FILE *f = fopen(SCORE_FILE, "w");
+
+	if (f == NULL) return; /* Failed to open file */
+
+	fwrite(list, sizeof(score_list), 1, f);
+	fclose(f);
+}
+
+int score_list_can_insert(const score_list *list, int score) {
+	return score > list->scores[SCORE_LIST_MAX - 1].score;
+}
+
+void score_list_insert(score_list *list, const player_score *score) {
+	if (!score_list_can_insert(list, score->score)) return;
+
+	int i;
+	for (i = SCORE_LIST_MAX - 1; i >= 0 && list->scores[i].score > score->score; ++i) {
+		list->scores[i] = list->scores[i - 1];
+	}
+	list->scores[i] = *score;
 }
 

@@ -8,3 +8,7 @@ Thumbs.db
 /docs
 /obj
 /build
+
+# Ignore leaderboard
+
+/.leaderboard
