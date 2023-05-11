@@ -82,7 +82,7 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	state->fps_count++;
 	state->renders_count += state->needs_rerender;
 
-	state_main_game_animate(state, elapsed);
+	state_main_game_animate((game_state *) s, elapsed);
 
 	if (PLAYER(state).health <= 0) {
 		state_main_game_over((game_state *) s);
@@ -183,6 +183,8 @@ game_state state_main_game_create(void) {
 
 		.needs_rerender = 1,
 		.overlay = NULL,
+
+		.score = 0,
 
 		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,

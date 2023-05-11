@@ -72,6 +72,9 @@ typedef enum {
  * @var state_main_game_data::entities
  *   Entities in the map
  *
+ * @var state_main_game_data::score
+ *   Player's score (increases by killing entities)
+ *
  * @var state_main_game_data::cursorx
  *   Horizontal position (on the map) of the cursor (to choose mob to attack)
  * @var state_main_game_data::cursory
@@ -92,6 +95,8 @@ typedef struct {
 
 	map map;
 	entity_set entities;
+
+	int score;
 
 	int cursorx, cursory;
 } state_main_game_data;

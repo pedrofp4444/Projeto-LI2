@@ -1,6 +1,6 @@
 /**
- * @file  main_game_animation.h
- * @brief Animations for the main game state
+ * @file  score.h
+ * @brief Methods for incrementing player score, saving it and loading it from disk
  */
 
 /*
@@ -19,19 +19,18 @@
  *   limitations under the License.
  */
 
-#ifndef MAIN_GAME_ANIMATION_H
-#define MAIN_GAME_ANIMATION_H
+#include <score.h>
 
-#include <game_states/main_game.h>
-
-/**
- * @brief Does everything animation related for the main game
- * @details Deals with animation timings, screen updates and entity updates.
- *
- * @param state The game state (full game state is needed for possible message boxes)
- * @param elapsed Elapsed time since the last update
- */
-void state_main_game_animate(game_state *state, double elapsed);
-
-#endif
+int score_from_entity(entity_type t) {
+	switch (t) {
+		case ENTITY_RAT:
+			return 10;
+		case ENTITY_GOBLIN:
+			return 20;
+		case ENTITY_CRISTINO:
+			return 100;
+		default:
+			return 0;
+	}
+}
 

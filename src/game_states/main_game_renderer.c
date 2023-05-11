@@ -35,15 +35,17 @@
 
 /**
  * @brief The number of lines on the sidebar before the health bars
- * @details Currently five:
+ * @details Currently seven:
  *
  * 1. Game name
  * 2. Empty line for spacing
- * 3. Weapon
- * 4. Name of the player's weapon
- * 5. Space between top lines and health bars
+ * 3. Score: Number
+ * 4. Empty line for spacing
+ * 5. Weapon
+ * 6. Name of the player's weapon
+ * 7. Space between top lines and health bars
  */
-#define SIDEBAR_TOP_LINES 5
+#define SIDEBAR_TOP_LINES 7
 
 /**
  * @brief The number of lines on the sidebar after the health bars
@@ -99,6 +101,12 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	move(0, (SIDEBAR_WIDTH - strlen(game_name)) / 2);
 	attron(A_BOLD); printw("%s", game_name); attroff(A_BOLD);
 
+	/* Draw score */
+	char score[SIDEBAR_WIDTH + 1];
+	int len = sprintf(score, "Score: %d", state->score);
+	move(2, (SIDEBAR_WIDTH - len) / 2);
+	printw("%s", score);
+
 	/* Draw player weapon (centered)
 	 *
 	 * 1.    Weapon
@@ -107,12 +115,12 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 
 	/* 1. Weapon word centered */
 	const char *equiped = "Weapon";
-	move(2, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
+	move(4, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
 	attron(A_BOLD); printw("%s", equiped); attroff(A_BOLD);
 
 	/* 2. Weapon name centered */
 	equiped = weapon_get_name(PLAYER(state).weapon);
-	move(3, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
+	move(5, (SIDEBAR_WIDTH - strlen(equiped)) / 2);
 	printw("%s", equiped);
 
 
@@ -130,8 +138,8 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	free(health_entities.entities); /* Don't use entity_set_free not to free entity data */
 
 	/* Draw FPS and number of renders */
-	char txt[SIDEBAR_WIDTH];
-	int len = sprintf(txt, "FPS: %d", state->fps_show);
+	char txt[SIDEBAR_WIDTH + 1];
+	len = sprintf(txt, "FPS: %d", state->fps_show);
 	move(height - 2, (SIDEBAR_WIDTH - len) / 2);
 	printw("%s", txt);
 
