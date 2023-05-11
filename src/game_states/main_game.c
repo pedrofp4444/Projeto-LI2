@@ -36,6 +36,27 @@
 
 #define CIRCLE_RADIUS 15
 
+/** @brief Is called when the game over message is left */
+void state_main_game_over_callback(void *s, int button) {
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	if (button == 0) { /* Leave button */
+		state->must_leave = 1;
+	} else { /* Play again */
+		game_state new = state_main_game_create();
+		state_switch((game_state *) s, &new, 1);
+	}
+}
+
+/** @brief Shows the game over message */
+void state_main_game_over(game_state *state) {
+	const char *buttons[2] = { "Leave", "Retry" };
+	game_state msg = state_msg_box_create(*state, state_main_game_over_callback,
+	                                      "Game over", buttons, 2, 0);
+	state_switch(state, &msg, 0);
+
+}
+
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
@@ -66,8 +87,7 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	state_main_game_animate(state, elapsed);
 
 	if (PLAYER(state).health <= 0) {
-		/* TODO - game over screen */
-		return GAME_LOOP_CALLBACK_RETURN_BREAK;
+		state_main_game_over((game_state *) s);
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;

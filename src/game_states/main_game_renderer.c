@@ -160,6 +160,9 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT ||
 	    state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
 
+		if (!state->overlay) /* Allocate overlay if not allocated (after game overs) */
+			state->overlay = malloc((width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char));
+
 		memset(state->overlay, 0, (width - SIDEBAR_WIDTH) * height * sizeof(ncurses_char));
 		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
 	                                map_top, map_left,
