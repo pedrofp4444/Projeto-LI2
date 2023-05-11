@@ -21,15 +21,15 @@
 
 #include <combat.h>
 #include <game_states/main_game_animation.h>
+#include <game_states/illumination.h>
 
-#define MAIN_GAME_ANIMATION_TIME 0.3
+#define MAIN_GAME_ANIMATION_TIME 0.2
 
-/* TODO - remove. This is temporary before the lighting system is in place */
-#define CIRCLE_RADIUS 15
-void state_main_game_circle_light_map(map m, int x, int y, int r);
-void state_main_game_circle_clean_light_map(map m, int x, int y, int r);
-
-/** @brief Choose what entities need to be animated (only the player or all but the player) */
+/**
+ * @brief Choose what entities need to be animated (only the player or all but the player)
+ * @details The returned ::entity_set must **not** be freed, as it's defined in relation to @p all
+ *          (like a string view, for example).
+ */
 entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_action act) {
 	entity_set ret = all;
 
@@ -74,7 +74,7 @@ int state_main_game_animate_entities(state_main_game_action act, entity_set enti
 /**
  * @brief Cleans either animations or combat animations, depending on the current action
  *
- * @param just_animated The animated entity sets that need to have the animations reset
+ * @param just_animated The animated entity set that need to have the animations reset
  * @param act Current action, used to know which type of animation needs to be reset
  * @param cursorx Location of the cursor's horizontal position
  * @param cursory Location of the cursor's vertical position
@@ -87,7 +87,7 @@ void state_main_game_animation_cleanup(entity_set just_animated, state_main_game
 		case MAIN_GAME_ANIMATING_PLAYER_MOVEMENT:
 			*cursorx = just_animated.entities[0].x;
 			*cursory = just_animated.entities[0].y;
-			__attribute__ ((fallthrough)); /* Explicit falltrough to disable warning */
+			__attribute__ ((fallthrough)); /* Explicit fallthrough to disable warning */
 		case MAIN_GAME_ANIMATING_MOBS_MOVEMENT:
 			for (i = 0; i < just_animated.count; ++i)
 				if (just_animated.entities[i].health > 0)
@@ -112,8 +112,9 @@ void state_main_game_animate(state_main_game_data *state, double elapsed) {
 	if (state->action != MAIN_GAME_MOVEMENT_INPUT && state->action != MAIN_GAME_COMBAT_INPUT) {
 		/* Animation timing */
 		if (state->time_since_last_animation >= MAIN_GAME_ANIMATION_TIME) {
-			state->time_since_last_animation = 0;
+			state->time_since_last_animation -= MAIN_GAME_ANIMATION_TIME;
 
+			/* Remove light from last position */
 			state_main_game_circle_clean_light_map(
 				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
 
@@ -134,11 +135,13 @@ void state_main_game_animate(state_main_game_data *state, double elapsed) {
 				state->animation_step++;
 			}
 
+			/* Radiate light from new player position */
 			state_main_game_circle_light_map(
 				state->map, PLAYER(state).x, PLAYER(state).y, CIRCLE_RADIUS);
 
 			state->needs_rerender = 1;
 		} else {
+			/* Not enought time for the next animation step. Keep waiting */
 			state->time_since_last_animation += elapsed;
 		}
 	}

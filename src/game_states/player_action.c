@@ -1,6 +1,6 @@
 /**
- * @file player_path.c
- * @brief Draw and update the player movement path
+ * @file player_action.c
+ * @brief Deal with player movement and combat actions
  */
 
 /*
@@ -32,7 +32,7 @@
  * @param x The x coordinate of the player.
  * @param y The y coordinate of the player.
  * @return 1 if the position is valid, 0 otherwise.
-*/
+ */
 int state_main_game_verify_player_position(state_main_game_data *state, int x, int y) {
 	return (x >= 0 && y >= 0 &&
 	        (unsigned)x < state->map.height && (unsigned)y < state->map.width &&
@@ -45,7 +45,7 @@ int state_main_game_verify_player_position(state_main_game_data *state, int x, i
  * @param key The ncurses' key.
  * @param dx A pointer to the variable to store the change in x coordinate.
  * @param dy A pointer to the variable to store the change in y coordinate.
-*/
+ */
 void get_dx_dy(int key, int *dx, int *dy) {
 
 	if (key == KEY_UP   ) *dy = -1;
@@ -151,10 +151,7 @@ void state_main_game_attack_cursor(state_main_game_data *state, game_state *box_
 	}
 }
 
-void state_main_game_draw_player_path(state_main_game_data *state,
-                                      int map_top , int map_left,
-                                      int term_top, int term_left,
-                                      int height  , int width) {
+void state_main_game_draw_player_path(state_main_game_data *state, const map_window *wnd) {
 
 	attron(COLOR_PAIR(COLOR_WHITE) | A_REVERSE);
 	animation_sequence seq = PLAYER(state).animation;
@@ -162,31 +159,25 @@ void state_main_game_draw_player_path(state_main_game_data *state,
 	for (size_t i = (size_t) state->animation_step; i < seq.length; ++i) {
 		animation_step step = seq.steps[i];
 
-		if(step.x >= map_left        &&
-		   step.x < map_left + width &&
-		   step.y >= map_top         &&
-		   step.y < map_top + height) { /* Don't draw out-of-screen paths */
+		if (map_window_visible(step.x, step.y, wnd)) { /* Don't draw out-of-screen paths */
 
-			mvaddch(term_top + (step.y - map_top), term_left + (step.x - map_left), ' ');
+			int screenx, screeny;
+			map_window_to_screen(wnd, step.x, step.y, &screenx, &screeny);
+			mvaddch(screeny, screenx, ' ');
 		}
 	}
-	attrset(A_NORMAL);
+
+	attroff(COLOR_PAIR(COLOR_WHITE) | A_REVERSE);
 }
 
-void state_main_game_draw_cursor(state_main_game_data *state,
-                                 int map_top , int map_left,
-                                 int term_top, int term_left,
-                                 int height  , int width) {
+void state_main_game_draw_cursor(state_main_game_data *state, const map_window *wnd) {
 
-	int screenx = term_left + (state->cursorx - map_left),
-	    screeny = term_top  + (state->cursory - map_top);
+	if (map_window_visible(state->cursorx, state->cursory, wnd)) {
+		int screenx = wnd->term_left + (state->cursorx - wnd->map_left),
+		    screeny = wnd->term_top  + (state->cursory - wnd->map_top);
 
-	if (screenx >= 0 && screenx < term_left + width &&
-	    screeny >= 0 && screeny < term_top + height) {
-
-		move(screeny, screenx);
 		attron(COLOR_PAIR(COLOR_BLACK) | A_REVERSE);
-		addch(' ');
+		mvaddch(screeny, screenx, ' ');
 		attroff(COLOR_PAIR(COLOR_BLACK) | A_REVERSE);
 	}
 }

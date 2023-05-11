@@ -21,36 +21,23 @@
 
 #include <stdlib.h>
 #include <ncurses.h>
+
+#include <core.h>
 #include <map.h>
-
-
-/**
- * @struct tile_type_render_info
- * @brief Stores information related to rendering a particular tile type.
- * @var tile_type_render_info::color
- *   The ncurses' attribute to render the tile
- * @var tile_type_render_info::chr
- *   Character used to represent the tile when rendered
-*/
-typedef struct {
-	int attr;
-	char chr;
-} tile_type_render_info;
 
 /**
  * @brief Returns the rendering information for a tile type.
  *
  * The function uses a switch statement to determine the appropriate rendering information for the
  * specified tile type. If the `tile_type` parameter is not recognized, the function returns
- * a default `tile_type_render_info` struct with an empty space character.
+ * a default `ncurses_char` struct with an empty space character.
  *
  * @param t The `tile_type` to get the rendering information
  * @param light The illumitation of the current tile
- * @return A `tile_type_render_info` struct which contains the rendering information for a
- * tile type.
-*/
-tile_type_render_info tile_get_render_info(tile_type t, int light) {
-	tile_type_render_info ret;
+ * @return An `ncurses_char` struct which contains the rendering information for a tile type.
+ */
+ncurses_char tile_get_render_info(tile_type t, int light) {
+	ncurses_char ret;
 	ret.attr = light ? A_NORMAL : A_DIM;
 
 	switch (t) {
@@ -98,33 +85,18 @@ void map_free(map map) {
 	free(map.data);
 }
 
-/**
- * @brief Renders a tile to the terminal.
- *
- * This function renders the given tile to the terminal using the tile's information,
- * which is obtained by using ::tile_get_render_info().
- *
- * @param t The tile to render
-*/
-void tile_render(tile t) {
-	tile_type_render_info info = tile_get_render_info(t.type, t.light);
-	attron(info.attr);
-	addch(info.chr);
-	attroff(info.attr);
-}
 
-void map_render(map map,
-                int map_top , int map_left,
-                int term_top, int term_left,
-                int height  , int width) {
+void map_render(map map, const map_window *wnd) {
 
-	for (int y = 0; y < height; ++y) {
-		move(term_top + y, term_left);
-		for (int x = 0; x < width; ++x) {
+	for (int y = 0; y < wnd->height; ++y) {
+		move(wnd->term_top + y, wnd->term_left);
+		for (int x = 0; x < wnd->width; ++x) {
 
-			unsigned mx = map_left + x, my = map_top + y;
+			unsigned mx = wnd->map_left + x, my = wnd->map_top + y;
 			if (mx < map.width && my < map.height) {
-				tile_render(map.data[my * map.width + mx]);
+
+				tile t = map.data[my * map.width + mx];
+				ncurses_char_print(tile_get_render_info(t.type, t.light));
 			} else {
 				addch(' ');
 			}

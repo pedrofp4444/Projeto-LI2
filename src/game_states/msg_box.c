@@ -21,10 +21,13 @@
 
 #include <game_state.h>
 #include <game_states/msg_box.h>
+#include <menu_tools.h>
 
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
+
+#define BOX_HEIGHT 7 /**< @brief The height of the message box */
 
 /** @brief Responds to user input in a message box. */
 game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
@@ -33,17 +36,13 @@ game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
 	switch (key) {
 		/* Respond to arrow keys for button switching (with bounds checking) */
 		case KEY_LEFT:
-			if (state->chosen_button > 0) {
-				state->chosen_button--;
-				state->needs_rerender = 1;
-			}
+			state->chosen_button =
+				menu_update_button(state->button_count, state->chosen_button, -1);
 			break;
 
 		case KEY_RIGHT:
-			if (state->chosen_button < state->button_count - 1) {
-				state->chosen_button++;
-				state->needs_rerender = 1;
-			}
+			state->chosen_button =
+				menu_update_button(state->button_count, state->chosen_button, 1);
 			break;
 
 		/* Button choice. Confirm it to parent game state. */
@@ -63,42 +62,28 @@ game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
 			break;
 	}
 
+	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Renders vertical lines for the message box rectangle.
- *  @details
- *    - Also adds the `+` characters on the corners;
- *    - Lines (like all message boxes) are always 7 characters tall.
- *
- *  @param x
- *    X coordinate of the line's topmost point
- *  @param y
- *    Y coordinate of the line's topmost point
+/**
+ * @brief Calculates the width of a message box
+ * @details The maximum between the length of the message and the size of all buttons is chosen,
+ *          to which some padding is added.
  */
-void msg_box_draw_vertical_line(int x, int y) {
-	for (int i = 0; i < 7; ++i) {
-		move(y + i, x);
-		addch((i == 0 || i == 6) ? '+' : '|');
-	}
-}
+void state_msg_box_calculate_width(state_msg_box_data *state,
+                                   int *buttons_width_out, int *box_width_out) {
+	int msg_width = strlen(state->message);
 
-/** @brief Renders horizontal lines for the message box rectangle.
- *  @details
- *    - The corners are not rendered, as they are handled by ::msg_box_draw_vertical_line
- *
- *  @param x
- *    X coordinate of the line's leftmost point (corner, not rendered)
- *  @param y
- *    Y coordinate of the line's leftmost point (corner, not rendered)
- *  @param width
- *    The width of the line (includes corners)
- */
-void msg_box_draw_horizontal_line(int x, int y, int width) {
-	for (int i = 1; i < width - 1; ++i) {
-		move(y, x + i);
-		addch('-');
+	/* Sum of the width of each button and the spacing between them */
+	int buttons_width = 0;
+	for (int i = 0; i < state->button_count; ++i) {
+		buttons_width += strlen(state->buttons[i]) + 1;
 	}
+	buttons_width--; /* Remove 1 space (n buttons, n - 1 spaces to separate them) */
+
+	*buttons_width_out = buttons_width;
+	*box_width_out = ((msg_width > buttons_width) ? msg_width : buttons_width) + 4;
 }
 
 /** @brief Renders a message box (only if re-rendering is needed) */
@@ -119,32 +104,20 @@ game_loop_callback_return_value state_msg_box_onrender(void *s, int width, int h
 	/* 6 - |   BTN | */
 	/* 7 - +-------+ */
 
-	/* Calculate width of the message box (maximum between message and buttons + padding) */
-	int msg_width = strlen(state->message);
+	/* Box dimensions and position */
+	int box_width, buttons_width;
+	state_msg_box_calculate_width(state, &buttons_width, &box_width);
+	int left = (width - box_width) / 2, top = (height - BOX_HEIGHT) / 2;
 
-	int buttons_width = 0;
-	for (int i = 0; i < state->button_count; ++i) {
-		buttons_width += strlen(state->buttons[i]) + 1;
-	}
-	buttons_width--; /* No space for the last space */
-
-	int box_width = ((msg_width > buttons_width) ? msg_width : buttons_width) + 3;
-
-	/* Box coordinates */
-	int left = (width - box_width) / 2, top = (height - 7) / 2;
-
-	/* Draw rectangle around information ( box_width x 7 ) */
-	msg_box_draw_vertical_line  (left, top);
-	msg_box_draw_vertical_line  (left + box_width, top);
-	msg_box_draw_horizontal_line(left, top    , box_width + 1);
-	msg_box_draw_horizontal_line(left, top + 6, box_width + 1);
+	/* Box contours */
+	menu_draw_box(left, top, box_width, BOX_HEIGHT);
 
 	/* Draw message */
 	move(top + 2, left + 2); /* Left align with padding */
 	printw("%s", state->message);
 
 	/* Draw buttons */
-	move(top + 5, left + box_width - buttons_width - 1); /* Right align with padding */
+	move(top + BOX_HEIGHT - 2, left + box_width - buttons_width - 2); // Right align with padding
 	for (int i = 0; i < state->button_count; ++i) {
 		if (i == state->chosen_button)
 			attron(A_REVERSE);

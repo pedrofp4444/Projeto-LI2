@@ -28,12 +28,8 @@
 #include <math.h>
 #include <ncurses.h>
 
-float manhattan_distance(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
-	return abs((int)(x1 - x2)) + abs((int)(y1 - y2));
-}
-
 float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
-	return manhattan_distance(x1, y1, x2, y2);
+	return (float) manhattan_distance((int) x1, (int) y1, (int) x2, (int) y2);
 }
 
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
@@ -48,7 +44,7 @@ int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
 }
 
 float get_cost(map *map, entity_type ent, animation_step start, animation_step end) {
-	float cost = manhattan_distance(start.x, start.y, end.x, end.y);
+	float cost = (float) manhattan_distance(start.x, start.y, end.x, end.y);
 	if (!is_valid_position(map, ent, end.x, end.y)) {
 		cost += INFINITY;
 	}

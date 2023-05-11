@@ -22,54 +22,10 @@
 #ifndef COMBAT_H
 #define COMBAT_H
 
-#include <stddef.h>
-#include <animation.h>
-
-/**
- * @brief Enumerates the types of weapons that can exist in the game.
- */
-typedef enum {
-	WEAPON_HAND,    /**< Entity's hands */
-	WEAPON_DAGGER,  /**< Weak strength weapon */
-	WEAPON_ARROW,   /**< Medium strength weapon */
-	WEAPON_BOMB,    /**< Strong strength weapon */
-	WEAPON_LANTERN, /**< Provides light */
-	WEAPON_IPAD,    /**< Extremely strong weapon */
-} weapon;
-
-/** @brief Gets the human-readable name of a weapon */
-const char *weapon_get_name(weapon w);
-
-/**
- * @struct combat_bomb_info
- * @brief Information about a bomb drop
- *
- * @var combat_bomb_info::x
- *   Horizontal position of the bomb
- * @var combat_bomb_info::y
- *   Vertical position of the bomb
- */
-typedef struct {
-	int x, y;
-} combat_bomb_info;
-
-/**
- * @struct combat_arrow_info
- * @brief Information about a thrown arrow
- *
- * @var combat_arrow_info::animation
- *   Path of the arrow on the map
- */
-typedef struct combat_arrow_info {
-	animation_sequence animation;
-} combat_arrow_info;
-
-/* Used to fix #include bug. Allows for inclusion of only the weapon enum */
-#ifndef COMBAT_NO_ENTITY_DEPENDENCY
-
+#include <core.h>
+#include <combat_types.h>
 #include <map.h>
 #include <entities.h>
-#include <game_states/main_game_renderer.h>
 
 /**
  * @brief Based on the equiped weapon, detect whether an entity can attack another
@@ -84,8 +40,9 @@ typedef struct combat_arrow_info {
 int combat_can_attack(const entity *attacker, const entity *attacked, const map *map);
 
 /**
- * @brief Set the combat target of the @p attacker. No damage will be dealt
- * @details Call ::combat_can_attack before, or this may lead to invalid attacks
+ * @brief Set the ::entity::combat_target of the @p attacker.
+ * @details Call ::combat_can_attack before, or this may lead to invalid attacks.
+ *          Also, no damage will be dealt (that is done while animating).
  *
  * @param attacker
  *   The entity that will attack the @p attacked
@@ -100,7 +57,7 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map);
  * @brief Causes the consequences of the @p step_index -th step of an animation
  * @details Responsible for causing damage on entities
  *
- * @param all        The set of all entities (to deal damage)
+ * @param all        The set of all entities (to deal damage to)
  * @param entity_set The set of entities to be animated (the only combat actions considered)
  * @param step_index Number of the animation step to be processed
  *
@@ -116,19 +73,11 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
  * @param entity_set The set to be animated
  * @param step_index The index of the current animation step. If some entities' combat animations
  *                   have less than this number of steps, they just won't be animated.
- * @param overlay Overlay on top of the map for animation rendering. Can be `NULL` for no rendering
- *
- * @param map_top The top coordinate of the map to be rendered
- * @param map_left The left coordinate of the map to be rendered
- * @param term_top The top coordinate of the terminal where the map will be rendered
- * @param term_left The left coordinate of the terminal where the map will be rendered
- * @param height The height of the map and the parts of the terminal to render
- * @param width The width of the map and the parts of the terminal to render
+ * @param overlay Overlay on top of the map for animation rendering
+ * @param wnd The visible map window
  */
 void combat_entity_set_animate(entity_set entity_set, size_t step_index, ncurses_char *overlay,
-                              int map_top , int map_left,
-                              int height  , int width);
+                               const map_window *wnd);
 
-#endif
 #endif
 
