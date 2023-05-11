@@ -52,6 +52,31 @@ void state_main_game_over(game_state *state) {
 	game_state msg = state_msg_box_create(*state, state_main_game_over_callback,
 	                                      "Game over", buttons, 2, 0);
 	state_switch(state, &msg, 0);
+}
+
+void state_main_drop_weapon_callback(void *s, int button) {
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	if (button == 1) { /* Picked up */
+		entity_free_combat_target(&PLAYER(state));
+		PLAYER(state).weapon = state->dropped;
+	}
+
+	state->dropped = WEAPON_INVALID; /* Don't show drop message next time */
+}
+
+/** @brief Shows a message for the player to choose if they want to pick up a weapon */
+void state_main_drop_weapon_message(game_state *state) {
+	const char *buttons[2] = { "Leave", "Equip" };
+
+	/* Generate message text */
+	char message[128];
+	state_main_game_data *data = state_extract_data(state_main_game_data, state);
+	sprintf(message, "A mob you killed dropped \"%s\"", weapon_get_name(data->dropped));
+
+	game_state msg = state_msg_box_create(*state, state_main_drop_weapon_callback, message,
+	                                      buttons, 2, 0);
+	state_switch(state, &msg, 0);
 
 }
 
@@ -86,6 +111,8 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 
 	if (PLAYER(state).health <= 0) {
 		state_main_game_over((game_state *) s);
+	} else if (state->dropped != WEAPON_INVALID) {
+		state_main_drop_weapon_message((game_state *) s);
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -185,6 +212,7 @@ game_state state_main_game_create(void) {
 		.overlay = NULL,
 
 		.score = 0,
+		.dropped = WEAPON_INVALID,
 
 		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,

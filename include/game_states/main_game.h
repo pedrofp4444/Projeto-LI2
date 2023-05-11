@@ -74,6 +74,8 @@ typedef enum {
  *
  * @var state_main_game_data::score
  *   Player's score (increases by killing entities)
+ * @var state_main_game_data::dropped
+ *   A weapon dropped by a mob. Will be ::WEAPON_INVALID if no drop happened.
  *
  * @var state_main_game_data::cursorx
  *   Horizontal position (on the map) of the cursor (to choose mob to attack)
@@ -97,6 +99,7 @@ typedef struct {
 	entity_set entities;
 
 	int score;
+	weapon dropped;
 
 	int cursorx, cursory;
 } state_main_game_data;

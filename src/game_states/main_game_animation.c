@@ -19,12 +19,15 @@
  *   limitations under the License.
  */
 
+#include <stdlib.h>
+
 #include <combat.h>
 #include <score.h>
 #include <game_states/main_game_animation.h>
 #include <game_states/illumination.h>
 
 #define MAIN_GAME_ANIMATION_TIME 0.2
+#define WEAPON_DROP_PROBABILITY_PERCENT 20
 
 /**
  * @brief Gets called to update the score and handle mob drops when a mob is killed
@@ -39,6 +42,10 @@ void state_main_game_entity_kill_callback(const entity *ent, void *s) {
 	/* Score changes only from player kills */
 	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
 		state->score += score_from_entity(ent->type);
+
+		/* Randomly drop a weapon */
+		if ((rand() % 100) < WEAPON_DROP_PROBABILITY_PERCENT)
+			state->dropped = ent->weapon;
 	}
 }
 
