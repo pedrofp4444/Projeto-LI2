@@ -85,6 +85,34 @@ void state_main_game_exit_confirmation(game_state *state) {
 	state_switch(state, &msg, 0);
 }
 
+/** @brief **DEBUG** function for testing BFS. Move closest entity to the player to its position */
+void state_main_game_move_entities(state_main_game_data *state) {
+		/* Find the closest entity to the player */
+		int closest_index = -1;
+		float min_dist = INFINITY;
+		for (size_t i = 1; i < state->entities.count; ++i) {
+			entity current = state->entities.entities[i];
+			if (current.health <= 0) continue;
+
+			/* x^2 + y^2. Avoid expensive square root */
+			float dist = (PLAYER(state).x - current.x) * (PLAYER(state).x - current.x) +
+			             (PLAYER(state).y - current.y) * (PLAYER(state).y - current.y);
+
+			if (dist < min_dist) {
+				closest_index = i;
+				min_dist = dist;
+			}
+		}
+		entity *closest = &state->entities.entities[closest_index];
+
+		/* Use BFS to find the player (old position) */
+		animation_step start = { .x = closest->x     , .y = closest->y      };
+		animation_step end   = { .x = PLAYER(state).x, .y = PLAYER(state).y };
+
+		animation_sequence_free(closest->animation);
+		closest->animation = search_path(&state->map, closest->type, start, end);
+}
+
 /** @brief Responds to user input in the main game state */
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
@@ -116,16 +144,18 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 			} else if (state->action == MAIN_GAME_COMBAT_INPUT) {
 				state_main_game_attack_cursor(state, (game_state *) s);
 
+				state_main_game_move_entities(state);
+
 				/* DEBUG purpose - move all entities to the right */
-				for (size_t i = 1; i < state->entities.count; ++i) {
-					if (state->entities.entities[i].health <= 0) continue;
-					animation_step step = {
-						.x = state->entities.entities[i].x + 1,
-						.y = state->entities.entities[i].y,
-					};
-					state->entities.entities[i].animation.length = 1;
-					state->entities.entities[i].animation.steps[0] = step;
-				}
+				//for (size_t i = 1; i < state->entities.count; ++i) {
+				//	if (state->entities.entities[i].health <= 0) continue;
+				//	animation_step step = {
+				//		.x = state->entities.entities[i].x + 1,
+				//		.y = state->entities.entities[i].y,
+				//	};
+				//	state->entities.entities[i].animation.length = 1;
+				//	state->entities.entities[i].animation.steps[0] = step;
+				//}
 			}
 			break;
 
