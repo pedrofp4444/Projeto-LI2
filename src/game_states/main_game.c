@@ -26,11 +26,14 @@
 #include <game_states/player_action.h>
 #include <game_states/msg_box.h>
 #include <game_states/illumination.h>
+#include <game_states/main_menu.h>
+
 #include <generate_map.h>
 #include <entities_search.h>
 
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <ncurses.h>
 
@@ -41,7 +44,7 @@ void state_main_game_over_callback(void *s, int button) {
 	if (button == 0) { /* Leave button */
 		state->must_leave = 1;
 	} else { /* Play again */
-		game_state new = state_main_game_create();
+		game_state new = state_main_game_create(state->score.name);
 		state_switch((game_state *) s, &new, 1);
 	}
 }
@@ -84,8 +87,11 @@ void state_main_drop_weapon_message(game_state *state) {
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
-	if (state->must_leave)
-		return GAME_LOOP_CALLBACK_RETURN_BREAK;
+	if (state->must_leave) {
+		game_state menu = state_main_menu_create();
+		state_switch((game_state *) s, &menu, 1);
+		return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
+	}
 
 	state->elapsed_fps += elapsed;
 	if (state->elapsed_fps > 1) {
@@ -110,6 +116,13 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	state_main_game_animate((game_state *) s, elapsed);
 
 	if (PLAYER(state).health <= 0) {
+		/* Save high score */
+		score_list l;
+		score_list_load(&l);
+		score_list_insert(&l, &state->score);
+		score_list_save(&l);
+
+		/* Game over message */
 		state_main_game_over((game_state *) s);
 	} else if (state->dropped != WEAPON_INVALID) {
 		state_main_drop_weapon_message((game_state *) s);
@@ -205,7 +218,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-game_state state_main_game_create(void) {
+game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]) {
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
@@ -216,13 +229,15 @@ game_state state_main_game_create(void) {
 		.needs_rerender = 1,
 		.overlay = NULL,
 
-		.score = 0,
+		.score = { .score = 0 },
 		.dropped = WEAPON_INVALID,
 
 		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,
 		.time_since_last_animation = 0,
 	};
+
+	strcpy(data.score.name, name);
 
 	generate_map_random(&data);
 

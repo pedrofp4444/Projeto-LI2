@@ -103,7 +103,7 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 
 	/* Draw score */
 	char score[SIDEBAR_WIDTH + 1];
-	int len = sprintf(score, "Score: %d", state->score);
+	int len = sprintf(score, "Score: %d", state->score.score);
 	move(2, (SIDEBAR_WIDTH - len) / 2);
 	printw("%s", score);
 

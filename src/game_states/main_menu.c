@@ -21,7 +21,7 @@
 
 #include <game_state.h>
 #include <game_states/main_menu.h>
-#include <game_states/main_game.h>
+#include <game_states/name_input.h>
 #include <game_states/help.h>
 #include <game_states/leaderboard.h>
 #include <menu_tools.h>
@@ -60,7 +60,7 @@ game_loop_callback_return_value state_main_menu_oninput(void *s, int key) {
 			game_state new;
 			switch (state->button) {
 				case 0: /* New game */
-					new = state_main_game_create();
+					new = state_name_input_create();
 					break;
 				case 1: /* Help screen */
 					new = state_help_create();

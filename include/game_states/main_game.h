@@ -25,6 +25,7 @@
 #include <game_states/main_game_renderer.h>
 #include <game_state.h>
 #include <map.h>
+#include <score.h>
 #include <entities.h>
 
 /** @brief Type of action during the game */
@@ -98,7 +99,7 @@ typedef struct {
 	map map;
 	entity_set entities;
 
-	int score;
+	player_score score;
 	weapon dropped;
 
 	int cursorx, cursory;
@@ -108,7 +109,7 @@ typedef struct {
 #define PLAYER(state) ((state)->entities.entities[0])
 
 /** @brief Creates a state for the main game */
-game_state state_main_game_create(void);
+game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]);
 
 /** @brief Destroys a state for the main game (frees `state->data`) */
 void state_main_game_destroy(game_state *state);

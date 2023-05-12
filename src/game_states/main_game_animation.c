@@ -41,7 +41,7 @@ void state_main_game_entity_kill_callback(const entity *ent, void *s) {
 
 	/* Score changes only from player kills */
 	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
-		state->score += score_from_entity(ent->type);
+		state->score.score += score_from_entity(ent->type);
 
 		/* Randomly drop a weapon */
 		if ((rand() % 100) < WEAPON_DROP_PROBABILITY_PERCENT)
