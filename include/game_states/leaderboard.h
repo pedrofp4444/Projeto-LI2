@@ -29,7 +29,7 @@
  * @brief Data for the leaderboard to work
  *
  * @var state_leaderboard_data::scores Player scores
- * @var state_leaderboard_data::button If the leaderboard needs to be drawn
+ * @var state_leaderboard_data::needs_rerender If the leaderboard needs to be drawn
  */
 typedef struct {
 	score_list scores;
@@ -42,6 +42,5 @@ game_state state_leaderboard_create(void);
 /** @brief Destroys the leaderboard state (frees `state->data`) */
 void state_leaderboard_destroy(game_state *state);
 
-
-
 #endif
+
