@@ -193,6 +193,9 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT ||
 	    state->action == MAIN_GAME_ANIMATING_MOBS_COMBAT) {
 
+		if (!state->overlay) /* Allocate overlay if not allocated (after game overs) */
+			state->overlay = malloc(wnd.width * wnd.height * sizeof(ncurses_char));
+
 		memset(state->overlay, 0, wnd.width * wnd.height * sizeof(ncurses_char));
 		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
 	                                &wnd);
@@ -222,4 +225,3 @@ game_loop_callback_return_value state_main_game_onresize(void *s, int width, int
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
-

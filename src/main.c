@@ -21,43 +21,31 @@
 
 #include <game_state.h>
 #include <game_states/main_game.h>
-#include <views/main_menu.h>
-
 #include <stdio.h>
-#include <stdlib.h>
-#include <ncurses.h>
 
 /** @brief The entry point for the game */
-int main() {
-	int option;
-	option = menu();
-
-	if (option == 1) {
-		int err = game_loop_init_ncurses();
-		if (err) {
-			/* Don't handle errors. Just try to return to a canonical terminal mode */
-			game_loop_terminate_ncurses();
-			puts("Could not initialize ncurses!");
-			return 1;
-		}
-
-		game_state state = state_main_game_create();
-
-		err = state_game_loop_run(&state, 60);
-		if (err) {
-			/* Don't handle errors. Just try to return to a canonical terminal mode */
-			state_main_game_destroy(&state);
-			game_loop_terminate_ncurses();
-			puts("An error occurred in the game");
-			return 1;
-		}
-
-		state_main_game_destroy(&state);
-
-		err = game_loop_terminate_ncurses();
-		return err;
+int main(void) {
+	int err = game_loop_init_ncurses();
+	if (err) {
+		/* Don't handle errors. Just try to return to a canonical terminal mode */
+		game_loop_terminate_ncurses();
+		puts("Could not initialize ncurses!");
+		return 1;
 	}
-	if (option == 2) exit(0);
-	return 0;
-}
 
+	game_state state = state_main_game_create();
+
+	err = state_game_loop_run(&state, 60);
+	if (err) {
+		/* Don't handle errors. Just try to return to a canonical terminal mode */
+		state_main_game_destroy(&state);
+		game_loop_terminate_ncurses();
+		puts("An error occurred in the game");
+		return 1;
+	}
+
+	state_main_game_destroy(&state);
+
+	err = game_loop_terminate_ncurses();
+	return err;
+}
