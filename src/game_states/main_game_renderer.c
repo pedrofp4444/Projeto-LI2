@@ -267,4 +267,3 @@ game_loop_callback_return_value state_main_game_onresize(void *s, int width, int
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
-
