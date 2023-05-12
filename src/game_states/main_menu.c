@@ -22,6 +22,7 @@
 #include <game_state.h>
 #include <game_states/main_menu.h>
 #include <game_states/main_game.h>
+#include <game_states/leaderboard.h>
 #include <menu_tools.h>
 
 #include <stdlib.h>
@@ -59,6 +60,9 @@ game_loop_callback_return_value state_main_menu_oninput(void *s, int key) {
 			switch (state->button) {
 				case 0: /* New game */
 					new = state_main_game_create();
+					break;
+				case 2: /* Leaderboard */
+					new = state_leaderboard_create();
 					break;
 				case 3: /* Leave */
 					return GAME_LOOP_CALLBACK_RETURN_BREAK;
@@ -162,3 +166,4 @@ game_state state_main_menu_create(void) {
 void state_main_menu_destroy(game_state* state) {
 	free(state->data);
 }
+
