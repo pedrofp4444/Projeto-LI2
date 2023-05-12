@@ -176,9 +176,14 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 			}
 			break;
 
-		case 's': case 'S': /* Skip player combat */
-			if (state->action == MAIN_GAME_COMBAT_INPUT)
+		case 's': case 'S': /* Skip player combat or movement */
+			if (state->action == MAIN_GAME_MOVEMENT_INPUT) {
+				PLAYER(state).animation.length = 0;
+				state->action = MAIN_GAME_ANIMATING_PLAYER_MOVEMENT;
+			}
+			else if (state->action == MAIN_GAME_COMBAT_INPUT) {
 				state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
+			}
 			break;
 
 		case KEY_UP:

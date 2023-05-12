@@ -162,6 +162,38 @@ void main_game_render_overlay(ncurses_char *overlay, int width, int height) {
 	}
 }
 
+/** @brief Draws tips for the player on how to play the game */
+void state_main_game_draw_tips(state_main_game_action act, const map_window *wnd) {
+
+	/* Choose tip message */
+	const char *message[2];
+	switch (act) {
+		case MAIN_GAME_MOVEMENT_INPUT:
+			message[0] = "Use the arrow keys to move. Press ENTER to confirm.";
+			message[1] = "Press S to skip movement";
+			break;
+		case MAIN_GAME_COMBAT_INPUT:
+			message[0] = "Use the arrow keys to choose a mob. Press ENTER to confirm";
+			message[1] = "Press S to skip combat";
+			break;
+		case MAIN_GAME_ANIMATING_MOBS_MOVEMENT:
+		case MAIN_GAME_ANIMATING_MOBS_COMBAT:
+			message[0] = "";
+			message[1] = "Now it's the turn for other mobs to move";
+			break;
+		default:
+			message[0] = "";
+			message[1] = "";
+	}
+
+	/* Print message on the bottom center */
+	for (int i = 0; i < 2; ++i) {
+		int len = strlen(message[i]);
+		move(wnd->height - 3 + i, wnd->term_left + (wnd->width - len) / 2);
+		printw("%s", message[i]);
+	}
+}
+
 game_loop_callback_return_value state_main_game_onrender(void *s, int width, int height) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
@@ -211,6 +243,8 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 		main_game_render_overlay(state->overlay, width, height);
 	}
 
+	state_main_game_draw_tips(state->action, &wnd);
+
 	if (state->action == MAIN_GAME_COMBAT_INPUT)
 		state_main_game_draw_cursor(state, &wnd);
 
@@ -233,3 +267,4 @@ game_loop_callback_return_value state_main_game_onresize(void *s, int width, int
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
+
