@@ -1,6 +1,6 @@
 /**
  * @file  entities_search.c
- * @brief The implementation of the search for the player (BFS algorithm)
+ * @brief The implementation of the search for the player (BFS algorithm).
  */
 
 /*
