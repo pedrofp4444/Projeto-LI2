@@ -66,6 +66,7 @@ void state_main_drop_weapon_callback(void *s, int button) {
 	}
 
 	state->dropped = WEAPON_INVALID; /* Don't show drop message next time */
+	state->dropped_food = 0;
 }
 
 /** @brief Shows a message for the player to choose if they want to pick up a weapon */
@@ -81,6 +82,20 @@ void state_main_drop_weapon_message(game_state *state) {
 	                                      buttons, 2, 0);
 	state_switch(state, &msg, 0);
 
+}
+
+/** @brief Shows a message after a mob drops food */
+void state_main_drop_food_message(game_state *state) {
+	const char *button = "OK";
+	const char *message = "A mob you killed dropped food. Your health was restored.";
+
+	state_main_game_data *data = state_extract_data(state_main_game_data, state);
+	PLAYER(data).health = PLAYER(data).max_health;
+	data->dropped = WEAPON_INVALID; /* Don't show drop message next time */
+	data->dropped_food = 0;
+
+	game_state msg = state_msg_box_create(*state, NULL, message, &button, 1, 0);
+	state_switch(state, &msg, 0);
 }
 
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
@@ -126,6 +141,8 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 		state_main_game_over((game_state *) s);
 	} else if (state->dropped != WEAPON_INVALID) {
 		state_main_drop_weapon_message((game_state *) s);
+	} else if (state->dropped_food) {
+		state_main_drop_food_message((game_state *) s);
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -231,6 +248,7 @@ game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]) {
 
 		.score = { .score = 0 },
 		.dropped = WEAPON_INVALID,
+		.dropped_food = 0,
 
 		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,

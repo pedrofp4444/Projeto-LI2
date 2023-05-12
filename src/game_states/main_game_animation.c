@@ -28,6 +28,7 @@
 
 #define MAIN_GAME_ANIMATION_TIME 0.2
 #define WEAPON_DROP_PROBABILITY_PERCENT 20
+#define FOOD_DROP_PROBABILITY_PERCENT 50
 
 /**
  * @brief Gets called to update the score and handle mob drops when a mob is killed
@@ -46,6 +47,8 @@ void state_main_game_entity_kill_callback(const entity *ent, void *s) {
 		/* Randomly drop a weapon */
 		if ((rand() % 100) < WEAPON_DROP_PROBABILITY_PERCENT)
 			state->dropped = ent->weapon;
+		else if ((rand() & 100) < FOOD_DROP_PROBABILITY_PERCENT)
+			state->dropped_food = 1;
 	}
 }
 

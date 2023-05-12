@@ -77,6 +77,8 @@ typedef enum {
  *   Player's score (increases by killing entities)
  * @var state_main_game_data::dropped
  *   A weapon dropped by a mob. Will be ::WEAPON_INVALID if no drop happened.
+ * @var state_main_game_data::dropped_food
+ *   If the last mob killed dropped food
  *
  * @var state_main_game_data::cursorx
  *   Horizontal position (on the map) of the cursor (to choose mob to attack)
@@ -101,6 +103,7 @@ typedef struct {
 
 	player_score score;
 	weapon dropped;
+	int dropped_food;
 
 	int cursorx, cursory;
 } state_main_game_data;
