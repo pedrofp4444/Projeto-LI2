@@ -36,8 +36,8 @@
  * 	A pointer to the parent node of this node.
 */
 typedef struct node {
-    animation_step pos;
-    struct node *parent;
+	animation_step pos;
+	struct node *parent;
 } node;
 
 /**
