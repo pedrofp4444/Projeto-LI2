@@ -29,6 +29,8 @@
 #include <math.h>
 #include <ncurses.h>
 
+#define PATH_FINDING_MAXIMUM_DISTANCE 20
+
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
 	if (x < map->width && y < map->height) {
 		tile_type type = map->data[y * map->width + x].type;
@@ -131,7 +133,8 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 			break;
 		}
 
-		if (manhattan_distance(current_pos.x, current_pos.y, start.x, start.y) > 20) break;
+		if (manhattan_distance(current_pos.x, current_pos.y, start.x, start.y) > PATH_FINDING_MAXIMUM_DISTANCE)
+			break;
 
 		for (int i = 0; i < 4; i++) {
 
