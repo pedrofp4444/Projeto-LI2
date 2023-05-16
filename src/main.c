@@ -20,7 +20,7 @@
  */
 
 #include <game_state.h>
-#include <game_states/main_game.h>
+#include <game_states/main_menu.h>
 #include <stdio.h>
 
 /** @brief The entry point for the game */
@@ -33,18 +33,18 @@ int main(void) {
 		return 1;
 	}
 
-	game_state state = state_main_game_create();
+	game_state state = state_main_menu_create();
 
 	err = state_game_loop_run(&state, 60);
 	if (err) {
 		/* Don't handle errors. Just try to return to a canonical terminal mode */
-		state_main_game_destroy(&state);
+		if (state.destroy) state.destroy(&state);
 		game_loop_terminate_ncurses();
 		puts("An error occurred in the game");
 		return 1;
 	}
 
-	state_main_game_destroy(&state);
+	if (state.destroy) state.destroy(&state);
 
 	err = game_loop_terminate_ncurses();
 	return err;

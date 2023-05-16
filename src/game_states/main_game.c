@@ -26,11 +26,14 @@
 #include <game_states/player_action.h>
 #include <game_states/msg_box.h>
 #include <game_states/illumination.h>
+#include <game_states/main_menu.h>
+
 #include <generate_map.h>
 #include <entities_search.h>
 
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <ncurses.h>
 
@@ -41,7 +44,7 @@ void state_main_game_over_callback(void *s, int button) {
 	if (button == 0) { /* Leave button */
 		state->must_leave = 1;
 	} else { /* Play again */
-		game_state new = state_main_game_create();
+		game_state new = state_main_game_create(state->score.name);
 		state_switch((game_state *) s, &new, 1);
 	}
 }
@@ -52,15 +55,58 @@ void state_main_game_over(game_state *state) {
 	game_state msg = state_msg_box_create(*state, state_main_game_over_callback,
 	                                      "Game over", buttons, 2, 0);
 	state_switch(state, &msg, 0);
+}
 
+void state_main_drop_weapon_callback(void *s, int button) {
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	if (button == 1) { /* Picked up */
+		entity_free_combat_target(&PLAYER(state));
+		PLAYER(state).weapon = state->dropped;
+	}
+
+	state->dropped = WEAPON_INVALID; /* Don't show drop message next time */
+	state->dropped_food = 0;
+}
+
+/** @brief Shows a message for the player to choose if they want to pick up a weapon */
+void state_main_drop_weapon_message(game_state *state) {
+	const char *buttons[2] = { "Leave", "Equip" };
+
+	/* Generate message text */
+	char message[128];
+	state_main_game_data *data = state_extract_data(state_main_game_data, state);
+	sprintf(message, "A mob you killed dropped \"%s\"", weapon_get_name(data->dropped));
+
+	game_state msg = state_msg_box_create(*state, state_main_drop_weapon_callback, message,
+	                                      buttons, 2, 0);
+	state_switch(state, &msg, 0);
+
+}
+
+/** @brief Shows a message after a mob drops food */
+void state_main_drop_food_message(game_state *state) {
+	const char *button = "OK";
+	const char *message = "A mob you killed dropped food. Your health was restored.";
+
+	state_main_game_data *data = state_extract_data(state_main_game_data, state);
+	PLAYER(data).health = PLAYER(data).max_health;
+	data->dropped = WEAPON_INVALID; /* Don't show drop message next time */
+	data->dropped_food = 0;
+
+	game_state msg = state_msg_box_create(*state, NULL, message, &button, 1, 0);
+	state_switch(state, &msg, 0);
 }
 
 /** @brief Responds to the passage of time in the game to measure FPS and animate the game */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
-	if (state->must_leave)
-		return GAME_LOOP_CALLBACK_RETURN_BREAK;
+	if (state->must_leave) {
+		game_state menu = state_main_menu_create();
+		state_switch((game_state *) s, &menu, 1);
+		return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
+	}
 
 	state->elapsed_fps += elapsed;
 	if (state->elapsed_fps > 1) {
@@ -82,10 +128,21 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	state->fps_count++;
 	state->renders_count += state->needs_rerender;
 
-	state_main_game_animate(state, elapsed);
+	state_main_game_animate((game_state *) s, elapsed);
 
 	if (PLAYER(state).health <= 0) {
+		/* Save high score */
+		score_list l;
+		score_list_load(&l);
+		score_list_insert(&l, &state->score);
+		score_list_save(&l);
+
+		/* Game over message */
 		state_main_game_over((game_state *) s);
+	} else if (state->dropped != WEAPON_INVALID) {
+		state_main_drop_weapon_message((game_state *) s);
+	} else if (state->dropped_food) {
+		state_main_drop_food_message((game_state *) s);
 	}
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
@@ -179,10 +236,13 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 			}
 			break;
 
-		case 's': case 'S': /* Skip player combat */
-			if (state->action == MAIN_GAME_COMBAT_INPUT) {
+		case 's': case 'S': /* Skip player combat or movement */
+			if (state->action == MAIN_GAME_MOVEMENT_INPUT) {
+				PLAYER(state).animation.length = 0;
+				state->action = MAIN_GAME_ANIMATING_PLAYER_MOVEMENT;
+			}
+			else if (state->action == MAIN_GAME_COMBAT_INPUT) {
 				state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
-				state_main_game_move_entities(state);
 			}
 			break;
 
@@ -205,7 +265,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-game_state state_main_game_create(void) {
+game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]) {
 	state_main_game_data data = {
 		.fps_show     = 0, .fps_count     = 0,
 		.renders_show = 0, .renders_count = 0,
@@ -216,10 +276,16 @@ game_state state_main_game_create(void) {
 		.needs_rerender = 1,
 		.overlay = NULL,
 
+		.score = { .score = 0 },
+		.dropped = WEAPON_INVALID,
+		.dropped_food = 0,
+
 		.action = MAIN_GAME_MOVEMENT_INPUT,
 		.animation_step = 0,
 		.time_since_last_animation = 0,
 	};
+
+	strcpy(data.score.name, name);
 
 	generate_map_random(&data);
 

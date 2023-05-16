@@ -28,6 +28,13 @@
 #include <entities.h>
 
 /**
+ * @brief Function that is called when an entity is killed. Used for scoring purposes
+ * @param ent  The entity killed
+ * @param data Custom data passed to the callback
+ */
+typedef void (*entity_kill_callback)(const entity *ent, void *data);
+
+/**
  * @brief Based on the equiped weapon, detect whether an entity can attack another
  *
  * @param attacker
@@ -42,7 +49,8 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 /**
  * @brief Set the ::entity::combat_target of the @p attacker.
  * @details Call ::combat_can_attack before, or this may lead to invalid attacks.
- *          Also, no damage will be dealt (that is done while animating).
+ *          Also, no damage will be dealt (that is done while updating, see
+ *          ::combat_animation_update).
  *
  * @param attacker
  *   The entity that will attack the @p attacked
@@ -60,11 +68,15 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map);
  * @param all        The set of all entities (to deal damage to)
  * @param entity_set The set of entities to be animated (the only combat actions considered)
  * @param step_index Number of the animation step to be processed
+ * @param onkill     Function that gets called when an entity is killed. Can be `NULL` for no
+ *                   action.
+ * @param cb_data    Data passed to the @p onkill callback
  *
  * @return 1 if incrementing @p step_index would cause nothing to happen (end of combat
  *         animations), 0 otherwise.
  */
-int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index);
+int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index,
+                            entity_kill_callback onkill, void *cb_data);
 
 /**
  * @brief Animates all combat actions in an entity set.

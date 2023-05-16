@@ -1,6 +1,6 @@
 /**
- * @file combat_types.c
- * @brief Fuctions for dealing with combat types
+ * @file  help.h
+ * @brief The help screen accessible by the main menu
  */
 
 /*
@@ -19,22 +19,24 @@
  *   limitations under the License.
  */
 
-#include <combat_types.h>
+#ifndef HELP_H
+#define HELP_H
 
-const char *weapon_get_name(weapon w) {
-	switch (w) {
-		case WEAPON_HAND:
-			return "Hand";
-		case WEAPON_DAGGER:
-			return "Dagger";
-		case WEAPON_ARROW:
-			return "Arrows";
-		case WEAPON_BOMB:
-			return "Bomb";
-		case WEAPON_IPAD:
-			return "iPad";
-		default:
-			return "Unknown";
-	}
-}
+/**
+ * @struct state_help_data
+ * @brief Data for the help screen
+ *
+ * @var state_help_data::needs_rerender If the help message needs to be drawn to the screen
+ */
+typedef struct {
+	int needs_rerender;
+} state_help_data;
+
+/** @brief Creates the help screen */
+game_state state_help_create(void);
+
+/** @brief Destroys the help message state (frees `state->data`) */
+void state_help_destroy(game_state* state);
+
+#endif
 

@@ -32,8 +32,8 @@ typedef enum {
 	WEAPON_DAGGER,  /**< Weak strength weapon */
 	WEAPON_ARROW,   /**< Medium strength weapon */
 	WEAPON_BOMB,    /**< Strong strength weapon */
-	WEAPON_LANTERN, /**< Provides light */
 	WEAPON_IPAD,    /**< Extremely strong weapon */
+	WEAPON_INVALID  /**< Only to be used for weapon drop message boxes */
 } weapon;
 
 /** @brief Gets the human-readable name of a weapon */

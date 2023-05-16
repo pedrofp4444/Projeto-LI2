@@ -25,6 +25,7 @@
 #include <game_states/main_game_renderer.h>
 #include <game_state.h>
 #include <map.h>
+#include <score.h>
 #include <entities.h>
 
 /** @brief Type of action during the game */
@@ -72,6 +73,13 @@ typedef enum {
  * @var state_main_game_data::entities
  *   Entities in the map
  *
+ * @var state_main_game_data::score
+ *   Player's score (increases by killing entities)
+ * @var state_main_game_data::dropped
+ *   A weapon dropped by a mob. Will be ::WEAPON_INVALID if no drop happened.
+ * @var state_main_game_data::dropped_food
+ *   If the last mob killed dropped food
+ *
  * @var state_main_game_data::cursorx
  *   Horizontal position (on the map) of the cursor (to choose mob to attack)
  * @var state_main_game_data::cursory
@@ -93,6 +101,10 @@ typedef struct {
 	map map;
 	entity_set entities;
 
+	player_score score;
+	weapon dropped;
+	int dropped_food;
+
 	int cursorx, cursory;
 } state_main_game_data;
 
@@ -100,7 +112,7 @@ typedef struct {
 #define PLAYER(state) ((state)->entities.entities[0])
 
 /** @brief Creates a state for the main game */
-game_state state_main_game_create(void);
+game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]);
 
 /** @brief Destroys a state for the main game (frees `state->data`) */
 void state_main_game_destroy(game_state *state);

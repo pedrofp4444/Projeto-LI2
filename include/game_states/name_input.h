@@ -1,6 +1,6 @@
 /**
- * @file  main_game_animation.h
- * @brief Animations for the main game state
+ * @file  name_input.h
+ * @brief Where a player inputs their name before playing
  */
 
 /*
@@ -19,19 +19,28 @@
  *   limitations under the License.
  */
 
-#ifndef MAIN_GAME_ANIMATION_H
-#define MAIN_GAME_ANIMATION_H
+#ifndef NAME_INPUT_H
+#define NAME_INPUT_H
 
-#include <game_states/main_game.h>
+#include <score.h>
 
 /**
- * @brief Does everything animation related for the main game
- * @details Deals with animation timings, screen updates and entity updates.
+ * @struct state_name_input_data
+ * @brief Data for the name input box to work
  *
- * @param state The game state (full game state is needed for possible message boxes)
- * @param elapsed Elapsed time since the last update
+ * @var state_name_input_data::needs_rerender If the input needs to be drawn on screen
+ * @var state_name_input_data::button The current button chosen by the user
  */
-void state_main_game_animate(game_state *state, double elapsed);
+typedef struct {
+	int needs_rerender;
+	char name[SCORE_NAME_MAX + 1];
+} state_name_input_data;
+
+/** @brief Creates the name input */
+game_state state_name_input_create(void);
+
+/** @brief Destroys a state for the name input (frees `state->data`) */
+void state_name_input_destroy(game_state *state);
 
 #endif
 

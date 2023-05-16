@@ -38,11 +38,13 @@ game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
 		case KEY_LEFT:
 			state->chosen_button =
 				menu_update_button(state->button_count, state->chosen_button, -1);
+			state->needs_rerender = 1;
 			break;
 
 		case KEY_RIGHT:
 			state->chosen_button =
 				menu_update_button(state->button_count, state->chosen_button, 1);
+			state->needs_rerender = 1;
 			break;
 
 		/* Button choice. Confirm it to parent game state. */
@@ -62,7 +64,6 @@ game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
 			break;
 	}
 
-	state->needs_rerender = 1;
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 

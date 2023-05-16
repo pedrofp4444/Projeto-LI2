@@ -19,11 +19,38 @@
  *   limitations under the License.
  */
 
+#include <stdlib.h>
+
 #include <combat.h>
+#include <score.h>
 #include <game_states/main_game_animation.h>
 #include <game_states/illumination.h>
 
 #define MAIN_GAME_ANIMATION_TIME 0.2
+#define WEAPON_DROP_PROBABILITY_PERCENT 20
+#define FOOD_DROP_PROBABILITY_PERCENT 50
+
+/**
+ * @brief Gets called to update the score and handle mob drops when a mob is killed
+ * @param ent The entity killed
+ * @param s   A ::game_state pointer
+ */
+void state_main_game_entity_kill_callback(const entity *ent, void *s) {
+
+	(void) ent;
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	/* Score changes only from player kills */
+	if (state->action == MAIN_GAME_ANIMATING_PLAYER_COMBAT) {
+		state->score.score += score_from_entity(ent->type);
+
+		/* Randomly drop a weapon */
+		if ((rand() % 100) < WEAPON_DROP_PROBABILITY_PERCENT)
+			state->dropped = ent->weapon;
+		else if ((rand() & 100) < FOOD_DROP_PROBABILITY_PERCENT)
+			state->dropped_food = 1;
+	}
+}
 
 /**
  * @brief Choose what entities need to be animated (only the player or all but the player)
@@ -55,16 +82,19 @@ entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_a
  * @brief Calls ::entity_set_animate or ::combat_animation_done depending on @p act
  * @returns The return value of the called function (if the animation is done)
  */
-int state_main_game_animate_entities(state_main_game_action act, entity_set entities,
-                                     entity_set to_animate, size_t step_index) {
+int state_main_game_animate_entities(game_state *s, entity_set to_animate,
+                                     size_t step_index) {
 
-	switch (act) {
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
+	switch (state->action) {
 		case MAIN_GAME_ANIMATING_PLAYER_MOVEMENT:
 		case MAIN_GAME_ANIMATING_MOBS_MOVEMENT:
 			return entity_set_animate(to_animate, step_index);
 		case MAIN_GAME_ANIMATING_MOBS_COMBAT:
 		case MAIN_GAME_ANIMATING_PLAYER_COMBAT:
-			return combat_animation_update(entities, to_animate, step_index);
+			return combat_animation_update(state->entities, to_animate, step_index,
+				state_main_game_entity_kill_callback, s);
 		default:
 			/* Not supposed to happen. Skip to next action */
 			return 1;
@@ -107,7 +137,9 @@ void state_main_game_animation_cleanup(entity_set just_animated, state_main_game
 	}
 }
 
-void state_main_game_animate(state_main_game_data *state, double elapsed) {
+void state_main_game_animate(game_state *s, double elapsed) {
+	state_main_game_data *state = state_extract_data(state_main_game_data, s);
+
 	/* Animate entities (movement or combat) only if that is the case */
 	if (state->action != MAIN_GAME_MOVEMENT_INPUT && state->action != MAIN_GAME_COMBAT_INPUT) {
 		/* Animation timing */
@@ -121,8 +153,7 @@ void state_main_game_animate(state_main_game_data *state, double elapsed) {
 			entity_set to_animate =
 				state_main_game_entities_to_animate(state->entities, state->action);
 
-			if (state_main_game_animate_entities(
-				state->action, state->entities, to_animate, state->animation_step)) {
+			if (state_main_game_animate_entities(s, to_animate, state->animation_step)) {
 
 				/* End of animation. Clean up and move to next action */
 				state_main_game_animation_cleanup(to_animate, state->action,
