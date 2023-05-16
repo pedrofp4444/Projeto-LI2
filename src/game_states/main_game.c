@@ -160,8 +160,10 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 			break;
 
 		case 's': case 'S': /* Skip player combat */
-			if (state->action == MAIN_GAME_COMBAT_INPUT)
+			if (state->action == MAIN_GAME_COMBAT_INPUT) {
 				state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
+				state_main_game_move_entities(state);
+			}
 			break;
 
 		case KEY_UP:
