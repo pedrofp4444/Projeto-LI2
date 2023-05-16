@@ -211,7 +211,7 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
 
 		}
 
-		if (length >= step_index)
+		if (length >= step_index - 1)
 			return 0;
 	}
 	return 1;

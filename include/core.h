@@ -36,7 +36,7 @@
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
 /** @brief The sign of a value (branchless implementation) */
-#define sgn(x) (((x) > 0) - ((x) - 0))
+#define sgn(x) (((x) > 0) - ((x) < 0))
 
 /**
  * @struct  ncurses_char

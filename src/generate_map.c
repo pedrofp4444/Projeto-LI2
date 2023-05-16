@@ -37,9 +37,9 @@
 #define ENTITY_COUNT 2500
 #define TILE_PERCENTAGE 45
 
-#define ENTITY_RAT_HEALTH 20
-#define ENTITY_GOBLIN_HEALTH 50
-#define ENTITY_CRISTINO_HEALTH 200
+#define ENTITY_RAT_HEALTH 5
+#define ENTITY_GOBLIN_HEALTH 10
+#define ENTITY_CRISTINO_HEALTH 20
 
 #define STARTER_CIRCLE 5
 
@@ -244,7 +244,7 @@ void player_spawn(state_main_game_data *data){
 
 	// Set player data. TODO - set health
 	int playerx = data->map.width / 2, playery = data->map.height / 2;
-	data->entities.entities[0] = entity_create_player(playerx, playery, 1);
+	data->entities.entities[0] = entity_create_player(playerx, playery, 10);
 
 	// Open a safe place to start
 	for (unsigned y = playery - STARTER_CIRCLE; y < data->map.height; y++) {

@@ -24,6 +24,7 @@
 #include <game_states/main_game_renderer.h>
 #include <game_states/main_game_animation.h>
 #include <game_states/player_action.h>
+#include <game_states/mob_action.h>
 #include <game_states/msg_box.h>
 #include <game_states/illumination.h>
 #include <generate_map.h>
@@ -135,23 +136,15 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 				state->action = MAIN_GAME_ANIMATING_PLAYER_MOVEMENT;
 			} else if (state->action == MAIN_GAME_COMBAT_INPUT) {
 				state_main_game_attack_cursor(state, (game_state *) s);
-
-				/* DEBUG purpose - move all entities to the right */
-				for (size_t i = 1; i < state->entities.count; ++i) {
-					if (state->entities.entities[i].health <= 0) continue;
-					animation_step step = {
-						.x = state->entities.entities[i].x + 1,
-						.y = state->entities.entities[i].y,
-					};
-					state->entities.entities[i].animation.length = 1;
-					state->entities.entities[i].animation.steps[0] = step;
-				}
+				state_main_game_mobs_run_ai(state);
 			}
 			break;
 
 		case 's': case 'S': /* Skip player combat */
-			if (state->action == MAIN_GAME_COMBAT_INPUT)
+			if (state->action == MAIN_GAME_COMBAT_INPUT) {
+				state_main_game_mobs_run_ai(state);
 				state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
+			}
 			break;
 
 		case KEY_UP:

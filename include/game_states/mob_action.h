@@ -1,6 +1,6 @@
 /**
- * @file player.c
- * @brief Player implementation
+ * @file mob_action.h
+ * @brief Deal with mob movement and combat actions
  */
 
 /*
@@ -19,25 +19,14 @@
  *   limitations under the License.
  */
 
-#include <stdlib.h>
-#include <entities/rat.h>
+#ifndef MOB_ACTION_H
+#define MOB_ACTION_H
 
-entity entity_create_player(unsigned x, unsigned y, int health) {
-	entity player = {
-		.x = x,
-		.y = y,
-		.type = ENTITY_PLAYER,
+#include <game_states/main_game.h>
 
-		.health = health, .max_health = health,
-		.weapon = WEAPON_ARROW,
+void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state);
 
-		.animation = animation_sequence_create(),
-		.combat_target = NULL,
+void state_main_game_mobs_run_ai(state_main_game_data *state);
 
-		.data = NULL,
-		.destroy = NULL
-	};
-
-	return player;
-}
+#endif
 
