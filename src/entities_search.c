@@ -1,6 +1,6 @@
 /**
  * @file  entities_search.c
- * @brief The implementation of the search for the player (A* algorithm)
+ * @brief The implementation of the search for the player (BFS algorithm).
  */
 
 /*
@@ -21,6 +21,7 @@
 
 #include <map.h>
 #include <entities.h>
+#include <core.h>
 #include <game_states/main_game.h>
 #include <entities_search.h>
 
@@ -28,9 +29,7 @@
 #include <math.h>
 #include <ncurses.h>
 
-float heuristic(unsigned x1, unsigned y1, unsigned x2, unsigned y2) {
-	return (float) manhattan_distance((int) x1, (int) y1, (int) x2, (int) y2);
-}
+#define PATH_FINDING_MAXIMUM_DISTANCE 20
 
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
 	if (x < map->width && y < map->height) {
@@ -41,58 +40,6 @@ int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
 			return (type == TILE_EMPTY);
 	}
 	else return 0;
-}
-
-float get_cost(map *map, entity_type ent, animation_step start, animation_step end) {
-	float cost = (float) manhattan_distance(start.x, start.y, end.x, end.y);
-	if (!is_valid_position(map, ent, end.x, end.y)) {
-		cost += INFINITY;
-	}
-	return cost;
-}
-
-node *get_lowest_f_node(node **open, int n_open) {
-	node *lowest_f_node = open[0];
-	for (int i = 1; i < n_open; i++) {
-		if (open[i]->f < lowest_f_node->f) {
-			lowest_f_node = open[i];
-		}
-	}
-	return lowest_f_node;
-}
-
-node *get_node_in_list(node **list, int n_list, animation_step pos) {
-	for (int i = 0; i < n_list; i++) {
-		if (list[i]->pos.x == pos.x && list[i]->pos.y == pos.y) {
-			return list[i];
-		}
-	}
-	return NULL;
-}
-
-node *create_node(animation_step pos, float f, float g, float h, node *parent) {
-	node *new_node = malloc(sizeof(node));
-	new_node->pos = pos;
-	new_node->f = f;
-	new_node->g = g;
-	new_node->h = h;
-	new_node->parent = parent;
-	return new_node;
-}
-
-void node_destroy(node *node) {
-	if (node != NULL) {
-		free(node);
-	}
-}
-
-void list_destroy(node **list, int num_list) {
-	for (int i = 0; i < num_list; i++) {
-		node_destroy(list[i]);
-	}
-	if (list != NULL) {
-		free(list);
-	}
 }
 
 animation_sequence calculate_path(node *end_node) {
@@ -129,7 +76,7 @@ animation_step find_nearest_empty_tile(map *map, animation_step pos) {
 	for (unsigned y = 0; y < map->height; y++) {
 		for (unsigned x = 0; x < map->width; x++) {
 			if (map->data[y * map->width + x].type == TILE_EMPTY) {
-				float distance = manhattan_distance((unsigned)pos.x, (unsigned)pos.y, x, y);
+				int distance = manhattan_distance(pos.x, pos.y, (int)x, (int)y);
 				if (distance < min_distance) {
 					min_distance = distance;
 					nearest_empty_tile = (animation_step){(int)x, (int)y};
@@ -151,92 +98,72 @@ animation_sequence search_path(map *map, entity_type ent, animation_step start, 
 		}
 	}
 
-	node *start_node = create_node(start, 0, 0, 0, NULL);
-	node *end_node = create_node(end, 0, 0, 0, NULL);
-	node **open = malloc(sizeof(node *));
-	node **closed = malloc(sizeof(node *));
-	int n_open = 1, n_closed = 0;
-	open[0] = start_node;
+	/* Possible directions. */
+	int dx[] = {0, 0, -1, 1};
+	int dy[] = {-1, 1, 0, 0};
+	int width = map->width;
+	int height = map->height;
 
-	while (n_open > 0) {
 
-		node *current_node = get_lowest_f_node(open, n_open);
+	/* Allocate memory for the visited matrix. */
+	int **visited = calloc(height, sizeof(int *));
+	for (int i = 0; i < height; i++) {
+		visited[i] = calloc(width, sizeof(int));
+	}
 
-		if (current_node->pos.x == end_node->pos.x && current_node->pos.y == end_node->pos.y) {
-			animation_sequence ret = calculate_path(current_node);
+	node start_node;
+	start_node.pos = start;
+	start_node.parent = NULL;
 
-			if (get_node_in_list(open, n_open, end_node->pos) == NULL &&
-			    get_node_in_list(closed, n_closed, end_node->pos) == NULL) node_destroy(end_node);
+	node *queue = malloc(sizeof(node) * width * height);
+	int front = 0, back = 0;
+	queue[back++] = start_node;
+	visited[start.y][start.x] = 1; /* If a node was visited it has the corresponding value to 1. */
 
-			list_destroy(open, n_open);
-			list_destroy(closed, n_closed);
+	animation_sequence path = animation_sequence_create();
 
-			return ret;
+	while (front < back) {
+
+		node current_node = queue[front++];
+		animation_step current_pos = current_node.pos;
+
+		if (current_pos.x == end.x && current_pos.y == end.y) {
+			free(path.steps);
+			path = calculate_path(&current_node);
+			break;
 		}
 
-		if (manhattan_distance(current_node->pos.x, current_node->pos.y, start.x, start.y) > 20) break;
+		if (manhattan_distance(current_pos.x, current_pos.y, start.x, start.y) > PATH_FINDING_MAXIMUM_DISTANCE)
+			break;
 
-		for (int x = -1; x <= 1; x++) {
-			for (int y = -1; y <= 1; y++) {
+		for (int i = 0; i < 4; i++) {
 
-				unsigned new_x = (unsigned)(current_node->pos.x + x);
-				unsigned new_y = (unsigned)(current_node->pos.y + y);
+			int new_x = current_pos.x + dx[i];
+			int new_y = current_pos.y + dy[i];
 
-				animation_step new_pos = {new_x, new_y};
-				node *new = get_node_in_list(closed, n_closed, new_pos);
+			if (new_x >= 0 && new_x < width &&
+				  new_y >= 0 && new_y < height &&
+				  !visited[new_y][new_x] && is_valid_position(map, ent, new_x, new_y)) {
 
-				if ((x == 0 && y == 0) || (x != 0 && y != 0) ||
-				    (!is_valid_position(map, ent, new_x, new_y)) || new != NULL) continue;
+				visited[new_y][new_x] = 1;
 
-				float cost = get_cost(map, ent, current_node->pos, new_pos);
-				float g = current_node->g + cost;
-				node *open_node = get_node_in_list(open, n_open, new_pos);
-				if (open_node == NULL || g < open_node->g) {
-					float h = heuristic(new_x, new_y, end_node->pos.x, end_node->pos.y);
-					float f = g + h;
-					node *new_node = create_node(new_pos, f, g, h, current_node);
-					if (open_node != NULL) {
-						node_destroy(open_node);
-					}
-					else {
-						n_open++;
-						do {
-							open = realloc(open, sizeof(node *) * n_open);
-						} while (open == NULL);
-					}
-					open[n_open - 1] = new_node;
-				}
-			}
-		}
+				node new_node;
+				new_node.pos.x = new_x;
+				new_node.pos.y = new_y;
 
-		n_closed++;
-		do {
-			closed = realloc(closed, sizeof(node *) * n_closed);
-		} while (closed == NULL);
-		closed[n_closed - 1] = current_node;
-
-		for (int i = 0; i < n_open; i++) {
-			if (open[i] == current_node) {
-				for (int j = i; j < n_open - 1; j++) {
-					open[j] = open[j + 1];
-				}
-				n_open--;
-				do {
-					open = realloc(open, sizeof(node *) * n_open);
-				} while (open == NULL);
-				break;
+				new_node.parent = &queue[front - 1];
+				queue[back++] = new_node;
 			}
 		}
 	}
 
-	/* No path found */
+	/* Free memory. */
+	for (int i = 0; i < height; i++) {
+		free(visited[i]);
+	}
+	free(visited);
+	free(queue);
 
-	if (get_node_in_list(open, n_open, end_node->pos) == NULL &&
-	    get_node_in_list(closed, n_closed, end_node->pos) == NULL) node_destroy(end_node);
-
-	list_destroy(open, n_open);
-	list_destroy(closed, n_closed);
-
-	return animation_sequence_create(); /* Empty sequence */
+	return path;
 }
 
