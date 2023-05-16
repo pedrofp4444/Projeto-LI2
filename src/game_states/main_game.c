@@ -143,7 +143,7 @@ game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 				state->action = MAIN_GAME_ANIMATING_PLAYER_MOVEMENT;
 			} else if (state->action == MAIN_GAME_COMBAT_INPUT) {
 				state_main_game_attack_cursor(state, (game_state *) s);
-
+				state->action = MAIN_GAME_ANIMATING_MOBS_MOVEMENT;
 				state_main_game_move_entities(state);
 
 				/* DEBUG purpose - move all entities to the right */
