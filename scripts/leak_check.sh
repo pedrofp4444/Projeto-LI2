@@ -13,6 +13,14 @@ cat <<EOF > /tmp/leak_suppression.supp
 }
 
 {
+	ignore_libtinfo_leaks
+	Memcheck:Leak
+	match-leak-kinds:all
+	...
+	obj:*tinfo*
+}
+
+{
 	ignore_load_deps_leaks
 	Memcheck:Leak
 	match-leak-kinds:all
@@ -23,5 +31,7 @@ cat <<EOF > /tmp/leak_suppression.supp
 EOF
 
 valgrind --leak-check=full --show-leak-kinds=all --leak-resolution=high \
-	--suppressions=/tmp/leak_suppression.supp ./build/roguelite
+	--suppressions=/tmp/leak_suppression.supp --log-file=/tmp/valgrind ./build/roguelite
+
+cat /tmp/valgrind | less
 
