@@ -24,7 +24,7 @@
 #include <entities/goblin.h>
 
 entity entity_create_goblin(unsigned x, unsigned y, int health) {
-	int weapon_index = rand() % 4;
+	int weapon_index = rand() % 3;
 
 	entity goblin = {
 		.x = x,

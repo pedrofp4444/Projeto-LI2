@@ -76,7 +76,6 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
 	switch (attacker->weapon) {
 		/* Simple range-based weapons */
 		case WEAPON_HAND:
-		case WEAPON_LANTERN:
 			return dist <= 2;
 		case WEAPON_DAGGER:
 			return dist <= 5;
@@ -124,7 +123,6 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map) {
 
 		case WEAPON_HAND:
 		case WEAPON_DAGGER:
-		case WEAPON_LANTERN:
 		case WEAPON_IPAD:
 		default:
 			attacker->combat_target = (entity *) attacked;
@@ -135,11 +133,10 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map) {
 #define BOMB_EXPLOSION_LENGTH 4
 
 /** @brief Deals random damage to @p target based on the strength of @w */
-void combat_deal_damage(weapon w, entity *target) {
+void combat_deal_damage(weapon w, entity *target, entity_kill_callback onkill, void *cb_data) {
 	if (target->health > 0) {
 		switch (w) {
 			case WEAPON_HAND:
-			case WEAPON_LANTERN:
 				target->health--;
 				break;
 
@@ -162,6 +159,9 @@ void combat_deal_damage(weapon w, entity *target) {
 
 		/* Check if the entity has been killed to destroy it */
 		if (target->health <= 0) {
+			if (onkill)
+				onkill(target, cb_data);
+
 			animation_sequence_free(target->animation);
 			entity_free_combat_target(target);
 
@@ -172,14 +172,18 @@ void combat_deal_damage(weapon w, entity *target) {
 }
 
 /** @brief Deals random damage to all entities in a location, based on the strength of @p w */
-void combat_deal_damage_position(weapon w, entity_set entities, int x, int y) {
+void combat_deal_damage_position(weapon w, entity_set entities, int x, int y,
+                                 entity_kill_callback onkill, void *cb_data) {
+
 	for (size_t i = 0; i < entities.count; ++i)
 		/* No need to check health >= 0, as combat_deal_damage does that */
 		if (entities.entities[i].x == x && entities.entities[i].y == y)
-			combat_deal_damage(w, &entities.entities[i]);
+			combat_deal_damage(w, &entities.entities[i], onkill, cb_data);
 }
 
-int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index) {
+int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index,
+                            entity_kill_callback onkill, void *cb_data) {
+
 	for (size_t i = 0; i < entity_set.count; ++i) {
 		entity cur = entity_set.entities[i];
 
@@ -194,7 +198,8 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
 			/* Don't attack entities in the middle of the path */
 			if (length != 0 && length - 1 == step_index) {
 				animation_step last = anim.steps[length - 1];
-				combat_deal_damage_position(cur.weapon, all, last.x, last.y);
+				combat_deal_damage_position(cur.weapon, all, last.x, last.y,
+					onkill, cb_data);
 			}
 
 		} else if (cur.weapon == WEAPON_BOMB) {
@@ -204,14 +209,15 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
 			if (step_index == length)
 				for (int y = bomb.y - 1; y <= bomb.y + 1; ++y)
 					for (int x = bomb.x - 1; x <= bomb.x + 1; ++x)
-						combat_deal_damage_position(cur.weapon, all, x, y);
+						combat_deal_damage_position(cur.weapon, all, x, y,
+							onkill, cb_data);
 
-		} else {
-			combat_deal_damage(cur.weapon, cur.combat_target);
+		} else if (step_index == 0) {
+			combat_deal_damage(cur.weapon, cur.combat_target, onkill, cb_data);
 
 		}
 
-		if (length >= step_index - 1)
+		if (length >= step_index)
 			return 0;
 	}
 	return 1;

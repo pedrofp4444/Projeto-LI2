@@ -1,6 +1,6 @@
 /**
- * @file combat_types.c
- * @brief Fuctions for dealing with combat types
+ * @file  leaderboard.h
+ * @brief The game state to show the leaderboard to the player
  */
 
 /*
@@ -19,22 +19,28 @@
  *   limitations under the License.
  */
 
-#include <combat_types.h>
+#ifndef LEADERBOARD_H
+#define LEADERBOARD_H
 
-const char *weapon_get_name(weapon w) {
-	switch (w) {
-		case WEAPON_HAND:
-			return "Hand";
-		case WEAPON_DAGGER:
-			return "Dagger";
-		case WEAPON_ARROW:
-			return "Arrows";
-		case WEAPON_BOMB:
-			return "Bomb";
-		case WEAPON_IPAD:
-			return "iPad";
-		default:
-			return "Unknown";
-	}
-}
+#include <score.h>
+
+/**
+ * @struct state_leaderboard_data
+ * @brief Data for the leaderboard to work
+ *
+ * @var state_leaderboard_data::scores Player scores
+ * @var state_leaderboard_data::needs_rerender If the leaderboard needs to be drawn
+ */
+typedef struct {
+	score_list scores;
+	int needs_rerender;
+} state_leaderboard_data;
+
+/** @brief Creates the leaderboard */
+game_state state_leaderboard_create(void);
+
+/** @brief Destroys the leaderboard state (frees `state->data`) */
+void state_leaderboard_destroy(game_state *state);
+
+#endif
 

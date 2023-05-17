@@ -22,22 +22,46 @@
 #include <map.h>
 #include <combat.h>
 #include <game_states/main_game.h>
+#include <entities_search.h>
 
-void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state) {
+#include <stdlib.h>
+#include <time.h>
+
+void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int distance_x, int distance_y) {
+
+
+	// Pathfinding
+	animation_step start = { .x = mob->x, .y = mob->y };
+	animation_step end = { .x = PLAYER(state).x + distance_x, .y = PLAYER(state).y + distance_y };
+	mob->animation = search_path(&(state->map), mob->type, start, end);
+
+	// Combat
+	animation_step old = { .x = mob->x, .y = mob->y };
+	if (mob->animation.length != 0) {
+		mob->x = mob->animation.steps[mob->animation.length - 1].x;
+		mob->y = mob->animation.steps[mob->animation.length - 1].y;
+	}
+
 	if (combat_can_attack(mob, &PLAYER(state), &state->map)) {
 			combat_attack(mob, &PLAYER(state), &state->map);
 	}
+	mob->x = old.x; mob->y = old.y;
 }
 
 void state_main_game_mobs_run_ai(state_main_game_data *state) {
+
+	int possible_distances[] = {-3, -2, -1, 0, 1, 2, 3};
 
 	for (size_t i = 1; i < state->entities.count; ++i) {
 		entity *ent = state->entities.entities + i;
 		if (ent->health > 0 && ent->x >= 0 && (unsigned) ent->x < state->map.width &&
 		                       ent->y >= 0 && (unsigned) ent->y < state->map.height) {
 
-			if (state->map.data[ent->y * state->map.width + ent->x].light)
-				state_main_game_mob_run_ai(ent, state);
+			if (state->map.data[ent->y * state->map.width + ent->x].light) {
+				int seed_x = rand() % 7;
+				int seed_y = rand() % 7;
+				state_main_game_mob_run_ai(ent, state, possible_distances[seed_x], possible_distances[seed_y]);
+			}
 		}
 	}
 }
