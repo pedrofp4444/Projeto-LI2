@@ -42,7 +42,7 @@
 #define ENTITY_GOBLIN_HEALTH 10
 #define ENTITY_CRISTINO_HEALTH 20
 
-#define STARTER_CIRCLE 5
+#define STARTER_CIRCLE 8
 
 /**
  * @def FOR_GRID_BORDER(row, col, border, data)

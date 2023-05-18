@@ -171,7 +171,7 @@ void state_main_game_draw_tips(state_main_game_action act, const map_window *wnd
 	switch (act) {
 		case MAIN_GAME_MOVEMENT_INPUT:
 			message[0] = "Use the arrow keys to move. Press ENTER to confirm.";
-			message[1] = "Press S to skip movement";
+			message[1] = "Press ESC to clean the path";
 			break;
 		case MAIN_GAME_COMBAT_INPUT:
 			message[0] = "Use the arrow keys to choose a mob. Press ENTER to confirm";
@@ -205,7 +205,7 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	if (width < 80 || height < 24) {
 
 		/* Terminal too small: print invalid layout in the middle */
-		const char * const msg = "Invalid terminal size";
+		const char * const msg = "Invalid terminal size (Please Zoom Out)";
 		int len = strlen(msg);
 		move(height / 2, (width - len) / 2);
 		printw("%s", msg);
