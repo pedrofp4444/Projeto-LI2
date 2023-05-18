@@ -43,7 +43,7 @@ void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int di
 	}
 
 	if (combat_can_attack(mob, &PLAYER(state), &state->map)) {
-			combat_attack(mob, &PLAYER(state), &state->map);
+		combat_attack(mob, &PLAYER(state), &state->map);
 	}
 	mob->x = old.x; mob->y = old.y;
 }
