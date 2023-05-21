@@ -212,7 +212,7 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
 						combat_deal_damage_position(cur.weapon, all, x, y,
 							onkill, cb_data);
 
-		} else {
+		} else if (step_index == 0) {
 			combat_deal_damage(cur.weapon, cur.combat_target, onkill, cb_data);
 
 		}

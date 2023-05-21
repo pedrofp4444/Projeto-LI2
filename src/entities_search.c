@@ -89,7 +89,7 @@ animation_step find_nearest_empty_tile(map *map, animation_step pos) {
 
 animation_sequence search_path(map *map, entity_type ent, animation_step start, animation_step end) {
 
-	if (ent != ENTITY_CRISTINO && map->data[end.y * map->width + end.x].type == TILE_WATER) {
+	if (ent != ENTITY_CRISTINO && (map->data[end.y * map->width + end.x].type == TILE_WATER || map->data[end.y * map->width + end.x].type == TILE_WALL)) {
 		animation_step aux = end;
 		end = find_nearest_empty_tile(map, end);
 		/* TILE_EMPTY not found near */

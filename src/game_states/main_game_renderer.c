@@ -20,6 +20,7 @@
  */
 
 #include <combat.h>
+#include <game_states/main_game_animation.h>
 #include <game_states/main_game_renderer.h>
 #include <game_states/player_action.h>
 #include <stdlib.h>
@@ -170,7 +171,7 @@ void state_main_game_draw_tips(state_main_game_action act, const map_window *wnd
 	switch (act) {
 		case MAIN_GAME_MOVEMENT_INPUT:
 			message[0] = "Use the arrow keys to move. Press ENTER to confirm.";
-			message[1] = "Press S to skip movement";
+			message[1] = "Press ESC to clean the path";
 			break;
 		case MAIN_GAME_COMBAT_INPUT:
 			message[0] = "Use the arrow keys to choose a mob. Press ENTER to confirm";
@@ -204,7 +205,7 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 	if (width < 80 || height < 24) {
 
 		/* Terminal too small: print invalid layout in the middle */
-		const char * const msg = "Invalid terminal size";
+		const char * const msg = "Invalid terminal size (Please Zoom Out)";
 		int len = strlen(msg);
 		move(height / 2, (width - len) / 2);
 		printw("%s", msg);
@@ -237,7 +238,9 @@ game_loop_callback_return_value state_main_game_onrender(void *s, int width, int
 			state->overlay = malloc(wnd.width * wnd.height * sizeof(ncurses_char));
 
 		memset(state->overlay, 0, wnd.width * wnd.height * sizeof(ncurses_char));
-		combat_entity_set_animate(state->entities, state->animation_step, state->overlay,
+		entity_set to_animate = state_main_game_entities_to_animate(state->entities,
+			state->action);
+		combat_entity_set_animate(to_animate, state->animation_step, state->overlay,
 	                                &wnd);
 
 		main_game_render_overlay(state->overlay, width, height);

@@ -52,11 +52,6 @@ void state_main_game_entity_kill_callback(const entity *ent, void *s) {
 	}
 }
 
-/**
- * @brief Choose what entities need to be animated (only the player or all but the player)
- * @details The returned ::entity_set must **not** be freed, as it's defined in relation to @p all
- *          (like a string view, for example).
- */
 entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_action act) {
 	entity_set ret = all;
 

@@ -22,7 +22,15 @@
 #ifndef MAIN_GAME_ANIMATION_H
 #define MAIN_GAME_ANIMATION_H
 
+#include <entities.h>
 #include <game_states/main_game.h>
+
+/**
+ * @brief Choose what entities need to be animated (only the player or all but the player)
+ * @details The returned ::entity_set must **not** be freed, as it's defined in relation to @p all
+ *          (like a string view, for example).
+ */
+entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_action act);
 
 /**
  * @brief Does everything animation related for the main game
