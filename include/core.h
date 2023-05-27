@@ -30,12 +30,21 @@
 	#define INLINE __attribute__((always_inline)) inline
 #endif
 
-/** @brief The maximum of two values */
+/**
+ * @brief The maximum of two values
+ * @author A104348 Humberto Gomes
+ */
 #define max(x, y) (((x) > (y)) ? (x) : (y))
-/** @brief The minimum of two values */
+/**
+ * @brief The minimum of two values
+ * @author A104348 Humberto Gomes
+ */
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
-/** @brief The sign of a value (branchless implementation) */
+/**
+ * @brief The sign of a value (branchless implementation)
+ * @author A104348 Humberto Gomes
+ */
 #define sgn(x) (((x) > 0) - ((x) < 0))
 
 /**
@@ -46,6 +55,8 @@
  *   ncurses' attributes
  * @var ncurses_char::chr
  *   The textual data. On an overlay, it won't be rendered if '\0'.
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int attr;
@@ -68,6 +79,8 @@ typedef struct {
  *   The height of the map window (map and screen dimensions are the same)
  * @var map_window::width
  *   The width of the map window (map and screen dimensions are the same)
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int map_top , map_left;
@@ -78,7 +91,10 @@ typedef struct {
 /* Define the functions if they are inline or in the core.c file (CORE_H_DEFINITIONS) */
 #if defined(CORE_H_DEFINITIONS) || !defined(__NO_INLINE__)
 
-	/** @brief Prints an ::ncurses_char to ::stdscr */
+	/**
+	 * @brief Prints an ::ncurses_char to ::stdscr
+ 	 * @author A104348 Humberto Gomes
+	 */
 	INLINE void ncurses_char_print(ncurses_char chr) {
 		attron(chr.attr);
 		addch(chr.chr);
@@ -97,13 +113,21 @@ typedef struct {
  * @param x2 The X coordinate of the second position.
  * @param y2 The Y coordinate of the second position.
  * @returns The Manhattan distance between the two positions.
+ *
+ * @author A90817 Mariana Rocha
  */
 int manhattan_distance(int x1, int y1, int x2, int y2);
 
-/** @brief Checks if a point (in map coordinates) is inside the visible area */
+/**
+ * @brief Checks if a point (in map coordinates) is inside the visible area
+ * @author A104348 Humberto Gomes
+ */
 int map_window_visible(int x, int y, const map_window *wnd);
 
-/** @brief Converts map coordinates to screen coordinates in a window. */
+/**
+ * @brief Converts map coordinates to screen coordinates in a window.
+ * @author A104348 Humberto Gomes
+ */
 void map_window_to_screen(const map_window *wnd, int mapx, int mapy, int *screenx, int *screeny);
 
 #endif

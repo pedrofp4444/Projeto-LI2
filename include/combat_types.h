@@ -26,6 +26,10 @@
 
 /**
  * @brief Enumerates the types of weapons that can exist in the game.
+ * @author A90817 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 typedef enum {
 	WEAPON_HAND,    /**< Entity's hands */
@@ -36,7 +40,10 @@ typedef enum {
 	WEAPON_INVALID  /**< Only to be used for weapon drop message boxes */
 } weapon;
 
-/** @brief Gets the human-readable name of a weapon */
+/**
+ * @brief Gets the human-readable name of a weapon
+ * @author A104348 Humberto Gomes
+ */
 const char *weapon_get_name(weapon w);
 
 /**
@@ -47,6 +54,8 @@ const char *weapon_get_name(weapon w);
  *   Horizontal position of the bomb
  * @var combat_bomb_info::y
  *   Vertical position of the bomb
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int x, y;
@@ -58,6 +67,8 @@ typedef struct {
  *
  * @var combat_arrow_info::animation
  *   Path of the arrow on the map
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct combat_arrow_info {
 	animation_sequence animation;

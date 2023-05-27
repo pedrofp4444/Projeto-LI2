@@ -28,7 +28,10 @@
 #include <score.h>
 #include <entities.h>
 
-/** @brief Type of action during the game */
+/**
+ * @brief Type of action during the game
+ * @author A104348 Humberto Gomes
+ */
 typedef enum {
 	MAIN_GAME_MOVEMENT_INPUT,            /**< Waiting for user input for the next movement */
 	MAIN_GAME_ANIMATING_PLAYER_MOVEMENT, /**< Animating player movement */
@@ -84,6 +87,11 @@ typedef enum {
  *   Horizontal position (on the map) of the cursor (to choose mob to attack)
  * @var state_main_game_data::cursory
  *   Vertical position (on the map) of the cursor (to choose mob to attack)
+ *
+ * @author A90817 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 typedef struct {
 	int fps_show, fps_count, renders_show, renders_count;
@@ -111,10 +119,17 @@ typedef struct {
 /** @brief Returns the player (first entity) of a ::state_main_game_data pointer */
 #define PLAYER(state) ((state)->entities.entities[0])
 
-/** @brief Creates a state for the main game */
+/**
+ * @brief Creates a state for the main game
+ * @author A104348 Humberto Gomes
+ * @author A90817 Hélder Gomes
+ */
 game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]);
 
-/** @brief Destroys a state for the main game (frees `state->data`) */
+/**
+ * @brief Destroys a state for the main game (frees `state->data`)
+ * @author A104348 Humberto Gomes
+ */
 void state_main_game_destroy(game_state *state);
 
 #endif

@@ -36,6 +36,8 @@
  * @param x The X coordinate of the player.
  * @param y The Y coordinate of the player.
  * @param r The radius of the vision circle
+ *
+ * @author A90817 Hélder Gomes
  */
 void state_main_game_circle_light_map(map m, int x, int y, int r);
 
@@ -46,6 +48,8 @@ void state_main_game_circle_light_map(map m, int x, int y, int r);
  * @param x The X coordinate of the player.
  * @param y The Y coordinate of the player.
  * @param r The radius of the vision circle
+ *
+ * @author A90817 Hélder Gomes
  */
 void state_main_game_circle_clean_light_map(map m, int x, int y, int r);
 

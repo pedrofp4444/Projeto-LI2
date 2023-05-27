@@ -31,6 +31,8 @@
  *   The parent game state
  * @param chosen_button
  *   The button chosen by the user
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef void(*state_msg_box_exit_callback)(void *state, int chosen_button);
 
@@ -54,7 +56,9 @@ typedef void(*state_msg_box_exit_callback)(void *state, int chosen_button);
  * @var state_msg_box_data::parent
  *   The parent game state. Will be switched to when the user clicks a button.
  * @var state_msg_box_data::exit_callback
- *   See ::state_msg_box_exit_callback. Can be `NULL` for no callback.
+ *   See ::state_msg_box_exit_callback. Can be `NULL` for no callback.a
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	char *message;
@@ -87,12 +91,17 @@ typedef struct {
  *   Number of buttons in ::button_count
  * @param default_button
  *   The index of the selected button
+ *
+ * @author A104348 Humberto Gomes
  */
 game_state state_msg_box_create(game_state parent, state_msg_box_exit_callback exit_callback,
                                 const char *msg,
                                 const char **buttons, int button_count, int default_button);
 
-/** @brief Destroys a state for a msg_box (frees `state->data`) */
+/**
+ * @brief Destroys a state for a msg_box (frees `state->data`)
+ * @author A104348 Humberto Gomes
+ */
 void state_msg_box_destroy(game_state *state);
 
 #endif

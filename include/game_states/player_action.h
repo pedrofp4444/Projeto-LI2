@@ -28,6 +28,9 @@
  * @brief Responds to an arrow key to move the player (change its animation for the next turn).
  * @param state Game state
  * @param key   Ncurses' pressed key
+ *
+ * @author A90817 Mariana Rocha
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_move_player(state_main_game_data *state, int key);
 
@@ -35,6 +38,8 @@ void state_main_game_move_player(state_main_game_data *state, int key);
  * @brief Responds to the arrow keys to move the cursor (choose mob to attack)
  * @param state Game state
  * @param key   Ncurses' pressed key
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_move_cursor(state_main_game_data *state, int key);
 
@@ -44,6 +49,8 @@ void state_main_game_move_cursor(state_main_game_data *state, int key);
  *
  * @param state     Main game data
  * @param box_state Game state to be restored after eventual message boxes
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_attack_cursor(state_main_game_data *state, game_state *box_state);
 
@@ -55,6 +62,9 @@ void state_main_game_attack_cursor(state_main_game_data *state, game_state *box_
  *
  * @param state The game state
  * @param wnd The visible map window
+ *
+ * @author A90817 Mariana Rocha
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_draw_player_path(state_main_game_data *state, const map_window *wnd);
 
@@ -63,6 +73,8 @@ void state_main_game_draw_player_path(state_main_game_data *state, const map_win
  *
  * @param state The game state
  * @param wnd The visible map window
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_draw_cursor(state_main_game_data *state, const map_window *wnd);
 

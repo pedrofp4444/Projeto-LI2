@@ -29,6 +29,8 @@
  * @brief Choose what entities need to be animated (only the player or all but the player)
  * @details The returned ::entity_set must **not** be freed, as it's defined in relation to @p all
  *          (like a string view, for example).
+ *
+ * @author A104348 Humberto Gomes
  */
 entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_action act);
 
@@ -38,6 +40,8 @@ entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_a
  *
  * @param state The game state (full game state is needed for possible message boxes)
  * @param elapsed Elapsed time since the last update
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_animate(game_state *state, double elapsed);
 

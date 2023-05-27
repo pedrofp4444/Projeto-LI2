@@ -30,6 +30,8 @@
  * @param attacker The entity that attacks @p attacked
  * @param attacked The entity attacked by @attacker
  * @param map      The map, for arrow-wall collision information
+ *
+ * @author A104348 Humberto Gomes
  */
 animation_sequence combat_arrow_movement
 	(const entity *attacker, const entity *attacked, const map *map) {
@@ -132,7 +134,10 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map) {
 
 #define BOMB_EXPLOSION_LENGTH 4
 
-/** @brief Deals random damage to @p target based on the strength of @w */
+/**
+ * @brief Deals random damage to @p target based on the strength of @w
+ * @author A104348 Humberto Gomes
+ */
 void combat_deal_damage(weapon w, entity *target, entity_kill_callback onkill, void *cb_data) {
 	if (target->health > 0) {
 		switch (w) {
@@ -171,7 +176,10 @@ void combat_deal_damage(weapon w, entity *target, entity_kill_callback onkill, v
 	}
 }
 
-/** @brief Deals random damage to all entities in a location, based on the strength of @p w */
+/**
+ * @brief Deals random damage to all entities in a location, based on the strength of @p w
+ * @author A104348 Humberto Gomes
+ */
 void combat_deal_damage_position(weapon w, entity_set entities, int x, int y,
                                  entity_kill_callback onkill, void *cb_data) {
 
@@ -223,7 +231,10 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
 	return 1;
 }
 
-/* @brief If in-bounds, place a character in map coordinates in the overlay */
+/*
+ * @brief If in-bounds, place a character in map coordinates in the overlay
+ * @author A104348 Humberto Gomes
+ */
 void combat_overlay_write(ncurses_char chr, int x, int y, ncurses_char *overlay,
                           const map_window *wnd) {
 

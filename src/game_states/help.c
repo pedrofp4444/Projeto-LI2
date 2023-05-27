@@ -49,7 +49,10 @@ const char * HELP_TEXT[HELP_TEXT_LINE_COUNT] = {
 	"Cristinos (pink  M): RUN FOR YOUR LIFE"
 }; /**< @brief Text of the buttons on the main menu */
 
-
+/**
+ * @brief Responds to player input in the help screen
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_help_oninput(void *s, int key) {
 	switch (key) {
 		case '\x1b': { /* Escape - return to main menu */
@@ -65,7 +68,10 @@ game_loop_callback_return_value state_help_oninput(void *s, int key) {
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Renders the help message (only if re-rendering is needed) */
+/**
+ * @brief Renders the help message (only if re-rendering is needed)
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_help_onrender(void *s, int width, int height) {
 	state_help_data *state = state_extract_data(state_help_data, s);
 
@@ -103,7 +109,10 @@ game_loop_callback_return_value state_help_onrender(void *s, int width, int heig
 
 
 
-/** @brief Called when the terminal window is resized to request for an help message redraw */
+/**
+ * @brief Called when the terminal window is resized to request for an help message redraw
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_help_onresize(void *s, int width, int height) {
 	(void) width; (void) height;
 

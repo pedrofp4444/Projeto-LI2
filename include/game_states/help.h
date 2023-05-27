@@ -27,15 +27,23 @@
  * @brief Data for the help screen
  *
  * @var state_help_data::needs_rerender If the help message needs to be drawn to the screen
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int needs_rerender;
 } state_help_data;
 
-/** @brief Creates the help screen */
+/**
+ * @brief Creates the help screen
+ * @author A104348 Humberto Gomes
+ */
 game_state state_help_create(void);
 
-/** @brief Destroys the help message state (frees `state->data`) */
+/**
+ * @brief Destroys the help message state (frees `state->data`)
+ * @author A104348 Humberto Gomes
+ */
 void state_help_destroy(game_state* state);
 
 #endif

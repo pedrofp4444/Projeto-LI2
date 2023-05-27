@@ -44,6 +44,8 @@ const char *entity_get_name(entity_type t) {
 /**
  * @brief Frees memory of an entity's combat target and sets it to NULL
  * @details That is done depending on the entity's weapon, that determines the type of the data
+ *
+ * @author A104348 Humberto Gomes
  */
 void entity_free_combat_target(entity *ent) {
 	if (ent->combat_target) {
@@ -88,6 +90,8 @@ void entity_set_free(entity_set entities) {
  * @param dists        The list of distances of each entity to the reference entity
  * @param count        The current number of elements
  * @param can_increase Whether the size of the list can be increased
+ *
+ * @author A104348 Humberto Gomes
  */
 void entity_insert(entity ent, int dist, entity *chg, int *dists, size_t count, int can_increase) {
 	if (can_increase) {
@@ -161,6 +165,11 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
  * @param t The `entity_type` to get the rendering information
  * @return An `ncurses_char` that contains the rendering information for an entity of the given
  *         type.
+ *
+ * @author A90817 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 ncurses_char entity_get_render_info(entity_type t) {
 	ncurses_char ret;

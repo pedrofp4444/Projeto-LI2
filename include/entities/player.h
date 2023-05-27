@@ -32,7 +32,10 @@
  * @param y The y coordinate of the entity on the map
  * @param health The entity health points
  * @return The newly created entity
-*/
+ *
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 entity entity_create_player(unsigned x, unsigned y, int health);
 
 #endif

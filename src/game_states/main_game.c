@@ -38,7 +38,10 @@
 #include <math.h>
 #include <ncurses.h>
 
-/** @brief Is called when the game over message is left */
+/**
+ * @brief Is called when the game over message is left
+ * @author A104348 Humberto Gomes
+ */
 void state_main_game_over_callback(void *s, int button) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
@@ -50,7 +53,10 @@ void state_main_game_over_callback(void *s, int button) {
 	}
 }
 
-/** @brief Shows the game over message */
+/**
+ * @brief Shows the game over message
+ * @author A104348 Humberto Gomes
+ */
 void state_main_game_over(game_state *state) {
 	const char *buttons[2] = { "Leave", "Retry" };
 	game_state msg = state_msg_box_create(*state, state_main_game_over_callback,
@@ -58,6 +64,10 @@ void state_main_game_over(game_state *state) {
 	state_switch(state, &msg, 0);
 }
 
+/**
+ * @brief Is called when the weapon drop message box is l
+ * @author A104348 Humberto Gomes
+ */
 void state_main_drop_weapon_callback(void *s, int button) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
@@ -70,7 +80,10 @@ void state_main_drop_weapon_callback(void *s, int button) {
 	state->dropped_food = 0;
 }
 
-/** @brief Shows a message for the player to choose if they want to pick up a weapon */
+/**
+ * @brief Shows a message for the player to choose if they want to pick up a weapon
+ * @author A104348 Humberto Gomes
+ */
 void state_main_drop_weapon_message(game_state *state) {
 	const char *buttons[2] = { "Leave", "Equip" };
 
@@ -85,7 +98,10 @@ void state_main_drop_weapon_message(game_state *state) {
 
 }
 
-/** @brief Shows a message after a mob drops food */
+/**
+ * @brief Shows a message after a mob drops food
+ * @author A104348 Humberto Gomes
+ */
 void state_main_drop_food_message(game_state *state) {
 	const char *button = "OK";
 	const char *message = "A mob you killed dropped food. Your health was restored.";
@@ -99,7 +115,10 @@ void state_main_drop_food_message(game_state *state) {
 	state_switch(state, &msg, 0);
 }
 
-/** @brief Responds to the passage of time in the game to measure FPS and animate the game */
+/**
+ * @brief Responds to the passage of time in the game to measure FPS and animate the game
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 
@@ -149,7 +168,10 @@ game_loop_callback_return_value state_main_game_onupdate(void *s, double elapsed
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Is called when the exit confimation message box is left */
+/**
+ * @brief Is called when the exit confimation message box is left
+ * @author A104348 Humberto Gomes
+ */
 void state_main_game_msg_box_callback(void *s, int button) {
 	if (button == 1) /* OK button */
 		state_extract_data(state_main_game_data, s)->must_leave = 1;
@@ -163,7 +185,13 @@ void state_main_game_exit_confirmation(game_state *state) {
 	state_switch(state, &msg, 0);
 }
 
-/** @brief Responds to user input in the main game state */
+/**
+ * @brief Responds to user input in the main game state
+ *
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 game_loop_callback_return_value state_main_game_oninput(void *s, int key) {
 	state_main_game_data *state = state_extract_data(state_main_game_data, s);
 

@@ -38,6 +38,8 @@
  *
  * @note This function, even though large, is inlined because it is only called from a single place
  *       in the program (::state_main_game_circle_light_map).
+ *
+ * @author A90817 Hélder Gomes
  */
 INLINE int illumination_check_line_of_sight(int x, int y, int xp, int yp, map m) {
 	/* Check if there is a wall between the player and this position */

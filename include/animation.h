@@ -27,6 +27,8 @@
 /**
  * @brief   An animation step consists of a new position for an object
  * @details Because all steps last for the same time, no time information is needed
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int x, y;
@@ -42,6 +44,8 @@ typedef struct {
  *   The number of animation steps
  * @var animation_sequence::capacity
  *   The maximum number of steps that ::animation_sequence::steps can hold.
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	animation_step *steps;
@@ -50,13 +54,22 @@ typedef struct {
 
 #define ANIMATION_SEQUENCE_STARTING_CAPACITY 16
 
-/** @brief Creates an animation sequence with no steps */
+/**
+ * @brief Creates an animation sequence with no steps
+ * @author A104348 Humberto Gomes
+ */
 animation_sequence animation_sequence_create(void);
 
-/** @brief Frees memory for an ::animation_sequence */
+/**
+ * @brief Frees memory for an ::animation_sequence
+ * @author A104348 Humberto Gomes
+ */
 void animation_sequence_free(animation_sequence s);
 
-/** @brief Adds an ::animation_step to and ::animation_sequence */
+/**
+ * @brief Adds an ::animation_step to and ::animation_sequence
+ * @author A104348 Humberto Gomes
+ */
 void animation_sequence_add_step(animation_sequence *sequence, animation_step add);
 
 #endif

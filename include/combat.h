@@ -31,6 +31,8 @@
  * @brief Function that is called when an entity is killed. Used for scoring purposes
  * @param ent  The entity killed
  * @param data Custom data passed to the callback
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef void (*entity_kill_callback)(const entity *ent, void *data);
 
@@ -43,6 +45,8 @@ typedef void (*entity_kill_callback)(const entity *ent, void *data);
  *   The entity that will be attacked by @p attacker
  * @param map
  *   The game map (for light and collision information)
+ *
+ * @author A104348 Humberto Gomes
  */
 int combat_can_attack(const entity *attacker, const entity *attacked, const map *map);
 
@@ -58,6 +62,8 @@ int combat_can_attack(const entity *attacker, const entity *attacked, const map 
  *   The entity that will be attacked by @p attacker
  * @param map
  *   The game map (for light and collision information)
+ *
+ * @author A104348 Humberto Gomes
  */
 void combat_attack(entity *attacker, const entity *attacked, const map *map);
 
@@ -74,6 +80,9 @@ void combat_attack(entity *attacker, const entity *attacked, const map *map);
  *
  * @return 1 if incrementing @p step_index would cause nothing to happen (end of combat
  *         animations), 0 otherwise.
+ *
+ * @author A104348 Humberto Gomes
+ * @author A104082 Pedro Pereira
  */
 int combat_animation_update(entity_set all, entity_set entity_set, size_t step_index,
                             entity_kill_callback onkill, void *cb_data);
@@ -87,6 +96,8 @@ int combat_animation_update(entity_set all, entity_set entity_set, size_t step_i
  *                   have less than this number of steps, they just won't be animated.
  * @param overlay Overlay on top of the map for animation rendering
  * @param wnd The visible map window
+ *
+ * @author A104348 Humberto Gomes
  */
 void combat_entity_set_animate(entity_set entity_set, size_t step_index, ncurses_char *overlay,
                                const map_window *wnd);
