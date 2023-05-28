@@ -107,8 +107,6 @@ game_loop_callback_return_value state_help_onrender(void *s, int width, int heig
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-
-
 /**
  * @brief Called when the terminal window is resized to request for an help message redraw
  * @author A104348 Humberto Gomes

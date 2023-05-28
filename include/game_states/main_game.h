@@ -88,7 +88,7 @@ typedef enum {
  * @var state_main_game_data::cursory
  *   Vertical position (on the map) of the cursor (to choose mob to attack)
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -122,7 +122,7 @@ typedef struct {
 /**
  * @brief Creates a state for the main game
  * @author A104348 Humberto Gomes
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  */
 game_state state_main_game_create(char name[SCORE_NAME_MAX + 1]);
 

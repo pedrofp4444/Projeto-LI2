@@ -32,7 +32,7 @@
 /**
  * @brief Enumerates the types of the entities that can exist in the game.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -85,7 +85,7 @@ const char *entity_get_name(entity_type t);
  *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
  *   applicable. If `NULL`, it won't be called.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -107,7 +107,7 @@ typedef struct entity {
 
 /*
  * @brief Frees the combat target in an entity and sets it to `NULL`
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -127,7 +127,7 @@ void entity_free_combat_target(entity *ent);
  * @var entity_set::count
  *   Number of entities in the set
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -139,7 +139,7 @@ typedef struct entity_set {
 
 /**
  * @brief Allocates an ::entity_set with @p count entities. Those will be **unitialized**.
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -149,7 +149,7 @@ entity_set entity_set_allocate(size_t count);
 /**
  * @brief Frees memory in an ::entity_set.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -181,7 +181,7 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
  * @param map The game map, for light information
  * @param wnd The visible map window
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira

@@ -26,7 +26,7 @@
 
 /**
  * @brief Enumerates the types of the tiles that can exist in the game.
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -45,7 +45,7 @@ typedef enum {
  * @var tile::light
  *   If the tile is lit up
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -68,7 +68,7 @@ typedef struct {
  *   To access coordinate (x, y), use the expression `data[y * width + x]`.
  *   The array size is `width * height`.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -91,7 +91,7 @@ typedef struct {
  * @returns On error, a map with a `NULL` `data` pointer.
  *          Otherwise, returns a `map` with allocated memory.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -109,7 +109,7 @@ void map_zero(map m);
 
 /*
  * @brief Frees memory allocated in ::map_allocate for @p map
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
@@ -127,7 +127,7 @@ void map_free(map map);
  * @param map The map to render
  * @param wnd The window of the map to be rendered
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira

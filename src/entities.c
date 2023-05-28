@@ -166,7 +166,7 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
  * @return An `ncurses_char` that contains the rendering information for an entity of the given
  *         type.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira

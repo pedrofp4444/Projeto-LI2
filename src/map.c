@@ -36,7 +36,7 @@
  * @param light The illumitation of the current tile
  * @return An `ncurses_char` struct which contains the rendering information for a tile type.
  *
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
