@@ -100,7 +100,7 @@ map map_allocate(unsigned width, unsigned height);
 
 /*
  * @brief Initializes map data to an empty unlit map
- * @author A90817 Hélder Gomes
+ * @author A104100 Hélder Gomes
  * @author A104348 Humberto Gomes
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
