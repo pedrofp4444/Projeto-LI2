@@ -36,7 +36,7 @@
  *
  * @author A90817 Mariana Rocha
  * @author A104100 Hélder Gomes
- * @author A90817 Pedro Pereira
+ * @author A104082 Pedro Pereira
  */
 void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int distance_x, int distance_y) {
 
@@ -65,7 +65,7 @@ void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int di
  *
  * @author A90817 Mariana Rocha
  * @author A104100 Hélder Gomes
- * @author A90817 Pedro Pereira
+ * @author A104082 Pedro Pereira
  */
 void state_main_game_mobs_run_ai(state_main_game_data *state) {
 
