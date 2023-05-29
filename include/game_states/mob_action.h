@@ -28,9 +28,11 @@
  * @brief Animate the mob movement and the attack.
  * @param mob A pointer to the mob
  * @param state A pointer to the main game state data.
+ * @param distance_x The horizontal distance between the mob and the player
+ * @param distance_y The vertical distance between the mob and the player
  *
- * @author A90817 Mariana Rocha
  * @author A104100 Hélder Gomes
+ * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
  */
 void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state);
@@ -39,8 +41,8 @@ void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state);
  * @brief Animate all the visible mobs by the player.
  * @param state A pointer to the main game state data.
  *
- * @author A90817 Mariana Rocha
  * @author A104100 Hélder Gomes
+ * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
  */
 void state_main_game_mobs_run_ai(state_main_game_data *state);

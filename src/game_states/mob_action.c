@@ -27,19 +27,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-/**
- * @brief Animate the mob movement and the attack.
- * @param mob A pointer to the mob
- * @param state A pointer to the main game state data.
- * @param distance_x The horizontal distance between the mob and the player
- * @param distance_y The vertical distance between the mob and the player
- *
- * @author A90817 Mariana Rocha
- * @author A104100 Hélder Gomes
- * @author A104082 Pedro Pereira
- */
-void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int distance_x, int distance_y) {
 
+void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int distance_x, int distance_y) {
 
 	// Pathfinding
 	animation_step start = { .x = mob->x, .y = mob->y };
@@ -59,14 +48,6 @@ void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int di
 	mob->x = old.x; mob->y = old.y;
 }
 
-/**
- * @brief Animate all the visible mobs by the player.
- * @param state A pointer to the main game state data.
- *
- * @author A90817 Mariana Rocha
- * @author A104100 Hélder Gomes
- * @author A104082 Pedro Pereira
- */
 void state_main_game_mobs_run_ai(state_main_game_data *state) {
 
 	int possible_distances[] = {-3, -2, -1, 0, 1, 2, 3};

@@ -51,7 +51,9 @@ typedef struct node {
  * @param y The Y coordinate of the position.
  * @returns 1 if the position is within the map boundaries and not obstructed, 0 otherwise.
  *
+ * @author A104100 Hélder Gomes
  * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y);
 
