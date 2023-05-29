@@ -30,16 +30,24 @@
  *
  * @var state_leaderboard_data::scores Player scores
  * @var state_leaderboard_data::needs_rerender If the leaderboard needs to be drawn
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	score_list scores;
 	int needs_rerender;
 } state_leaderboard_data;
 
-/** @brief Creates the leaderboard */
+/**
+ * @brief Creates the leaderboard
+ * @author A104348 Humberto Gomes
+ */
 game_state state_leaderboard_create(void);
 
-/** @brief Destroys the leaderboard state (frees `state->data`) */
+/**
+ * @brief Destroys the leaderboard state (frees `state->data`)
+ * @author A104348 Humberto Gomes
+ */
 void state_leaderboard_destroy(game_state *state);
 
 #endif

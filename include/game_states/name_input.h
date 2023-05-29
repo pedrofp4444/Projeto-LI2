@@ -30,16 +30,24 @@
  *
  * @var state_name_input_data::needs_rerender If the input needs to be drawn on screen
  * @var state_name_input_data::button The current button chosen by the user
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int needs_rerender;
 	char name[SCORE_NAME_MAX + 1];
 } state_name_input_data;
 
-/** @brief Creates the name input */
+/**
+ * @brief Creates the name input
+ * @author A104348 Humberto Gomes
+ */
 game_state state_name_input_create(void);
 
-/** @brief Destroys a state for the name input (frees `state->data`) */
+/**
+ * @brief Destroys a state for the name input (frees `state->data`)
+ * @author A104348 Humberto Gomes
+ */
 void state_name_input_destroy(game_state *state);
 
 #endif

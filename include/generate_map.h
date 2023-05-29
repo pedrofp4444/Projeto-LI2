@@ -28,8 +28,9 @@
 
 /**
  * @brief Creates a random map with the player, tiles and entities.
- *
  * @param data Data for the main game state.
+ *
+ * @author A104082 Pedro Pereira
  */
 void generate_map_random(state_main_game_data *data);
 

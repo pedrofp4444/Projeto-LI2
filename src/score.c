@@ -39,7 +39,10 @@ int score_from_entity(entity_type t) {
 	}
 }
 
-/** @brief Score list criterion for sorting */
+/**
+ * @brief Score list criterion for sorting
+ * @author A104348 Humberto Gomes
+ */
 int score_list_criterion(const void *a, const void *b) {
 	return ((const player_score *) b)->score - ((const player_score *) a)->score;
 }

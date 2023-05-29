@@ -27,8 +27,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int distance_x, int distance_y) {
 
+void state_main_game_mob_run_ai(entity *mob, state_main_game_data *state, int distance_x, int distance_y) {
 
 	// Pathfinding
 	animation_step start = { .x = mob->x, .y = mob->y };

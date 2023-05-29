@@ -65,6 +65,7 @@
 
 /**
  * @brief Draws the health of an entity on the side bar
+ * @author A104348 Humberto Gomes
  */
 void main_game_render_health(entity ent, int y) {
 	/* Draw centered entity name and weapon */
@@ -91,7 +92,10 @@ void main_game_render_health(entity ent, int y) {
 	addch(']');
 }
 
-/** @brief Renders the sidebar of the main game */
+/**
+ * @brief Renders the sidebar of the main game
+ * @author A104348 Humberto Gomes
+ */
 void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	/* Draw vertical separation line */
 	for (int y = 0; y < height; ++y)
@@ -149,7 +153,10 @@ void main_game_render_sidebar(const state_main_game_data *state, int height) {
 	printw("%s", txt);
 }
 
-/** @brief Renders the overlay on top of the map */
+/**
+ * @brief Renders the overlay on top of the map
+ * @author A104348 Humberto Gomes
+ */
 void main_game_render_overlay(ncurses_char *overlay, int width, int height) {
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width - SIDEBAR_WIDTH; ++x) {
@@ -163,7 +170,11 @@ void main_game_render_overlay(ncurses_char *overlay, int width, int height) {
 	}
 }
 
-/** @brief Draws tips for the player on how to play the game */
+/**
+ * @brief Draws tips for the player on how to play the game
+ * @author A104348 Humberto Gomes
+ * @author A104082 Pedro Pereira
+ */
 void state_main_game_draw_tips(state_main_game_action act, const map_window *wnd) {
 
 	/* Choose tip message */
@@ -270,3 +281,4 @@ game_loop_callback_return_value state_main_game_onresize(void *s, int width, int
 
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
+

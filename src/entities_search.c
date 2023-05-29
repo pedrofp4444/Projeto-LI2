@@ -29,7 +29,8 @@
 #include <math.h>
 #include <ncurses.h>
 
-#define PATH_FINDING_MAXIMUM_DISTANCE 20
+#define PATH_FINDING_MAXIMUM_DISTANCE 20 /**< This constant defines the maximum distance that can
+be considered during path finding.*/
 
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y) {
 	if (x < map->width && y < map->height) {

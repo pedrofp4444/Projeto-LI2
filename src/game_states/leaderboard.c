@@ -32,6 +32,10 @@
 #define LEADERBOARD_HEIGHT (SCORE_LIST_MAX + 6)
 #define LEADERBOARD_WIDTH  (SCORE_NAME_MAX + 20) /**< @brief Width of the leaderboard */
 
+/**
+ * @brief Responds to user input in the leaderboard
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_leaderboard_oninput(void *s, int key) {
 	switch (key) {
 		case '\x1b': { /* Escape - return to main menu */
@@ -47,7 +51,10 @@ game_loop_callback_return_value state_leaderboard_oninput(void *s, int key) {
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Renders the leaderboard (only if re-rendering is needed) */
+/**
+ * @brief Renders the leaderboard (only if re-rendering is needed)
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_leaderboard_onrender(void *s, int width, int height) {
 	state_leaderboard_data *state = state_extract_data(state_leaderboard_data, s);
 
@@ -91,7 +98,10 @@ game_loop_callback_return_value state_leaderboard_onrender(void *s, int width, i
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Called when the terminal window is resized to request for a leaderboard redraw */
+/**
+ * @brief Called when the terminal window is resized to request for a leaderboard redraw
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_leaderboard_onresize(void *s, int width, int height) {
 	(void) width; (void) height;
 

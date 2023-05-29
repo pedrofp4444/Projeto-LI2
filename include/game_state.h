@@ -37,6 +37,8 @@
  *   won't be called.
  * @var game_state::callbacks
  *   See ::game_loop_callbacks.
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct game_state {
 	void *data;
@@ -60,6 +62,8 @@ typedef struct game_state {
  *   The location of the new game state
  * @param destroy
  *   Whether or not the current ::game_state should be destroyed.
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_switch(game_state *current, const game_state *new, int destroy);
 
@@ -70,6 +74,8 @@ void state_switch(game_state *current, const game_state *new, int destroy);
  *          callback functions can be simply switched.
  *
  *          Note that the @p state **will not be destroyed**.
+ *
+ * @author A104348 Humberto Gomes
  */
 int state_game_loop_run(game_state *state, unsigned int fps);
 

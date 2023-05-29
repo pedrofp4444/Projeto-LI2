@@ -32,6 +32,8 @@
  * @param x The x coordinate of the player.
  * @param y The y coordinate of the player.
  * @return 1 if the position is valid, 0 otherwise.
+ *
+ * @author A90817 Mariana Rocha
  */
 int state_main_game_verify_player_position(state_main_game_data *state, int x, int y) {
 	return (x >= 0 && y >= 0 &&
@@ -45,6 +47,8 @@ int state_main_game_verify_player_position(state_main_game_data *state, int x, i
  * @param key The ncurses' key.
  * @param dx A pointer to the variable to store the change in x coordinate.
  * @param dy A pointer to the variable to store the change in y coordinate.
+ *
+ * @author A90817 Mariana Rocha
  */
 void get_dx_dy(int key, int *dx, int *dy) {
 

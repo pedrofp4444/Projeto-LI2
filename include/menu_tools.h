@@ -27,6 +27,8 @@
  * @param button_count The number of buttons
  * @param current      The number of the current button
  * @param advance      How many buttons to advance (e.g.: +1 means next button, -1 previous button)
+ *
+ * @author A104348 Humberto Gomes
  */
 int menu_update_button(int button_count, int current, int advance);
 
@@ -43,6 +45,8 @@ int menu_update_button(int button_count, int current, int advance);
  * @param y      The vertical position of the top-left corner of the box
  * @param width  The width of the box (includes borders)
  * @param height The height of the box (includes borders)
+ *
+ * @author A104348 Humberto Gomes
  */
 void menu_draw_box(int x, int y, int width, int height);
 

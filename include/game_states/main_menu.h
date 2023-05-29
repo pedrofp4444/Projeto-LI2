@@ -28,16 +28,24 @@
  *
  * @var state_main_menu_data::needs_rerender If the main menu needs to be drawn on screen
  * @var state_main_menu_data::button The current button chosen by the user
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	int needs_rerender;
 	int button;
 } state_main_menu_data;
 
-/** @brief Creates the main menu */
+/**
+ * @brief Creates the main menu
+ * @author A104348 Humberto Gomes
+ */
 game_state state_main_menu_create(void);
 
-/** @brief Destroys a state for the main menu (frees `state->data`) */
+/**
+ * @brief Destroys a state for the main menu (frees `state->data`)
+ * @author A104348 Humberto Gomes
+ */
 void state_main_menu_destroy(game_state *state);
 
 #endif

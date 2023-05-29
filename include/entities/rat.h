@@ -32,7 +32,12 @@
  * @param y The y coordinate of the entity on the map
  * @param health The entity health points
  * @return The newly created entity
-*/
+ *
+ * @author A90817 Mariana Rocha
+ * @author A104348 Humberto Gomes
+ * @author A104082 Pedro Pereira
+ * @author A104100 Hélder Gomes
+ */
 entity entity_create_rat(unsigned x, unsigned y, int health);
 
 #endif

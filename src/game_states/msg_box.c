@@ -29,7 +29,10 @@
 
 #define BOX_HEIGHT 7 /**< @brief The height of the message box */
 
-/** @brief Responds to user input in a message box. */
+/**
+ * @brief Responds to user input in a message box.
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
 	state_msg_box_data *state = state_extract_data(state_msg_box_data, s);
 
@@ -71,6 +74,8 @@ game_loop_callback_return_value state_msg_box_oninput(void *s, int key) {
  * @brief Calculates the width of a message box
  * @details The maximum between the length of the message and the size of all buttons is chosen,
  *          to which some padding is added.
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_msg_box_calculate_width(state_msg_box_data *state,
                                    int *buttons_width_out, int *box_width_out) {
@@ -87,7 +92,11 @@ void state_msg_box_calculate_width(state_msg_box_data *state,
 	*box_width_out = ((msg_width > buttons_width) ? msg_width : buttons_width) + 4;
 }
 
-/** @brief Renders a message box (only if re-rendering is needed) */
+/**
+ * @brief Renders a message box (only if re-rendering is needed)
+ *
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_msg_box_onrender(void *s, int width, int height) {
 	state_msg_box_data *state = state_extract_data(state_msg_box_data, s);
 
@@ -136,7 +145,10 @@ game_loop_callback_return_value state_msg_box_onrender(void *s, int width, int h
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Called when the terminal window is resized to request for a message box redraw */
+/**
+ * @brief Called when the terminal window is resized to request for a message box redraw
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_msg_box_onresize(void *s, int width, int height) {
 	(void) width; (void) height;
 

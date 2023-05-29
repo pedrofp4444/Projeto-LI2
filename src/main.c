@@ -23,7 +23,10 @@
 #include <game_states/main_menu.h>
 #include <stdio.h>
 
-/** @brief The entry point for the game */
+/**
+ * @brief The entry point for the game
+ * @author A104348 Humberto Gomes
+ */
 int main(void) {
 	int err = game_loop_init_ncurses();
 	if (err) {

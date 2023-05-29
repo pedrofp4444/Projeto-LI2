@@ -29,7 +29,10 @@
 
 #define SCORE_FILE ".leaderboard" /**< @brief The file where the scores are stored */
 
-/** @brief The score of a player */
+/**
+ * @brief The score of a player
+ * @author A104348 Humberto Gomes
+ */
 typedef struct {
 	char name[SCORE_NAME_MAX + 1];
 	int score;
@@ -43,6 +46,8 @@ typedef struct {
  *
  * @var score_list::names  The names of the players
  * @var score_list::scores The score of each player
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	player_score scores[SCORE_LIST_MAX];
@@ -55,6 +60,8 @@ int score_from_entity(entity_type t);
  * @brief Loads a score list from the disk. Creates a new one if the file doesn't exist.
  * @note The outputted file will be machine and compiler dependent (due to time constraints, we
  *       were unable to define a machine-independent format).
+ *
+ * @author A104348 Humberto Gomes
  */
 void score_list_load(score_list *out);
 
@@ -63,13 +70,21 @@ void score_list_load(score_list *out);
  * @note The outputted file will be machine and compiler dependent (due to time constraints, we
  *       were unable to define a machine-independent format).
  * @details This method can fail without warning, as saving player scores isn't crucial.
+ *
+ * @author A104348 Humberto Gomes
  */
 void score_list_save(const score_list *list);
 
-/** @brief Checks if a score can be inserted in a list (higher than the lowers score) */
+/**
+ * @brief Checks if a score can be inserted in a list (higher than the lowers score)
+ * @author A104348 Humberto Gomes
+ */
 int score_list_can_insert(const score_list *list, int score);
 
-/** @brief Inserts a score into a list */
+/**
+ * @brief Inserts a score into a list
+ * @author A104348 Humberto Gomes
+ */
 void score_list_insert(score_list *list, const player_score *score);
 
 #endif

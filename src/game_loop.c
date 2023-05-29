@@ -30,6 +30,8 @@
 /**
  * @brief A game loop helper function to ignore a given signal.
  * @returns 0 on success, other value on error
+ *
+ * @author A104348 Humberto Gomes
  */
 int game_loop_ignore_signal(int signum) {
 	struct sigaction act = {
@@ -70,6 +72,8 @@ int game_loop_init_ncurses(void) {
  *
  * Be aware of the precision limits of `double`s when dealing with `struct timespec`s far apart
  * in time (not recommended).
+ *
+ * @author A104348 Humberto Gomes
  */
 double timespec_dif(struct timespec start, struct timespec end) {
 	return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1e-9;
@@ -80,6 +84,8 @@ double timespec_dif(struct timespec start, struct timespec end) {
  *
  * @returns The return value of the resize callback in case of a loop exit request. Otherwise,
  *          ::GAME_LOOP_CALLBACK_RETURN_SUCCESS is returned.
+ *
+ * @author A104348 Humberto Gomes
  */
 game_loop_callback_return_value game_loop_window_size(void *state, int *width, int *height,
                                                       game_loop_resize_callback onresize) {
@@ -104,6 +110,8 @@ game_loop_callback_return_value game_loop_window_size(void *state, int *width, i
  *
  * @returns The return value of the input callback in case of a loop exit request. Otherwise,
  *          ::GAME_LOOP_CALLBACK_RETURN_SUCCESS is returned.
+ *
+ * @author A104348 Humberto Gomes
  */
 game_loop_callback_return_value game_loop_handle_input
 	(void *state, game_loop_input_callback oninput) {
@@ -124,6 +132,8 @@ game_loop_callback_return_value game_loop_handle_input
 /**
  * @brief Internal game loop function for sleeping, in order to keep the target fps
  * @returns 0 on success, 1 on error.
+ *
+ * @author A104348 Humberto Gomes
  */
 int game_loop_keep_fps(struct timespec frame_start, double frame_time) {
 	/* Calculate time since the beginning of this frame */
@@ -151,6 +161,8 @@ int game_loop_keep_fps(struct timespec frame_start, double frame_time) {
 /**
  * @brief Helper macro for ::game_loop_run that, based on the return value of a callback,
  *        determines whether to continue looping and the game loop's return value (if needed).
+ *
+ * @author A104348 Humberto Gomes
  */
 #define game_loop_return(val) { \
 	if (val != GAME_LOOP_CALLBACK_RETURN_SUCCESS) \

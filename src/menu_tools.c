@@ -41,6 +41,8 @@ int menu_update_button(int button_count, int current, int advance) {
  *   Y coordinate of the line's topmost point
  * @param height
  *   The height of the line (including + corners)
+ *
+ * @author A104348 Humberto Gomes
  */
 void menu_draw_vertical_line(int x, int y, int height) {
 	for (int i = 0; i < height; ++i) {
@@ -60,6 +62,8 @@ void menu_draw_vertical_line(int x, int y, int height) {
  *   Y coordinate of the line's leftmost point (corner, not rendered)
  * @param width
  *   The width of the line (includes corners)
+ *
+ * @author A104348 Humberto Gomes
  */
 void menu_draw_horizontal_line(int x, int y, int width) {
 	for (int i = 1; i < width - 1; ++i) { /* This loop bounds are for skipping the corners  */

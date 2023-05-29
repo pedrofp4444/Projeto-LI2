@@ -34,6 +34,8 @@
  * @brief Gets called to update the score and handle mob drops when a mob is killed
  * @param ent The entity killed
  * @param s   A ::game_state pointer
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_entity_kill_callback(const entity *ent, void *s) {
 
@@ -76,6 +78,8 @@ entity_set state_main_game_entities_to_animate(entity_set all, state_main_game_a
 /**
  * @brief Calls ::entity_set_animate or ::combat_animation_done depending on @p act
  * @returns The return value of the called function (if the animation is done)
+ *
+ * @author A104348 Humberto Gomes
  */
 int state_main_game_animate_entities(game_state *s, entity_set to_animate,
                                      size_t step_index) {
@@ -103,6 +107,8 @@ int state_main_game_animate_entities(game_state *s, entity_set to_animate,
  * @param act Current action, used to know which type of animation needs to be reset
  * @param cursorx Location of the cursor's horizontal position
  * @param cursory Location of the cursor's vertical position
+ *
+ * @author A104348 Humberto Gomes
  */
 void state_main_game_animation_cleanup(entity_set just_animated, state_main_game_action act,
                                        int *cursorx, int *cursory) {

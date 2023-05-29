@@ -36,6 +36,10 @@
 /** @brief The width of the input content (maximum name size + input box margins) */
 #define INPUT_WIDTH  (32 + 2)
 
+/**
+ * @brief Responds to user input in the name input field
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_name_input_oninput(void *s, int key) {
 	state_name_input_data *state = state_extract_data(state_name_input_data, s);
 
@@ -78,7 +82,10 @@ game_loop_callback_return_value state_name_input_oninput(void *s, int key) {
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Renders the input box (only if re-rendering is needed) */
+/**
+ * @brief Renders the input box (only if re-rendering is needed)
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_name_input_onrender(void *s, int width, int height) {
 	state_name_input_data *state = state_extract_data(state_name_input_data, s);
 
@@ -107,7 +114,10 @@ game_loop_callback_return_value state_name_input_onrender(void *s, int width, in
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Called when the terminal window is resized to request for an input box redraw */
+/**
+ * @brief Called when the terminal window is resized to request for an input box redraw
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_name_input_onresize(void *s, int width, int height) {
 	(void) width; (void) height;
 

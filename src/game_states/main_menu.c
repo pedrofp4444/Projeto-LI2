@@ -39,6 +39,10 @@ const char * MAIN_MENU_BUTTONS[MAIN_MENU_BUTTON_COUNT] = {
 #define MAIN_MENU_HEIGHT (MAIN_MENU_BUTTON_COUNT + 6)
 #define MAIN_MENU_WIDTH 30 /**< @brief Width of the main menu */
 
+/**
+ * @brief Responds to user input in the main menu
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_main_menu_oninput(void *s, int key) {
 	state_main_menu_data *state = state_extract_data(state_main_menu_data, s);
 
@@ -90,7 +94,10 @@ game_loop_callback_return_value state_main_menu_oninput(void *s, int key) {
 
 }
 
-/** @brief Renders the main menu (only if re-rendering is needed) */
+/**
+ * @brief Renders the main menu (only if re-rendering is needed)
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_main_menu_onrender(void *s, int width, int height) {
 	state_main_menu_data *state = state_extract_data(state_main_menu_data, s);
 
@@ -132,7 +139,10 @@ game_loop_callback_return_value state_main_menu_onrender(void *s, int width, int
 	return GAME_LOOP_CALLBACK_RETURN_SUCCESS;
 }
 
-/** @brief Called when the terminal window is resized to request for a menu redraw */
+/**
+ * @brief Called when the terminal window is resized to request for a menu redraw
+ * @author A104348 Humberto Gomes
+ */
 game_loop_callback_return_value state_main_menu_onresize(void *s, int width, int height) {
 	(void) width; (void) height;
 

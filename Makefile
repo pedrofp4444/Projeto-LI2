@@ -26,8 +26,8 @@ DEBUG_CFLAGS    := -g
 RELEASE_CFLAGS  := -O2
 
 OBJDIR          := obj
-BUILDDIR        := build
-EXE_NAME        := roguelite
+BUILDDIR        := .
+EXE_NAME        := jogo
 DOCSDIR         := docs
 
 define Doxyfile
@@ -37,7 +37,7 @@ define Doxyfile
 	EXTRACT_ALL            = YES
 	FILE_PATTERNS          = *.h *.c
 
-	PROJECT_NAME           = $(EXE_NAME)
+	PROJECT_NAME           = roguelite
 	USE_MDFILE_AS_MAINPAGE = README.md
 
 	OUTPUT_DIRECTORY       = $(DOCSDIR)
@@ -78,9 +78,9 @@ $(DOCSDIR): $(SOURCES) $(HEADERS) README.md
 	echo "$$Doxyfile" | doxygen -
 
 clean:
-	@rm -r $(OBJDIR)   > /dev/null 2>&1 ||:
-	@rm -r $(BUILDDIR) > /dev/null 2>&1 ||:
-	@rm -r $(DOCSDIR)  > /dev/null 2>&1 ||:
+	@rm -r $(OBJDIR)            > /dev/null 2>&1 ||:
+	@rm $(BUILDDIR)/$(EXE_NAME) > /dev/null 2>&1 ||:
+	@rm -r $(DOCSDIR)           > /dev/null 2>&1 ||:
 
 # END MAKEFILE RULES
 

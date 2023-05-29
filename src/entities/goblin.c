@@ -23,6 +23,13 @@
 #include <time.h>
 #include <entities/goblin.h>
 
+/**
+ * @brief   Creates a new entity type of type ENTITY_GOBLIN.
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+*/
 entity entity_create_goblin(unsigned x, unsigned y, int health) {
 	int weapon_index = rand() % 3;
 

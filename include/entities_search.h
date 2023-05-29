@@ -34,6 +34,8 @@
  *   The position of the node.
  * @var node::parent
  * 	A pointer to the parent node of this node.
+ *
+ * @author A90817 Mariana Rocha
 */
 typedef struct node {
 	animation_step pos;
@@ -48,6 +50,10 @@ typedef struct node {
  * @param x The X coordinate of the position.
  * @param y The Y coordinate of the position.
  * @returns 1 if the position is within the map boundaries and not obstructed, 0 otherwise.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y);
 
@@ -57,6 +63,8 @@ int is_valid_position(map *map, entity_type ent, unsigned x, unsigned y);
  *
  * @param end_node The final node in the path.
  * @return An animation sequence containing all positions.
+ *
+ * @author A90817 Mariana Rocha
 */
 animation_sequence calculate_path(node *end_node);
 
@@ -66,6 +74,8 @@ animation_sequence calculate_path(node *end_node);
  * @param map Pointer to the map struct.
  * @param pos The position to start searching from.
  * @return The nearest empty tile, or the same position if no empty tile was found.
+ *
+ * @author A90817 Mariana Rocha
 */
 animation_step find_nearest_empty_tile(map *map, animation_step pos);
 
@@ -79,6 +89,8 @@ animation_step find_nearest_empty_tile(map *map, animation_step pos);
  * @param end The ending position of the path.
  * @return An animation sequence representing the path. If no path is found or an error occurs,
  * an empty animation sequence is returned.
+ *
+ * @author A90817 Mariana Rocha
 */
 animation_sequence search_path(map *map, entity_type ent, animation_step start, animation_step end);
 

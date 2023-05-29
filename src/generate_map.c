@@ -53,6 +53,8 @@
  * @param border The number of border rows and columns to ignore at the edges
  *               (see macro definition).
  * @param map Game map
+ *
+ * @author A104082 Pedro Pereira
  */
 #define FOR_GRID_BORDER(row, col, border, map) \
 	for (unsigned row = border; row < map.height - border; row++) \
@@ -68,6 +70,8 @@
  * @param col The column of the center position.
  * @param radius The radius of the search.
  * @param tile The type of tile to be counted.
+ *
+ * @author A104348 Humberto Gomes
  */
 INLINE int radius_count(map map, unsigned row, unsigned col, unsigned radius, tile_type tile) {
 
@@ -101,7 +105,10 @@ INLINE int radius_count(map map, unsigned row, unsigned col, unsigned radius, ti
 	return count;
 }
 
-/** @brief Swaps two maps */
+/**
+ * @brief Swaps two maps
+ * @author A104348 Humberto Gomes
+ */
 void map_swap(map *a, map *b) {
 	map tmp = *a;
 	*a = *b;
@@ -125,6 +132,9 @@ void map_swap(map *a, map *b) {
  *    the empty tile type if it has fewer than @p radius2 wall neighbors or more than radius1 wall
  *    neighbors within a given radius.
  * 3. This process is repeated again, but with a fixed internal radius.
+ *
+ * @author A104082 Pedro Pereira
+ * @author A104348 Humberto Gomes
  */
 void generate_random(map scratch_map, map map, int radius1, int radius2, tile_type tile) {
 	srand(time(NULL));
@@ -176,6 +186,9 @@ void generate_random(map scratch_map, map map, int radius1, int radius2, tile_ty
  * @param map2 The second map.
  * @param result The resulting map, that will be written to.
  * @note @p map1, @p map2 and @p result must have the same dimentions.
+ *
+ * @author A104348 Humberto Gomes
+ * @author A104082 Pedro Pereira
  */
 void intersect_maps(map map1, map map2, map result) {
 
@@ -192,6 +205,8 @@ void intersect_maps(map map1, map map2, map result) {
  * @details This function draws a wall border around the map by setting the corresponding tiles to
  *          the TILE_WALL type.
  * @param map Game map to modify
+ *
+ * @author A104082 Pedro Pereira
  */
 void draw_border(map map) {
 
@@ -214,6 +229,8 @@ void draw_border(map map) {
  * entity and assigns a random type and health value. The entity positions are checked to ensure
  * that they do not overlap with walls or water tiles on the map.
  * @param data A pointer to the game data structure.
+ *
+ * @author A104082 Pedro Pereira
  */
 void entity_spawn(state_main_game_data *data){
 
@@ -240,6 +257,8 @@ void entity_spawn(state_main_game_data *data){
 /**
  * @brief Spawns the player entity and opens a safe starting area on the map.
  * @param data Pointer to the main game state data.
+ *
+ * @author A104082 Pedro Pereira
  */
 void player_spawn(state_main_game_data *data){
 

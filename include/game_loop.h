@@ -25,6 +25,7 @@
 /**
  * @brief The return value of game loop callback functions. Indicates whether or to continue the
  *        game loop.
+ * @author A104348 Humberto Gomes
  */
 typedef enum {
 	GAME_LOOP_CALLBACK_RETURN_SUCCESS, /**< Continue the game loop */
@@ -38,6 +39,8 @@ typedef enum {
  *
  * @param state The game state
  * @param key   Refers to a key resulting from `getch()`
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef game_loop_callback_return_value(*game_loop_input_callback)(void *state, int key);
 
@@ -46,6 +49,8 @@ typedef game_loop_callback_return_value(*game_loop_input_callback)(void *state, 
  *
  * @param state   The game state
  * @param elapsed Elapsed time **in seconds** since the last frame
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef game_loop_callback_return_value(*game_loop_update_callback)(void *state, double elapsed);
 
@@ -55,6 +60,8 @@ typedef game_loop_callback_return_value(*game_loop_update_callback)(void *state,
  * @param state  The game state
  * @param width  The width of the terminal window
  * @param height The height of the terminal window
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef game_loop_callback_return_value(*game_loop_render_callback)
 	(void *state, int width, int height);
@@ -67,6 +74,8 @@ typedef game_loop_callback_return_value(*game_loop_render_callback)
  * @param state  The game state
  * @param width  The width of the terminal window
  * @param height The height of the terminal window
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef game_loop_callback_return_value(*game_loop_resize_callback)
 	(void *state, int width, int height);
@@ -85,6 +94,8 @@ typedef game_loop_callback_return_value(*game_loop_resize_callback)
  *   See ::game_loop_render_callback.
  * @var game_loop_callbacks::onresize
  *   See ::game_loop_resize_callback.
+ *
+ * @author A104348 Humberto Gomes
  */
 typedef struct {
 	game_loop_input_callback  oninput;
@@ -102,6 +113,8 @@ typedef struct {
  * 1. Initialize ncurses and set the terminal mode;
  * 2. Configure the program to ignore `SIGINT`, `SIGSTOP` and `SIGTERM`;
  * 3. Create 8 color pairs (indices 1 to 8) for every ncurses `COLOR_*`.
+ *
+ * @author A104348 Humberto Gomes
  */
 int game_loop_init_ncurses(void);
 
@@ -122,12 +135,16 @@ int game_loop_init_ncurses(void);
  *
  * If any callback returns ::GAME_LOOP_CALLBACK_RETURN_BREAK or ::GAME_LOOP_CALLBACK_RETURN_BREAK,
  * the loop is exited immediately.
+ *
+ * @author A104348 Humberto Gomes
  */
 int game_loop_run(void *state, game_loop_callbacks *callbacks, unsigned int fps);
 
 /**
  * @brief Terminate ncurses usage (reset terminal to canonical mode)
  * @returns 0 on success, 1 on failure
+ *
+ * @author A104348 Humberto Gomes
  */
 int game_loop_terminate_ncurses(void);
 

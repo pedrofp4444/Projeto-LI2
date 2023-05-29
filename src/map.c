@@ -35,6 +35,11 @@
  * @param t The `tile_type` to get the rendering information
  * @param light The illumitation of the current tile
  * @return An `ncurses_char` struct which contains the rendering information for a tile type.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 ncurses_char tile_get_render_info(tile_type t, int light) {
 	ncurses_char ret;

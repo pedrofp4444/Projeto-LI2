@@ -23,6 +23,12 @@
 #include <time.h>
 #include <entities/cristino.h>
 
+/**
+ * @brief   Creates a new entity type of type ENTITY_CRISTINO.
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ * @author A104100 Hélder Gomes
+*/
 entity entity_create_cristino(unsigned x, unsigned y, int health) {
 	int weapon_index = rand() % 5;
 

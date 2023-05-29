@@ -37,6 +37,9 @@
  *   Width of the terminal window
  * @param height
  *   Height of the terminal window
+ *
+ * @author A104348 Humberto Gomes
+ * @author A104082 Pedro Pereira
  */
 game_loop_callback_return_value state_main_game_onrender(void *state, int width, int height);
 
@@ -50,6 +53,8 @@ game_loop_callback_return_value state_main_game_onrender(void *state, int width,
  *   Width of the terminal window
  * @param height
  *   Height of the terminal window
+ *
+ * @author A104348 Humberto Gomes
  */
 game_loop_callback_return_value state_main_game_onresize(void *state, int width, int height);
 

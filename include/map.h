@@ -26,8 +26,11 @@
 
 /**
  * @brief Enumerates the types of the tiles that can exist in the game.
-*/
-
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 typedef enum {
 	TILE_EMPTY, /**< An empty space */
 	TILE_WALL,  /**< A wall tile */
@@ -41,7 +44,12 @@ typedef enum {
  *   The type of the tile
  * @var tile::light
  *   If the tile is lit up
-*/
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 typedef struct {
 	tile_type type;
 	int light;
@@ -59,6 +67,11 @@ typedef struct {
  *   which is dynamically alocated and stores the tile data for the map.
  *   To access coordinate (x, y), use the expression `data[y * width + x]`.
  *   The array size is `width * height`.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 typedef struct {
 	unsigned width;
@@ -77,13 +90,30 @@ typedef struct {
  * @param height The height of the map in the tiles
  * @returns On error, a map with a `NULL` `data` pointer.
  *          Otherwise, returns a `map` with allocated memory.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 map map_allocate(unsigned width, unsigned height);
 
-/* @brief Initializes map data to an empty unlit map */
+/*
+ * @brief Initializes map data to an empty unlit map
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 void map_zero(map m);
 
-/* @brief Frees memory allocated in ::map_allocate for @p map */
+/*
+ * @brief Frees memory allocated in ::map_allocate for @p map
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 void map_free(map map);
 
 /**
@@ -96,6 +126,11 @@ void map_free(map map);
  *
  * @param map The map to render
  * @param wnd The window of the map to be rendered
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 void map_render(map map, const map_window *wnd);
 

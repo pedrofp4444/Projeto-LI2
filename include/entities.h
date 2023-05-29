@@ -31,6 +31,11 @@
 
 /**
  * @brief Enumerates the types of the entities that can exist in the game.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 typedef enum {
 	ENTITY_PLAYER,   /**< The player */
@@ -39,7 +44,10 @@ typedef enum {
 	ENTITY_CRISTINO, /**< A mob of high difficulty */
 } entity_type;
 
-/** @brief Gets the human-readable name of an entity type */
+/**
+ * @brief Gets the human-readable name of an entity type
+ * @author A104348 Humberto Gomes
+ */
 const char *entity_get_name(entity_type t);
 
 /**
@@ -76,6 +84,11 @@ const char *entity_get_name(entity_type t);
  * @var entity::destroy
  *   Callback function to the destroy the entity (like in OOP). Must free ::entity::data, if
  *   applicable. If `NULL`, it won't be called.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 typedef struct entity {
 	int x, y;
@@ -92,7 +105,13 @@ typedef struct entity {
 	void (*destroy)(struct entity *ent);
 } entity;
 
-/* @brief Frees the combat target in an entity and sets it to `NULL` */
+/*
+ * @brief Frees the combat target in an entity and sets it to `NULL`
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 void entity_free_combat_target(entity *ent);
 
 /**
@@ -107,16 +126,34 @@ void entity_free_combat_target(entity *ent);
  *   Pointer to the contiguous list of entities.
  * @var entity_set::count
  *   Number of entities in the set
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 typedef struct entity_set {
 	entity *entities;
 	size_t count;
 } entity_set;
 
-/** @brief Allocates an ::entity_set with @p count entities. Those will be **unitialized**. */
+/**
+ * @brief Allocates an ::entity_set with @p count entities. Those will be **unitialized**.
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 entity_set entity_set_allocate(size_t count);
 
-/** @brief Frees memory in an ::entity_set. */
+/**
+ * @brief Frees memory in an ::entity_set.
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ */
 void entity_set_free(entity_set entities);
 
 /**
@@ -128,6 +165,8 @@ void entity_set_free(entity_set entities);
  * @param map If not `NULL`, only visible entities will be added to @p out
  *
  * @return A set with **a maximum of** @p max_count entities ordered by distance to @p ent.
+ *
+ * @author A104348 Humberto Gomes
  */
 entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const map *map);
 
@@ -141,6 +180,11 @@ entity_set entity_get_closeby(entity ent, entity_set in, size_t max_count, const
  * @param entity_set A linked list of entities to render
  * @param map The game map, for light information
  * @param wnd The visible map window
+ *
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
  */
 void entity_set_render(entity_set entity_set, map map, const map_window *wnd);
 
@@ -154,6 +198,8 @@ void entity_set_render(entity_set entity_set, map map, const map_window *wnd);
  * @return 1 if incrementing @p step_index would cause no entity to be moved (all entities would
  *         have shorter animation lengths than @p step_index, there is no need to continue looping
  *         through indices), 0 otherwise.
+ *
+ * @author A104348 Humberto Gomes
  */
 int entity_set_animate(entity_set entity_set, size_t step_index);
 
