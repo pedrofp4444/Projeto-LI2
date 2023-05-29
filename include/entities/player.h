@@ -35,6 +35,7 @@
  *
  * @author A90817 Mariana Rocha
  * @author A104082 Pedro Pereira
+ * @author A104100 Hélder Gomes
  */
 entity entity_create_player(unsigned x, unsigned y, int health);
 

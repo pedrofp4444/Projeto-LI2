@@ -22,6 +22,13 @@
 #include <stdlib.h>
 #include <entities/rat.h>
 
+/**
+ * @brief   Creates a new entity type of type ENTITY_RAT.
+ * @author A90817 Mariana Rocha
+ * @author A104082 Pedro Pereira
+ * @author A104100 Hélder Gomes
+ * @author A104348 Humberto Gomes
+*/
 entity entity_create_rat(unsigned x, unsigned y, int health) {
 	entity rat = {
 		.x = x,

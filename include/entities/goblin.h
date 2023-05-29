@@ -36,6 +36,8 @@
  *
  * @author A90817 Mariana Rocha
  * @author A104348 Humberto Gomes
+ * @author A104100 Hélder Gomes
+ * @author A104086 Pedro Pereira
  */
 entity entity_create_goblin(unsigned x, unsigned y, int health);
 
