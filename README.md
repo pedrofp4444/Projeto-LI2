@@ -1,5 +1,7 @@
 # Roguelite
 
+## Grade: 19/20 :star:
+
 An under-development [ncurses](https://invisible-island.net/ncurses/) roguelite game, made for
 our [LI2](https://www4.di.uminho.pt/~jno/sitedi/uc_J302N6.html) class. It is licensed under the
 [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
