@@ -31,7 +31,7 @@ cat <<EOF > /tmp/leak_suppression.supp
 EOF
 
 valgrind --leak-check=full --show-leak-kinds=all --leak-resolution=high \
-	--suppressions=/tmp/leak_suppression.supp --log-file=/tmp/valgrind ./build/roguelite
+	--suppressions=/tmp/leak_suppression.supp --log-file=/tmp/valgrind ./jogo
 
 cat /tmp/valgrind | less
 
