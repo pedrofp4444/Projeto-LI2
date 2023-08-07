@@ -33,6 +33,7 @@ DOCSDIR         := docs
 define Doxyfile
 
 	INPUT                  = include src README.md
+	IMAGE_PATH             = .
 	RECURSIVE              = YES
 	EXTRACT_ALL            = YES
 	FILE_PATTERNS          = *.h *.c
